@@ -3,12 +3,12 @@ import { ArrowLeft, Shuffle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Layout from '@/components/layout/Layout';
 import VerseCard from '@/components/verse/VerseCard';
-import { getVerseById, getVersesByChallenge } from '@/data/verses';
+import { curatedVersesMap, getCuratedVersesByChallenge } from '@/data/curatedVerses';
 import { getChallengeById } from '@/data/challenges';
 
 const VerseDetail = () => {
   const { id } = useParams<{ id: string }>();
-  const verse = id ? getVerseById(id) : undefined;
+  const verse = id ? curatedVersesMap.get(id) : undefined;
 
   if (!verse) {
     return (
@@ -30,7 +30,7 @@ const VerseDetail = () => {
 
   // Get a random related verse from the same challenge
   const primaryChallenge = verse.challenges[0];
-  const relatedVerses = getVersesByChallenge(primaryChallenge).filter(
+  const relatedVerses = getCuratedVersesByChallenge(primaryChallenge).filter(
     (v) => v.id !== verse.id
   );
   const randomRelated = relatedVerses[Math.floor(Math.random() * relatedVerses.length)];

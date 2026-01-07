@@ -4,12 +4,12 @@ import { Button } from '@/components/ui/button';
 import Layout from '@/components/layout/Layout';
 import VerseListItem from '@/components/verse/VerseListItem';
 import { useUser } from '@/contexts/UserContext';
-import { getVerseById } from '@/data/verses';
+import { curatedVersesMap } from '@/data/curatedVerses';
 
 const Favorites = () => {
   const { favorites } = useUser();
   const savedVerses = favorites
-    .map((id) => getVerseById(id))
+    .map((id) => curatedVersesMap.get(id))
     .filter(Boolean);
 
   return (
