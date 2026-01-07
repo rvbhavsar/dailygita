@@ -155,7 +155,7 @@ const Browse = () => {
             <span className="ml-2 text-muted-foreground">Loading the Gita...</span>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="flex flex-col gap-3">
             {filteredVerses.length > 0 ? (
               filteredVerses.slice(0, 50).map((verse) => {
                 const verseId = `${verse.chapter_number}-${verse.verse_number}`;
