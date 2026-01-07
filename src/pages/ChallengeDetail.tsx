@@ -3,13 +3,13 @@ import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Layout from '@/components/layout/Layout';
 import VerseListItem from '@/components/verse/VerseListItem';
-import { getVersesByChallenge } from '@/data/verses';
+import { getCuratedVersesByChallenge } from '@/data/curatedVerses';
 import { getChallengeById } from '@/data/challenges';
 
 const ChallengeDetail = () => {
   const { id } = useParams<{ id: string }>();
   const challenge = id ? getChallengeById(id) : undefined;
-  const verses = id ? getVersesByChallenge(id as any) : [];
+  const verses = id ? getCuratedVersesByChallenge(id as any) : [];
 
   if (!challenge) {
     return (

@@ -1,5 +1,5 @@
 import { useUser } from '@/contexts/UserContext';
-import { getDailyVerse } from '@/data/verses';
+import { getDailyVerse } from '@/data/curatedVerses';
 import Layout from '@/components/layout/Layout';
 import VerseCard from '@/components/verse/VerseCard';
 
