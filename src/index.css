@@ -11,143 +11,136 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 96%;
-    --foreground: 0 0% 9%;
+    /* Bhagavad Gita inspired - Warm cream/ivory background with saffron & gold accents */
+    --background: 40 40% 96%;
+    --foreground: 25 30% 15%;
 
-    --card: 0 0% 98%;
-    --card-foreground: 0 0% 9%;
+    --card: 40 50% 98%;
+    --card-foreground: 25 30% 15%;
 
-    --popover: 0 0% 89%;
-    --popover-foreground: 0 0% 9%;
+    --popover: 40 35% 92%;
+    --popover-foreground: 25 30% 15%;
 
-    --primary: 20 90% 48%;
-    --primary-foreground: 33 100% 96%;
+    /* Saffron/Orange - Sacred spiritual color */
+    --primary: 25 85% 50%;
+    --primary-foreground: 40 60% 98%;
 
-    --secondary: 0 0% 32%;
-    --secondary-foreground: 0 0% 98%;
+    /* Deep maroon - Ancient manuscript color */
+    --secondary: 350 45% 30%;
+    --secondary-foreground: 40 60% 98%;
 
-    --muted: 0 0% 63%;
-    --muted-foreground: 0 0% 9%;
+    /* Warm muted tones */
+    --muted: 35 20% 70%;
+    --muted-foreground: 25 25% 35%;
 
-    --accent: 47 100% 96%;
-    --accent-foreground: 37 92% 50%;
+    /* Gold accent - Divine, sacred */
+    --accent: 43 80% 55%;
+    --accent-foreground: 25 40% 15%;
 
     --destructive: 0 72% 50%;
     --destructive-foreground: 0 85% 97%;
 
-    --border: 0 0% 83%;
-    --input: 0 0% 83%;
-    --ring: 20 90% 48%;
+    /* Warm golden borders */
+    --border: 35 25% 80%;
+    --input: 35 25% 80%;
+    --ring: 25 85% 50%;
 
     --radius: 0.75rem;
 
-    --sidebar-background: 0 0% 98%;
+    --sidebar-background: 40 50% 98%;
+    --sidebar-foreground: 25 30% 15%;
+    --sidebar-primary: 25 85% 50%;
+    --sidebar-primary-foreground: 40 60% 98%;
+    --sidebar-accent: 43 80% 55%;
+    --sidebar-accent-foreground: 25 40% 15%;
+    --sidebar-border: 35 25% 80%;
+    --sidebar-ring: 25 85% 50%;
 
-    --sidebar-foreground: 0 0% 9%;
+    /* Warm earthy chart colors */
+    --chart-1: 25 85% 50%;
+    --chart-2: 43 80% 55%;
+    --chart-3: 350 45% 40%;
+    --chart-4: 200 60% 40%;
+    --chart-5: 35 30% 50%;
 
-    --sidebar-primary: 20 90% 48%;
-
-    --sidebar-primary-foreground: 33 100% 96%;
-
-    --sidebar-accent: 0 0% 32%;
-
-    --sidebar-accent-foreground: 0 0% 98%;
-
-    --sidebar-border: 0 0% 83%;
-
-    --sidebar-ring: 20 90% 48%;
-
-    --chart-1: 27 95% 60%;
-
-    --chart-2: 43 96% 56%;
-
-    --chart-3: 47 95% 53%;
-
-    --chart-4: 24 94% 53%;
-
-    --chart-5: 0 0% 45%;
-
-    --sidebar: 0 0% 98%;
+    --sidebar: 40 50% 98%;
 
     --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
-
     --font-serif: 'Playfair Display', ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
-
     --font-mono: 'Roboto Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
-    
     --font-sanskrit: 'Noto Sans Devanagari', 'Arial Unicode MS', sans-serif;
 
-    --shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
-
-    --shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
-
-    --shadow-sm: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
-
-    --shadow: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
-
-    --shadow-md: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 2px 4px -1px hsl(0 0% 0% / 0.1);
-
-    --shadow-lg: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 4px 6px -1px hsl(0 0% 0% / 0.1);
-
-    --shadow-xl: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 8px 10px -1px hsl(0 0% 0% / 0.1);
-
-    --shadow-2xl: 0 1px 3px 0px hsl(0 0% 0% / 0.25);
+    --shadow-2xs: 0 1px 3px 0px hsl(25 30% 20% / 0.05);
+    --shadow-xs: 0 1px 3px 0px hsl(25 30% 20% / 0.05);
+    --shadow-sm: 0 1px 3px 0px hsl(25 30% 20% / 0.08), 0 1px 2px -1px hsl(25 30% 20% / 0.08);
+    --shadow: 0 1px 3px 0px hsl(25 30% 20% / 0.1), 0 1px 2px -1px hsl(25 30% 20% / 0.1);
+    --shadow-md: 0 1px 3px 0px hsl(25 30% 20% / 0.1), 0 2px 4px -1px hsl(25 30% 20% / 0.1);
+    --shadow-lg: 0 1px 3px 0px hsl(25 30% 20% / 0.1), 0 4px 6px -1px hsl(25 30% 20% / 0.1);
+    --shadow-xl: 0 1px 3px 0px hsl(25 30% 20% / 0.1), 0 8px 10px -1px hsl(25 30% 20% / 0.1);
+    --shadow-2xl: 0 1px 3px 0px hsl(25 30% 20% / 0.2);
 
     --tracking-normal: 0em;
-
     --spacing: 0.25rem;
   }
 
   .dark {
-    --background: 0 0% 9%;
-    --foreground: 0 0% 98%;
+    /* Dark mode - Deep Krishna blue with golden accents */
+    --background: 220 30% 10%;
+    --foreground: 40 30% 92%;
 
-    --card: 0 0% 14%;
-    --card-foreground: 0 0% 98%;
+    --card: 220 25% 14%;
+    --card-foreground: 40 30% 92%;
 
-    --popover: 0 0% 25%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 220 20% 18%;
+    --popover-foreground: 40 30% 92%;
 
-    --primary: 27 95% 60%;
-    --primary-foreground: 12 81% 14%;
+    /* Golden saffron for dark mode */
+    --primary: 35 90% 55%;
+    --primary-foreground: 220 30% 10%;
 
-    --secondary: 0 0% 45%;
-    --secondary-foreground: 0 0% 98%;
+    /* Deep maroon */
+    --secondary: 350 40% 45%;
+    --secondary-foreground: 40 30% 95%;
 
-    --muted: 0 0% 45%;
-    --muted-foreground: 0 0% 98%;
+    --muted: 220 15% 35%;
+    --muted-foreground: 40 20% 75%;
 
-    --accent: 20 91% 14%;
-    --accent-foreground: 43 96% 56%;
+    /* Gold accent */
+    --accent: 43 85% 60%;
+    --accent-foreground: 220 30% 10%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 85% 97%;
 
-    --border: 0 0% 32%;
-    --input: 0 0% 32%;
-    --ring: 27 95% 60%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 27 95% 60%;
-    --sidebar-primary-foreground: 12 81% 14%;
-    --sidebar-accent: 43 96% 56%;
-    --sidebar-accent-foreground: 20 91% 14%;
-    --sidebar-border: 0 0% 32%;
-    --sidebar-ring: 27 95% 60%;
-    --chart-1: 30 97% 72%;
-    --chart-2: 45 96% 64%;
-    --chart-3: 48 96% 76%;
-    --chart-4: 27 95% 60%;
-    --chart-5: 0 0% 45%;
-    --sidebar: 0 0% 14%;
-    --shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
-    --shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
-    --shadow-sm: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
-    --shadow: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
-    --shadow-md: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 2px 4px -1px hsl(0 0% 0% / 0.1);
-    --shadow-lg: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 4px 6px -1px hsl(0 0% 0% / 0.1);
-    --shadow-xl: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 8px 10px -1px hsl(0 0% 0% / 0.1);
-    --shadow-2xl: 0 1px 3px 0px hsl(0 0% 0% / 0.25);
+    --border: 220 20% 25%;
+    --input: 220 20% 25%;
+    --ring: 35 90% 55%;
+
+    --sidebar-background: 220 25% 12%;
+    --sidebar-foreground: 40 30% 92%;
+    --sidebar-primary: 35 90% 55%;
+    --sidebar-primary-foreground: 220 30% 10%;
+    --sidebar-accent: 43 85% 60%;
+    --sidebar-accent-foreground: 220 30% 10%;
+    --sidebar-border: 220 20% 25%;
+    --sidebar-ring: 35 90% 55%;
+
+    --chart-1: 35 90% 55%;
+    --chart-2: 43 85% 60%;
+    --chart-3: 350 50% 55%;
+    --chart-4: 200 70% 50%;
+    --chart-5: 40 25% 50%;
+
+    --sidebar: 220 25% 14%;
+
+    --shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.1);
+    --shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.1);
+    --shadow-sm: 0 1px 3px 0px hsl(0 0% 0% / 0.15), 0 1px 2px -1px hsl(0 0% 0% / 0.15);
+    --shadow: 0 1px 3px 0px hsl(0 0% 0% / 0.2), 0 1px 2px -1px hsl(0 0% 0% / 0.2);
+    --shadow-md: 0 1px 3px 0px hsl(0 0% 0% / 0.2), 0 2px 4px -1px hsl(0 0% 0% / 0.2);
+    --shadow-lg: 0 1px 3px 0px hsl(0 0% 0% / 0.2), 0 4px 6px -1px hsl(0 0% 0% / 0.2);
+    --shadow-xl: 0 1px 3px 0px hsl(0 0% 0% / 0.2), 0 8px 10px -1px hsl(0 0% 0% / 0.2);
+    --shadow-2xl: 0 1px 3px 0px hsl(0 0% 0% / 0.35);
   }
 }
 
