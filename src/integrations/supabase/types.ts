@@ -89,6 +89,42 @@ export type Database = {
         }
         Relationships: []
       }
+      saved_insights: {
+        Row: {
+          challenge_id: string | null
+          chapter_number: number
+          created_at: string
+          description: string
+          id: string
+          title: string
+          user_id: string
+          verse_id: string
+          verse_number: number
+        }
+        Insert: {
+          challenge_id?: string | null
+          chapter_number: number
+          created_at?: string
+          description: string
+          id?: string
+          title: string
+          user_id: string
+          verse_id: string
+          verse_number: number
+        }
+        Update: {
+          challenge_id?: string | null
+          chapter_number?: number
+          created_at?: string
+          description?: string
+          id?: string
+          title?: string
+          user_id?: string
+          verse_id?: string
+          verse_number?: number
+        }
+        Relationships: []
+      }
       translations: {
         Row: {
           author_name: string
