@@ -1,14 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Clock, ChevronRight, Sparkles, Shuffle, ThumbsUp, ThumbsDown, Loader2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { getTimeUntilNextVerse, getCuratedVersesByChallenge, curatedVerses } from '@/data/curatedVerses';
-import { challenges as challengeData } from '@/data/challenges';
+import { getTimeUntilNextVerse, getCuratedVersesByChallenge } from '@/data/curatedVerses';
+import { challenges as challengeData, getChallengeById } from '@/data/challenges';
 import Layout from '@/components/layout/Layout';
+import VerseCard from '@/components/verse/VerseCard';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Challenge } from '@/types';
+import { Challenge, VerseWithInsights } from '@/types';
 import { useDailyVerse } from '@/hooks/useDailyVerse';
 import { useVerseFeedback } from '@/hooks/useVerseFeedback';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -39,6 +40,34 @@ const Home = () => {
     month: 'long',
     day: 'numeric',
   });
+
+  // Convert DB verse to VerseWithInsights format for VerseCard
+  const formattedVerse: VerseWithInsights | null = useMemo(() => {
+    if (!dailyVerse?.verse) return null;
+    
+    const verseId = `${dailyVerse.verse.chapter_number}-${dailyVerse.verse.verse_number}`;
+    const challengesList = (dailyVerse.challenges || []) as Challenge[];
+    
+    return {
+      id: verseId,
+      chapter: dailyVerse.verse.chapter_number,
+      verse: dailyVerse.verse.verse_number,
+      sanskrit: dailyVerse.verse.text,
+      english: dailyVerse.translation || '',
+      challenges: challengesList,
+      insight: {
+        verseId,
+        explanation: dailyVerse.aiSummary || 'Reflect on this ancient wisdom and how it applies to your life today.',
+        takeaway: dailyVerse.aiSummary ? 'Let this wisdom guide your day.' : 'Take a moment to contemplate this verse.',
+      },
+      examples: challengesList.length > 0 ? [{
+        verseId,
+        challenge: challengesList[0],
+        title: 'Daily Reflection',
+        description: dailyVerse.aiSummary || 'Consider how this verse applies to your current situation.',
+      }] : [],
+    };
+  }, [dailyVerse]);
 
   // Get personalized verses based on user's selected challenges (from curated as fallback)
   const userChallenges = profile?.selected_challenges || [];
@@ -151,52 +180,8 @@ const Home = () => {
                 </Button>
               </CardContent>
             </Card>
-          ) : dailyVerse ? (
-            <Link to={`/verse/${dailyVerse.verse.chapter_number}/${dailyVerse.verse.verse_number}`}>
-              <Card className="overflow-hidden border-border/50 bg-card/50 hover:bg-card transition-colors cursor-pointer group">
-                <CardContent className="p-6 space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                      Chapter {dailyVerse.verse.chapter_number} • Verse {dailyVerse.verse.verse_number}
-                    </span>
-                    <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
-                  </div>
-                  
-                  {/* Sanskrit Text */}
-                  <p className="text-lg leading-relaxed text-foreground/80 font-sanskrit">
-                    {dailyVerse.verse.text}
-                  </p>
-                  
-                  {/* Translation */}
-                  <p className="text-foreground italic leading-relaxed">
-                    "{dailyVerse.translation}"
-                  </p>
-
-                  {/* AI Summary */}
-                  {dailyVerse.aiSummary && (
-                    <div className="pt-2 border-t border-border/50">
-                      <p className="text-sm text-muted-foreground leading-relaxed">
-                        {dailyVerse.aiSummary}
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Challenge Tags */}
-                  {dailyVerse.challenges && dailyVerse.challenges.length > 0 && (
-                    <div className="flex flex-wrap gap-2 pt-2">
-                      {dailyVerse.challenges.slice(0, 3).map((challenge) => {
-                        const challengeInfo = challengeData.find(c => c.id === challenge);
-                        return (
-                          <Badge key={challenge} variant="secondary" className="text-xs">
-                            {challengeInfo?.icon} {challengeInfo?.label || challenge}
-                          </Badge>
-                        );
-                      })}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </Link>
+          ) : formattedVerse ? (
+            <VerseCard verse={formattedVerse} showFullContent />
           ) : null}
         </section>
 
