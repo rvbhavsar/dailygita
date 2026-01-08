@@ -10,47 +10,41 @@ import HomeSidebar from '@/components/home/HomeSidebar';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Challenge } from '@/types';
-
 const Home = () => {
-  const { profile } = useAuth();
+  const {
+    profile
+  } = useAuth();
   const dailyVerse = getDailyVerse();
   const tomorrowsVerse = getTomorrowsVerse();
   const [timeLeft, setTimeLeft] = useState(getTimeUntilNextVerse());
-
   useEffect(() => {
     const interval = setInterval(() => {
       setTimeLeft(getTimeUntilNextVerse());
     }, 60000);
-
     return () => clearInterval(interval);
   }, []);
-
   const today = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
     month: 'long',
-    day: 'numeric',
+    day: 'numeric'
   });
 
   // Get personalized verses based on user's selected challenges
   const userChallenges = profile?.selected_challenges || [];
-  const personalizedVerses = userChallenges.length > 0
-    ? userChallenges.flatMap(challenge => 
-        getCuratedVersesByChallenge(challenge as Challenge)
-      ).filter((verse, index, self) => 
-        self.findIndex(v => v.id === verse.id) === index && verse.id !== dailyVerse.id
-      ).slice(0, 3)
-    : [];
+  const personalizedVerses = userChallenges.length > 0 ? userChallenges.flatMap(challenge => getCuratedVersesByChallenge(challenge as Challenge)).filter((verse, index, self) => self.findIndex(v => v.id === verse.id) === index && verse.id !== dailyVerse.id).slice(0, 3) : [];
 
   // Get challenge labels for display
   const getUserChallengeLabels = () => {
     return userChallenges.map(id => {
       const challenge = challengeData.find(c => c.id === id);
-      return challenge ? { id, label: challenge.label, icon: challenge.icon } : null;
+      return challenge ? {
+        id,
+        label: challenge.label,
+        icon: challenge.icon
+      } : null;
     }).filter(Boolean);
   };
-
-  return (
-    <Layout fullWidth>
+  return <Layout fullWidth>
       {/* Greeting Section - Full Width at Top */}
       <section className="text-center lg:text-left space-y-3 mb-8">
         <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
@@ -73,36 +67,24 @@ const Home = () => {
 
           {/* Reflection Prompt */}
           <section className="text-center lg:text-left pt-4">
-            <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-secondary/50 border border-border/50">
-              <span className="text-primary">✦</span>
-              <p className="text-sm text-muted-foreground italic">
-                How does this verse apply to your day?
-              </p>
-              <span className="text-primary">✦</span>
-            </div>
+            
           </section>
 
           {/* Personalized Recommendations */}
-          {personalizedVerses.length > 0 && (
-            <section className="pt-4">
+          {personalizedVerses.length > 0 && <section className="pt-4">
               <div className="flex items-center gap-2 mb-4">
                 <Sparkles className="h-5 w-5 text-primary" />
                 <h3 className="text-foreground">For You</h3>
               </div>
               
-              {userChallenges.length > 0 && (
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {getUserChallengeLabels().map((challenge: any) => (
-                    <Badge key={challenge.id} variant="secondary" className="text-xs">
+              {userChallenges.length > 0 && <div className="flex flex-wrap gap-2 mb-4">
+                  {getUserChallengeLabels().map((challenge: any) => <Badge key={challenge.id} variant="secondary" className="text-xs">
                       {challenge.icon} {challenge.label}
-                    </Badge>
-                  ))}
-                </div>
-              )}
+                    </Badge>)}
+                </div>}
 
               <div className="space-y-3">
-                {personalizedVerses.map((verse) => (
-                  <Link key={verse.id} to={`/verse/${verse.id}`}>
+                {personalizedVerses.map(verse => <Link key={verse.id} to={`/verse/${verse.id}`}>
                     <Card className="overflow-hidden border-border/50 bg-card/50 hover:bg-card transition-colors cursor-pointer group">
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between">
@@ -118,11 +100,9 @@ const Home = () => {
                         </div>
                       </CardContent>
                     </Card>
-                  </Link>
-                ))}
+                  </Link>)}
               </div>
-            </section>
-          )}
+            </section>}
         </div>
 
         {/* Sidebar - 30% width (hidden on mobile, shown on lg+) */}
@@ -137,15 +117,12 @@ const Home = () => {
           <HomeSidebar tomorrowsVerse={tomorrowsVerse} timeLeft={timeLeft} />
         </div>
       </div>
-    </Layout>
-  );
+    </Layout>;
 };
-
 const getTimeOfDay = () => {
   const hour = new Date().getHours();
   if (hour < 12) return 'morning';
   if (hour < 17) return 'afternoon';
   return 'evening';
 };
-
 export default Home;
