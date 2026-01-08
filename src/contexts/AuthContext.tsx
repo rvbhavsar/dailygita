@@ -11,6 +11,7 @@ interface Profile {
   age: number | null;
   profession: string | null;
   marital_status: string | null;
+  is_onboarded: boolean;
 }
 
 interface AuthContextType {
@@ -18,6 +19,7 @@ interface AuthContextType {
   session: Session | null;
   profile: Profile | null;
   isLoading: boolean;
+  isOnboarded: boolean;
   signUp: (email: string, password: string, displayName?: string, age?: number, profession?: string, maritalStatus?: string) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
@@ -25,6 +27,7 @@ interface AuthContextType {
   updatePassword: (newPassword: string) => Promise<{ error: Error | null }>;
   updateProfile: (updates: Partial<Profile>) => Promise<{ error: Error | null }>;
   refreshProfile: () => Promise<void>;
+  completeOnboarding: (data: { display_name: string; selectedChallenges: string[]; dailyEmailEnabled: boolean }) => Promise<{ error: Error | null }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -149,6 +152,32 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  const completeOnboarding = async (data: { display_name: string; selectedChallenges: string[]; dailyEmailEnabled: boolean }) => {
+    if (!user) return { error: new Error('Not authenticated') };
+    
+    const { error } = await supabase
+      .from('profiles')
+      .update({
+        display_name: data.display_name,
+        daily_verse_enabled: data.dailyEmailEnabled,
+        is_onboarded: true,
+      })
+      .eq('user_id', user.id);
+    
+    if (!error) {
+      setProfile(prev => prev ? { 
+        ...prev, 
+        display_name: data.display_name,
+        daily_verse_enabled: data.dailyEmailEnabled,
+        is_onboarded: true 
+      } : null);
+    }
+    
+    return { error: error as Error | null };
+  };
+
+  const isOnboarded = profile?.is_onboarded ?? false;
+
   return (
     <AuthContext.Provider
       value={{
@@ -156,6 +185,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         session,
         profile,
         isLoading,
+        isOnboarded,
         signUp,
         signIn,
         signOut,
@@ -163,6 +193,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         updatePassword,
         updateProfile,
         refreshProfile,
+        completeOnboarding,
       }}
     >
       {children}

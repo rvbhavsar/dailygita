@@ -6,20 +6,21 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { challenges } from '@/data/challenges';
-import { useUser } from '@/contexts/UserContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { Challenge } from '@/types';
 import { cn } from '@/lib/utils';
 import heroBg from '@/assets/hero-bg.jpg';
+import { toast } from 'sonner';
 
 const Onboarding = () => {
   const navigate = useNavigate();
-  const { completeOnboarding } = useUser();
+  const { user, profile, completeOnboarding } = useAuth();
   
   const [step, setStep] = useState(1);
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
+  const [name, setName] = useState(profile?.display_name || '');
   const [selectedChallenges, setSelectedChallenges] = useState<Challenge[]>([]);
   const [dailyEmailEnabled, setDailyEmailEnabled] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const toggleChallenge = (id: Challenge) => {
     setSelectedChallenges((prev) =>
@@ -29,17 +30,24 @@ const Onboarding = () => {
     );
   };
 
-  const handleComplete = () => {
-    completeOnboarding({
-      name,
-      email,
+  const handleComplete = async () => {
+    setIsSubmitting(true);
+    const { error } = await completeOnboarding({
+      display_name: name,
       selectedChallenges,
       dailyEmailEnabled,
     });
+    
+    if (error) {
+      toast.error('Failed to complete onboarding');
+      setIsSubmitting(false);
+      return;
+    }
+    
     navigate('/home');
   };
 
-  const canProceedStep1 = name.trim().length > 0 && email.includes('@');
+  const canProceedStep1 = name.trim().length > 0;
   const canProceedStep2 = selectedChallenges.length > 0;
 
   return (
@@ -108,15 +116,15 @@ const Onboarding = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email">Email Address</Label>
+                <Label>Email Address</Label>
                 <Input
-                  id="email"
-                  type="email"
-                  placeholder="For your daily wisdom"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="h-12"
+                  value={user?.email || ''}
+                  disabled
+                  className="h-12 bg-muted"
                 />
+                <p className="text-xs text-muted-foreground">
+                  This is the email you signed up with
+                </p>
               </div>
             </div>
 
@@ -233,9 +241,10 @@ const Onboarding = () => {
 
             <Button
               onClick={handleComplete}
+              disabled={isSubmitting}
               className="w-full h-12 text-base"
             >
-              Begin Your Journey
+              {isSubmitting ? 'Starting...' : 'Begin Your Journey'}
               <Sparkles className="ml-2 h-4 w-4" />
             </Button>
           </div>

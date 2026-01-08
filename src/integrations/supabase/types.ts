@@ -58,6 +58,7 @@ export type Database = {
           daily_verse_enabled: boolean
           display_name: string | null
           id: string
+          is_onboarded: boolean
           marital_status: string | null
           profession: string | null
           updated_at: string
@@ -70,6 +71,7 @@ export type Database = {
           daily_verse_enabled?: boolean
           display_name?: string | null
           id?: string
+          is_onboarded?: boolean
           marital_status?: string | null
           profession?: string | null
           updated_at?: string
@@ -82,6 +84,7 @@ export type Database = {
           daily_verse_enabled?: boolean
           display_name?: string | null
           id?: string
+          is_onboarded?: boolean
           marital_status?: string | null
           profession?: string | null
           updated_at?: string
