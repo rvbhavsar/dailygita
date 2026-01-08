@@ -61,6 +61,7 @@ export type Database = {
           is_onboarded: boolean
           marital_status: string | null
           profession: string | null
+          selected_challenges: string[]
           updated_at: string
           user_id: string
         }
@@ -74,6 +75,7 @@ export type Database = {
           is_onboarded?: boolean
           marital_status?: string | null
           profession?: string | null
+          selected_challenges?: string[]
           updated_at?: string
           user_id: string
         }
@@ -87,6 +89,7 @@ export type Database = {
           is_onboarded?: boolean
           marital_status?: string | null
           profession?: string | null
+          selected_challenges?: string[]
           updated_at?: string
           user_id?: string
         }

@@ -12,6 +12,7 @@ interface Profile {
   profession: string | null;
   marital_status: string | null;
   is_onboarded: boolean;
+  selected_challenges: string[];
 }
 
 interface AuthContextType {
@@ -160,6 +161,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       .update({
         display_name: data.display_name,
         daily_verse_enabled: data.dailyEmailEnabled,
+        selected_challenges: data.selectedChallenges,
         is_onboarded: true,
       })
       .eq('user_id', user.id);
@@ -169,6 +171,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         ...prev, 
         display_name: data.display_name,
         daily_verse_enabled: data.dailyEmailEnabled,
+        selected_challenges: data.selectedChallenges,
         is_onboarded: true 
       } : null);
     }
