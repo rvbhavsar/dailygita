@@ -79,20 +79,17 @@ const VerseCard = ({ verse, showFullContent = false, className }: VerseCardProps
 
         {showFullContent && (
           <div className="space-y-6 mt-10">
-            {/* Explanation */}
+            {/* Explanation with Takeaway */}
             <div className="bg-secondary/30 rounded-2xl p-6 md:p-8">
               <h4 className="text-foreground mb-3">What This Means</h4>
-              <p className="text-muted-foreground leading-relaxed">
+              <p className="text-muted-foreground leading-relaxed mb-4">
                 {verse.insight.explanation}
               </p>
-            </div>
-
-            {/* Takeaway */}
-            <div className="bg-primary/5 border border-primary/20 rounded-2xl p-6 md:p-8">
-              <h4 className="text-primary mb-3">Key Takeaway</h4>
-              <p className="text-foreground leading-relaxed italic">
-                {verse.insight.takeaway}
-              </p>
+              <div className="border-t border-border/50 pt-4 mt-4">
+                <p className="text-primary font-medium italic leading-relaxed">
+                  ✦ {verse.insight.takeaway}
+                </p>
+              </div>
             </div>
 
             {/* AI-Powered Personalized Example */}
