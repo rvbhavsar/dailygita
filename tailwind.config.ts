@@ -118,7 +118,7 @@ export default {
 				'monospace'
 			],
 			sanskrit: [
-				'Amita',
+				'Arya',
 				'Noto Sans Devanagari',
 				'sans-serif'
 			],

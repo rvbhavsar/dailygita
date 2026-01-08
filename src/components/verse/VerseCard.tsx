@@ -60,7 +60,7 @@ const VerseCard = ({ verse, showFullContent = false, className }: VerseCardProps
 
         {/* Sanskrit */}
         <div className="text-center mb-8">
-          <p className="font-sanskrit text-xl md:text-2xl lg:text-3xl leading-relaxed text-foreground whitespace-pre-line">
+          <p className="font-sanskrit text-2xl md:text-3xl lg:text-4xl leading-loose text-foreground whitespace-pre-line tracking-wide">
             {verse.sanskrit}
           </p>
         </div>
