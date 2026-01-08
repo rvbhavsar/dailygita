@@ -1,7 +1,8 @@
-import { Sparkles, Loader2, AlertCircle, X } from 'lucide-react';
+import { Sparkles, Loader2, AlertCircle, X, Bookmark, BookmarkCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { VerseWithInsights, ChallengeInfo } from '@/types';
 import { usePersonalizedInsight } from '@/hooks/usePersonalizedInsight';
+import { useSavedInsights } from '@/hooks/useSavedInsights';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
 
@@ -13,11 +14,27 @@ interface PersonalizedInsightProps {
 
 const PersonalizedInsight = ({ verse, selectedChallenge, className }: PersonalizedInsightProps) => {
   const { insight, isLoading, error, generateInsight, clearInsight } = usePersonalizedInsight();
-  const { profile } = useAuth();
+  const { saveInsight, isInsightSaved } = useSavedInsights();
+  const { profile, user } = useAuth();
 
   const handleGenerate = () => {
     generateInsight(verse, selectedChallenge);
   };
+
+  const handleSave = async () => {
+    if (!insight) return;
+    
+    await saveInsight({
+      verse_id: verse.id,
+      chapter_number: verse.chapter,
+      verse_number: verse.verse,
+      title: insight.title,
+      description: insight.description,
+      challenge_id: selectedChallenge?.id,
+    });
+  };
+
+  const isSaved = insight ? isInsightSaved(verse.id, insight.title) : false;
 
   if (!insight && !isLoading && !error) {
     return (
@@ -74,14 +91,31 @@ const PersonalizedInsight = ({ verse, selectedChallenge, className }: Personaliz
   if (insight) {
     return (
       <div className={cn('bg-gradient-to-br from-primary/5 to-accent/5 border border-primary/20 rounded-2xl p-6 md:p-8 relative', className)}>
-        <Button
-          onClick={clearInsight}
-          variant="ghost"
-          size="icon"
-          className="absolute top-2 right-2 h-8 w-8 text-muted-foreground hover:text-foreground"
-        >
-          <X className="h-4 w-4" />
-        </Button>
+        <div className="absolute top-2 right-2 flex gap-1">
+          {user && (
+            <Button
+              onClick={handleSave}
+              variant="ghost"
+              size="icon"
+              className={cn(
+                'h-8 w-8',
+                isSaved ? 'text-primary' : 'text-muted-foreground hover:text-primary'
+              )}
+              disabled={isSaved}
+              title={isSaved ? 'Saved' : 'Save insight'}
+            >
+              {isSaved ? <BookmarkCheck className="h-4 w-4" /> : <Bookmark className="h-4 w-4" />}
+            </Button>
+          )}
+          <Button
+            onClick={clearInsight}
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 text-muted-foreground hover:text-foreground"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
         
         <div className="flex items-center gap-2 mb-4">
           <Sparkles className="h-5 w-5 text-primary" />
