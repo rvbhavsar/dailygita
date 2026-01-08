@@ -59,7 +59,7 @@ const Onboarding = () => {
             <span className="font-sanskrit text-2xl text-primary-foreground">ॐ</span>
           </div>
           <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
-            Daily Gita
+            Bhagavad Gita Wisdom
           </h1>
           <p className="text-muted-foreground">
             Ancient wisdom for modern life
