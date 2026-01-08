@@ -95,20 +95,6 @@ const VerseCard = ({ verse, showFullContent = false, className }: VerseCardProps
               </p>
             </div>
 
-            {/* Real-Life Example */}
-            {verse.examples[0] && (
-              <div>
-                <h4 className="text-foreground mb-4">Real-Life Example</h4>
-                <div className="bg-card border border-border rounded-2xl p-6 md:p-8 shadow-sm">
-                  <h5 className="text-foreground mb-2">
-                    {verse.examples[0].title}
-                  </h5>
-                  <p className="text-muted-foreground leading-relaxed">
-                    {verse.examples[0].description}
-                  </p>
-                </div>
-              </div>
-            )}
 
           </div>
         )}
