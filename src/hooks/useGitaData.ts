@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import {
   fetchChapters,
   fetchVerses,
@@ -63,6 +64,30 @@ export function useVerseTranslation(verseId: number | undefined) {
     queryKey: ['translation', verseId],
     queryFn: () => fetchVerseEnglishTranslation(verseId!),
     enabled: verseId !== undefined,
+    staleTime: Infinity,
+  });
+}
+
+// Type for verse challenges from database
+export interface VerseChallenges {
+  chapter_number: number;
+  verse_number: number;
+  challenges: string[];
+  ai_summary: string | null;
+}
+
+// Fetch all AI-analyzed verse challenges
+export function useVerseChallenges() {
+  return useQuery<VerseChallenges[]>({
+    queryKey: ['verse-challenges'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('verse_challenges')
+        .select('chapter_number, verse_number, challenges, ai_summary');
+      
+      if (error) throw error;
+      return data || [];
+    },
     staleTime: Infinity,
   });
 }
