@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, Share2, BookOpen } from 'lucide-react';
+import { Heart, Share2, BookOpen, Volume2, Loader2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -19,11 +20,67 @@ const VerseCard = ({
   showFullContent = false,
   className
 }: VerseCardProps) => {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
+  
   const {
     toggleFavorite,
     isFavorite
   } = useUser();
   const saved = isFavorite(verse.id);
+
+  const handleReadAloud = async () => {
+    // If already playing, stop it
+    if (audioElement) {
+      audioElement.pause();
+      audioElement.currentTime = 0;
+      setAudioElement(null);
+      setIsPlaying(false);
+      return;
+    }
+
+    setIsPlaying(true);
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/elevenlabs-verse-tts`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({
+            sanskrit: verse.sanskrit,
+            translation: verse.english,
+            explanation: verse.insight.explanation,
+            takeaway: verse.insight.takeaway,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to generate audio');
+      }
+
+      const audioBlob = await response.blob();
+      const audioUrl = URL.createObjectURL(audioBlob);
+      const audio = new Audio(audioUrl);
+      
+      audio.onended = () => {
+        setIsPlaying(false);
+        setAudioElement(null);
+        URL.revokeObjectURL(audioUrl);
+      };
+      
+      setAudioElement(audio);
+      await audio.play();
+    } catch (error) {
+      console.error('TTS error:', error);
+      toast.error('Failed to read verse aloud');
+      setIsPlaying(false);
+    }
+  };
   const handleShare = async () => {
     const shareText = `${verse.english}\n\n— Bhagavad Gita ${verse.chapter}.${verse.verse}`;
     if (navigator.share) {
@@ -97,8 +154,22 @@ const VerseCard = ({
             </div>
           </div>}
 
-        {/* Actions */}
         <div className="flex items-center justify-center gap-2 pt-8 mt-8 border-t border-border/50">
+          <Button 
+            variant="ghost" 
+            size="lg" 
+            onClick={handleReadAloud} 
+            disabled={isPlaying && !audioElement}
+            className={cn('gap-2 rounded-full px-6', isPlaying && 'text-primary bg-primary/10')}
+          >
+            {isPlaying && !audioElement ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : (
+              <Volume2 className={cn('h-5 w-5', isPlaying && 'fill-current')} />
+            )}
+            {isPlaying ? (audioElement ? 'Stop' : 'Loading...') : 'Listen'}
+          </Button>
+
           <Button variant="ghost" size="lg" onClick={() => toggleFavorite(verse.id)} className={cn('gap-2 rounded-full px-6', saved && 'text-primary bg-primary/10')}>
             <Heart className={cn('h-5 w-5', saved && 'fill-current')} />
             {saved ? 'Saved' : 'Save'}
