@@ -36,7 +36,7 @@ const Onboarding = () => {
       selectedChallenges,
       dailyEmailEnabled,
     });
-    navigate('/');
+    navigate('/home');
   };
 
   const canProceedStep1 = name.trim().length > 0 && email.includes('@');

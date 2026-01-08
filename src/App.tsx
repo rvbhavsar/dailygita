@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { UserProvider, useUser } from "@/contexts/UserContext";
 import { Loader2 } from "lucide-react";
+import Landing from "./pages/Landing";
 import Onboarding from "./pages/Onboarding";
 import Home from "./pages/Home";
 import VerseDetail from "./pages/VerseDetail";
@@ -56,10 +57,22 @@ const AuthRoute = () => {
   const { isOnboarded } = useUser();
   
   if (user) {
-    return <Navigate to={isOnboarded ? "/" : "/onboarding"} replace />;
+    return <Navigate to={isOnboarded ? "/home" : "/onboarding"} replace />;
   }
   
   return <Auth />;
+};
+
+// Landing route - redirect if already logged in
+const LandingRoute = () => {
+  const { user } = useAuth();
+  const { isOnboarded } = useUser();
+  
+  if (user) {
+    return <Navigate to={isOnboarded ? "/home" : "/onboarding"} replace />;
+  }
+  
+  return <Landing />;
 };
 
 // Onboarding route - requires auth, redirect if already onboarded
@@ -72,7 +85,7 @@ const OnboardingRoute = () => {
   }
   
   if (isOnboarded) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/home" replace />;
   }
   
   return <Onboarding />;
@@ -82,10 +95,11 @@ const AppRoutes = () => {
   return (
     <AuthLoadingWrapper>
       <Routes>
+        <Route path="/" element={<LandingRoute />} />
         <Route path="/auth" element={<AuthRoute />} />
         <Route path="/onboarding" element={<OnboardingRoute />} />
         <Route
-          path="/"
+          path="/home"
           element={
             <ProtectedRoute>
               <Home />
