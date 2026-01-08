@@ -141,13 +141,13 @@ const VerseCard = ({
     }
   };
   return <Card className={cn('overflow-hidden border-border/50 bg-card shadow-md card-hover', className)}>
-      <CardContent className="p-6 md:p-10">
+      <CardContent className="p-4 sm:p-6 md:p-10">
         {/* Chapter & Verse Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4 mb-6 sm:mb-8">
           <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             Chapter {verse.chapter} • Verse {verse.verse}
           </span>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-1.5 sm:gap-2">
             {verse.challenges.slice(0, 2).map(challengeId => {
             const challenge = getChallengeById(challengeId);
             return challenge ? <Badge key={challengeId} variant="secondary" className="text-xs font-medium">
@@ -158,33 +158,33 @@ const VerseCard = ({
         </div>
 
         {/* Sanskrit */}
-        <div className="text-center mb-8">
-          <p className="font-sanskrit text-2xl md:text-3xl leading-loose text-foreground whitespace-pre-line tracking-wide lg:text-3xl">
+        <div className="text-center mb-6 sm:mb-8">
+          <p className="font-sanskrit text-xl sm:text-2xl md:text-3xl leading-loose text-foreground whitespace-pre-line tracking-wide">
             {verse.sanskrit}
           </p>
         </div>
 
         {/* Elegant Divider */}
-        <div className="flex items-center gap-6 my-8">
+        <div className="flex items-center gap-4 sm:gap-6 my-6 sm:my-8">
           <div className="flex-1 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
-          <span className="text-primary text-xl">✦</span>
+          <span className="text-primary text-lg sm:text-xl">✦</span>
           <div className="flex-1 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
         </div>
 
         {/* Translation */}
-        <p className="text-xl leading-relaxed text-foreground text-center mb-8 italic md:text-xl">
+        <p className="text-lg sm:text-xl leading-relaxed text-foreground text-center mb-6 sm:mb-8 italic">
           "{verse.english}"
         </p>
 
-        {showFullContent && <div className="space-y-6 mt-10">
+        {showFullContent && <div className="space-y-4 sm:space-y-6 mt-8 sm:mt-10">
             {/* Explanation with Takeaway */}
-            <div className="bg-secondary/30 rounded-2xl p-6 md:p-8">
-              <h4 className="text-foreground mb-3">What This Means</h4>
-              <p className="text-muted-foreground leading-relaxed mb-4">
+            <div className="bg-secondary/30 rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8">
+              <h4 className="text-foreground mb-2 sm:mb-3 text-base sm:text-lg">What This Means</h4>
+              <p className="text-sm sm:text-base text-muted-foreground leading-relaxed mb-3 sm:mb-4">
                 {verse.insight.explanation}
               </p>
-              <div className="border-t border-border/50 pt-4 mt-4">
-                <p className="text-primary font-medium italic leading-relaxed">
+              <div className="border-t border-border/50 pt-3 sm:pt-4 mt-3 sm:mt-4">
+                <p className="text-sm sm:text-base text-primary font-medium italic leading-relaxed">
                   ✦ {verse.insight.takeaway}
                 </p>
               </div>
@@ -192,41 +192,51 @@ const VerseCard = ({
 
             {/* AI-Powered Personalized Example */}
             <div>
-              <h4 className="text-foreground mb-4">Personalized for You</h4>
+              <h4 className="text-foreground mb-3 sm:mb-4 text-base sm:text-lg">Personalized for You</h4>
               <PersonalizedInsight verse={verse} selectedChallenge={getChallengeById(verse.challenges[0])} />
             </div>
           </div>}
 
-        <div className="flex items-center justify-center gap-2 pt-8 mt-8 border-t border-border/50">
+        <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 pt-6 sm:pt-8 mt-6 sm:mt-8 border-t border-border/50">
           <Button 
             variant="ghost" 
             size="lg" 
             onClick={handleReadAloud} 
             disabled={isLoading}
-            className={cn('gap-2 rounded-full px-6', isPlaying && 'text-primary bg-primary/10')}
+            className={cn('gap-1.5 sm:gap-2 rounded-full px-3 sm:px-6 h-10 sm:h-11', isPlaying && 'text-primary bg-primary/10')}
           >
             {isLoading ? (
-              <Loader2 className="h-5 w-5 animate-spin" />
+              <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
             ) : (
-              <Volume2 className={cn('h-5 w-5', isPlaying && 'fill-current')} />
+              <Volume2 className={cn('h-4 w-4 sm:h-5 sm:w-5', isPlaying && 'fill-current')} />
             )}
-            {isLoading ? 'Loading...' : (isPlaying ? 'Stop' : (cachedAudioUrl ? 'Listen' : 'Listen'))}
+            <span className="hidden xs:inline text-sm sm:text-base">{isLoading ? 'Loading...' : (isPlaying ? 'Stop' : 'Listen')}</span>
           </Button>
 
-          <Button variant="ghost" size="lg" onClick={() => toggleFavorite(verse.id)} className={cn('gap-2 rounded-full px-6', saved && 'text-primary bg-primary/10')}>
-            <Heart className={cn('h-5 w-5', saved && 'fill-current')} />
-            {saved ? 'Saved' : 'Save'}
+          <Button 
+            variant="ghost" 
+            size="lg" 
+            onClick={() => toggleFavorite(verse.id)} 
+            className={cn('gap-1.5 sm:gap-2 rounded-full px-3 sm:px-6 h-10 sm:h-11', saved && 'text-primary bg-primary/10')}
+          >
+            <Heart className={cn('h-4 w-4 sm:h-5 sm:w-5', saved && 'fill-current')} />
+            <span className="hidden xs:inline text-sm sm:text-base">{saved ? 'Saved' : 'Save'}</span>
           </Button>
           
-          <Button variant="ghost" size="lg" onClick={handleShare} className="gap-2 rounded-full px-6">
-            <Share2 className="h-5 w-5" />
-            Share
+          <Button 
+            variant="ghost" 
+            size="lg" 
+            onClick={handleShare} 
+            className="gap-1.5 sm:gap-2 rounded-full px-3 sm:px-6 h-10 sm:h-11"
+          >
+            <Share2 className="h-4 w-4 sm:h-5 sm:w-5" />
+            <span className="hidden xs:inline text-sm sm:text-base">Share</span>
           </Button>
 
-          {!showFullContent && <Button variant="ghost" size="lg" asChild className="gap-2 rounded-full px-6">
+          {!showFullContent && <Button variant="ghost" size="lg" asChild className="gap-1.5 sm:gap-2 rounded-full px-3 sm:px-6 h-10 sm:h-11">
               <Link to={`/verse/${verse.id}`}>
-                <BookOpen className="h-5 w-5" />
-                Read More
+                <BookOpen className="h-4 w-4 sm:h-5 sm:w-5" />
+                <span className="hidden xs:inline text-sm sm:text-base">Read More</span>
               </Link>
             </Button>}
         </div>
