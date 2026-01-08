@@ -19,8 +19,8 @@ serve(async (req) => {
       throw new Error('ElevenLabs API key not configured');
     }
 
-    // Brian voice - warm, mature male voice that works well for spiritual content
-    const voiceId = 'nPczCjzI2devNBz1zQrb';
+    // Deepak Chopra voice from user's ElevenLabs collection
+    const voiceId = 'XbNXY1ai1K6AW8tnVNdN';
 
     // Compose the full text to be spoken
     const fullText = `
