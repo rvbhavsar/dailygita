@@ -118,8 +118,8 @@ export default {
 				'monospace'
 			],
 			sanskrit: [
+				'Amita',
 				'Noto Sans Devanagari',
-				'Arial Unicode MS',
 				'sans-serif'
 			],
 			cursive: [
