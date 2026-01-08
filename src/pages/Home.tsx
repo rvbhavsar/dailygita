@@ -51,22 +51,23 @@ const Home = () => {
 
   return (
     <Layout>
-      <div className="flex flex-col lg:flex-row gap-8">
-        {/* Main Content - fluid */}
-        <div className="flex-1 min-w-0 space-y-8">
-          {/* Greeting Section */}
-          <section className="text-center lg:text-left space-y-3">
-            <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
-              {today}
-            </p>
-            <h1>
-              Good {getTimeOfDay()}, <span className="gradient-text">{profile?.display_name?.split(' ')[0] || 'Seeker'}</span>
-            </h1>
-            <p className="text-lg text-muted-foreground max-w-md lg:mx-0 mx-auto">
-              Your daily wisdom awaits. Take a moment to reflect.
-            </p>
-          </section>
+      {/* Greeting Section - Full Width at Top */}
+      <section className="text-center lg:text-left space-y-3 mb-8">
+        <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+          {today}
+        </p>
+        <h1>
+          Good {getTimeOfDay()}, <span className="gradient-text">{profile?.display_name?.split(' ')[0] || 'Seeker'}</span>
+        </h1>
+        <p className="text-lg text-muted-foreground max-w-md lg:mx-0 mx-auto">
+          Your daily wisdom awaits. Take a moment to reflect.
+        </p>
+      </section>
 
+      {/* Main Content & Sidebar Row */}
+      <div className="flex flex-col lg:flex-row gap-8">
+        {/* Main Content - fills available space */}
+        <div className="flex-1 min-w-0 space-y-8">
           {/* Daily Verse */}
           <VerseCard verse={dailyVerse} showFullContent />
 
