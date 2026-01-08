@@ -21,14 +21,12 @@ const Browse = () => {
 
   const isLoading = chaptersLoading || versesLoading || translationsLoading;
 
-  // Get English translations map (verse_id -> translation)
+  // Get translations map (verse_id -> translation, prefer Swami Sivananda)
   const englishTranslationsMap = new Map<number, string>();
   if (translations) {
-    // Get one English translation per verse (prefer Swami Sivananda)
-    const englishTranslations = translations.filter(t => t.language === 'english');
-    const groupedByVerse = new Map<number, typeof englishTranslations>();
+    const groupedByVerse = new Map<number, typeof translations>();
     
-    englishTranslations.forEach(t => {
+    translations.forEach(t => {
       if (!groupedByVerse.has(t.verse_id)) {
         groupedByVerse.set(t.verse_id, []);
       }
