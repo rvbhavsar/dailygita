@@ -3,14 +3,17 @@ import Header from './Header';
 
 interface LayoutProps {
   children: ReactNode;
+  fullWidth?: boolean;
 }
 
-const Layout = ({ children }: LayoutProps) => {
+const Layout = ({ children, fullWidth = false }: LayoutProps) => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <main className="container pb-24 md:pb-8 pt-6">
-        {children}
+      <main className={`pb-28 md:pb-12 pt-6 md:pt-10 ${fullWidth ? 'page-container' : 'page-container'}`}>
+        <div className={fullWidth ? 'content-container' : 'reading-container'}>
+          {children}
+        </div>
       </main>
     </div>
   );

@@ -100,14 +100,10 @@ const Settings = () => {
   };
 
   const handleDailyVerseToggle = async (checked: boolean) => {
-    // Update local state
     updateUser({ dailyEmailEnabled: checked });
-    
-    // Update in database
     const { error } = await updateProfile({ daily_verse_enabled: checked });
     
     if (error) {
-      // Revert on error
       updateUser({ dailyEmailEnabled: !checked });
       toast.error('Failed to update preference');
     } else {
@@ -139,13 +135,13 @@ const Settings = () => {
 
   return (
     <Layout>
-      <div className="max-w-lg mx-auto">
+      <div className="space-y-8">
         {/* Back Button */}
         <Button
           asChild
           variant="ghost"
           size="sm"
-          className="mb-6 -ml-2"
+          className="-ml-2 rounded-full"
         >
           <Link to="/">
             <ArrowLeft className="mr-2 h-4 w-4" />
@@ -153,32 +149,34 @@ const Settings = () => {
           </Link>
         </Button>
 
-        <h1 className="font-serif text-2xl font-semibold text-foreground mb-6">
-          Settings
-        </h1>
+        <section>
+          <h1 className="font-serif mb-2">Settings</h1>
+          <p className="text-muted-foreground">Manage your account and preferences</p>
+        </section>
 
         {/* Account Info */}
-        <Card className="mb-6">
+        <Card className="border-border/50">
           <CardHeader>
-            <CardTitle className="text-lg">Account</CardTitle>
+            <CardTitle>Account</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Name</span>
-              <span className="text-sm text-foreground">{profile?.display_name || user.name}</span>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between py-2">
+              <span className="text-muted-foreground">Name</span>
+              <span className="font-medium">{profile?.display_name || user.name}</span>
             </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Email</span>
-              <span className="text-sm text-foreground">{authUser?.email || user.email}</span>
+            <Separator />
+            <div className="flex items-center justify-between py-2">
+              <span className="text-muted-foreground">Email</span>
+              <span className="font-medium">{authUser?.email || user.email}</span>
             </div>
           </CardContent>
         </Card>
 
         {/* Profile Info */}
-        <Card className="mb-6">
+        <Card className="border-border/50">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle className="text-lg">Profile</CardTitle>
+              <CardTitle>Profile</CardTitle>
               <Button
                 variant="outline"
                 size="sm"
@@ -190,39 +188,42 @@ const Settings = () => {
                   });
                   setShowProfileForm(!showProfileForm);
                 }}
+                className="rounded-full"
               >
-                {showProfileForm ? 'Cancel' : 'Edit Profile'}
+                {showProfileForm ? 'Cancel' : 'Edit'}
               </Button>
             </div>
           </CardHeader>
-          <CardContent className="space-y-3">
+          <CardContent className="space-y-4">
             {!showProfileForm ? (
               <>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground flex items-center gap-2">
+                <div className="flex items-center justify-between py-2">
+                  <span className="text-muted-foreground flex items-center gap-2">
                     <Calendar className="h-4 w-4" />
                     Age
                   </span>
-                  <span className="text-sm text-foreground">{profile?.age || 'Not set'}</span>
+                  <span className="font-medium">{profile?.age || 'Not set'}</span>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground flex items-center gap-2">
+                <Separator />
+                <div className="flex items-center justify-between py-2">
+                  <span className="text-muted-foreground flex items-center gap-2">
                     <Briefcase className="h-4 w-4" />
                     Profession
                   </span>
-                  <span className="text-sm text-foreground">{profile?.profession || 'Not set'}</span>
+                  <span className="font-medium">{profile?.profession || 'Not set'}</span>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground flex items-center gap-2">
+                <Separator />
+                <div className="flex items-center justify-between py-2">
+                  <span className="text-muted-foreground flex items-center gap-2">
                     <Heart className="h-4 w-4" />
                     Marital Status
                   </span>
-                  <span className="text-sm text-foreground">{getMaritalStatusLabel(profile?.marital_status)}</span>
+                  <span className="font-medium">{getMaritalStatusLabel(profile?.marital_status)}</span>
                 </div>
               </>
             ) : (
               <Form {...profileForm}>
-                <form onSubmit={profileForm.handleSubmit(handleProfileUpdate)} className="space-y-4">
+                <form onSubmit={profileForm.handleSubmit(handleProfileUpdate)} className="space-y-5">
                   <FormField
                     control={profileForm.control}
                     name="age"
@@ -232,7 +233,7 @@ const Settings = () => {
                         <FormControl>
                           <div className="relative">
                             <Calendar className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                            <Input type="number" placeholder="Your age" className="pl-10" {...field} />
+                            <Input type="number" placeholder="Your age" className="pl-10 rounded-xl" {...field} />
                           </div>
                         </FormControl>
                         <FormMessage />
@@ -248,7 +249,7 @@ const Settings = () => {
                         <FormControl>
                           <div className="relative">
                             <Briefcase className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                            <Input placeholder="e.g., Engineer, Teacher" className="pl-10" {...field} />
+                            <Input placeholder="e.g., Engineer, Teacher" className="pl-10 rounded-xl" {...field} />
                           </div>
                         </FormControl>
                         <FormMessage />
@@ -263,7 +264,7 @@ const Settings = () => {
                         <FormLabel>Marital Status</FormLabel>
                         <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
-                            <SelectTrigger className="pl-10">
+                            <SelectTrigger className="pl-10 rounded-xl">
                               <Heart className="absolute left-3 h-4 w-4 text-muted-foreground" />
                               <SelectValue placeholder="Select status" />
                             </SelectTrigger>
@@ -279,7 +280,7 @@ const Settings = () => {
                       </FormItem>
                     )}
                   />
-                  <Button type="submit" disabled={isUpdatingProfile}>
+                  <Button type="submit" disabled={isUpdatingProfile} className="rounded-full">
                     {isUpdatingProfile ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
@@ -293,10 +294,10 @@ const Settings = () => {
         </Card>
 
         {/* Password Settings */}
-        <Card className="mb-6">
+        <Card className="border-border/50">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle className="text-lg flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2">
                 <Lock className="h-4 w-4" />
                 Password
               </CardTitle>
@@ -304,15 +305,16 @@ const Settings = () => {
                 variant="outline"
                 size="sm"
                 onClick={() => setShowPasswordForm(!showPasswordForm)}
+                className="rounded-full"
               >
-                {showPasswordForm ? 'Cancel' : 'Change Password'}
+                {showPasswordForm ? 'Cancel' : 'Change'}
               </Button>
             </div>
           </CardHeader>
           {showPasswordForm && (
             <CardContent>
               <Form {...passwordForm}>
-                <form onSubmit={passwordForm.handleSubmit(handlePasswordChange)} className="space-y-4">
+                <form onSubmit={passwordForm.handleSubmit(handlePasswordChange)} className="space-y-5">
                   <FormField
                     control={passwordForm.control}
                     name="currentPassword"
@@ -320,7 +322,7 @@ const Settings = () => {
                       <FormItem>
                         <FormLabel>Current Password</FormLabel>
                         <FormControl>
-                          <Input type="password" placeholder="••••••••" {...field} />
+                          <Input type="password" placeholder="••••••••" className="rounded-xl" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -333,7 +335,7 @@ const Settings = () => {
                       <FormItem>
                         <FormLabel>New Password</FormLabel>
                         <FormControl>
-                          <Input type="password" placeholder="••••••••" {...field} />
+                          <Input type="password" placeholder="••••••••" className="rounded-xl" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -346,13 +348,13 @@ const Settings = () => {
                       <FormItem>
                         <FormLabel>Confirm New Password</FormLabel>
                         <FormControl>
-                          <Input type="password" placeholder="••••••••" {...field} />
+                          <Input type="password" placeholder="••••••••" className="rounded-xl" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                  <Button type="submit" disabled={isUpdatingPassword}>
+                  <Button type="submit" disabled={isUpdatingPassword} className="rounded-full">
                     {isUpdatingPassword ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
@@ -366,16 +368,18 @@ const Settings = () => {
         </Card>
 
         {/* Daily Email */}
-        <Card className="mb-6">
+        <Card className="border-border/50">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Bell className="h-5 w-5 text-primary" />
+              <div className="flex items-center gap-4">
+                <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <Bell className="h-5 w-5 text-primary" />
+                </div>
                 <div>
-                  <Label htmlFor="daily-email" className="font-medium">
+                  <Label htmlFor="daily-email" className="font-semibold text-base">
                     Daily Wisdom Email
                   </Label>
-                  <p className="text-sm text-muted-foreground mt-1">
+                  <p className="text-sm text-muted-foreground mt-0.5">
                     Receive one verse each morning
                   </p>
                 </div>
@@ -390,15 +394,15 @@ const Settings = () => {
         </Card>
 
         {/* Challenges */}
-        <Card className="mb-6">
+        <Card className="border-border/50">
           <CardHeader>
-            <CardTitle className="text-lg">Your Challenges</CardTitle>
+            <CardTitle>Your Challenges</CardTitle>
             <p className="text-sm text-muted-foreground">
               We'll prioritize verses for these areas
             </p>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-3">
               {challenges.map((challenge) => {
                 const isSelected = user.selectedChallenges.includes(challenge.id);
                 return (
@@ -406,14 +410,14 @@ const Settings = () => {
                     key={challenge.id}
                     onClick={() => toggleChallenge(challenge.id)}
                     className={cn(
-                      'p-3 rounded-lg border text-left text-sm transition-all flex items-center gap-2',
+                      'p-4 rounded-xl border text-left transition-all duration-200 flex items-center gap-3',
                       isSelected
-                        ? 'border-primary bg-primary/5 text-foreground'
-                        : 'border-border bg-background text-muted-foreground hover:border-primary/50'
+                        ? 'border-primary bg-primary/5 text-foreground shadow-sm'
+                        : 'border-border bg-card text-muted-foreground hover:border-primary/50 hover:bg-secondary/50'
                     )}
                   >
-                    <span>{challenge.icon}</span>
-                    <span>{challenge.label}</span>
+                    <span className="text-lg">{challenge.icon}</span>
+                    <span className="font-medium">{challenge.label}</span>
                   </button>
                 );
               })}
@@ -421,19 +425,19 @@ const Settings = () => {
           </CardContent>
         </Card>
 
-        <Separator className="my-6" />
+        <Separator />
 
         {/* Logout */}
         <Button
           variant="outline"
-          className="w-full text-destructive hover:text-destructive hover:bg-destructive/10"
+          className="w-full rounded-xl text-destructive hover:text-destructive hover:bg-destructive/10 h-12"
           onClick={handleLogout}
         >
           <LogOut className="mr-2 h-4 w-4" />
           Log Out
         </Button>
 
-        <p className="text-center text-xs text-muted-foreground mt-8">
+        <p className="text-center text-xs text-muted-foreground pb-4">
           Daily Gita • Ancient wisdom for modern life
         </p>
       </div>

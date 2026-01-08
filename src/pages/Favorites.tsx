@@ -14,44 +14,41 @@ const Favorites = () => {
 
   return (
     <Layout>
-      <div className="max-w-2xl mx-auto">
-        <div className="flex items-center justify-between mb-6">
+      <div className="space-y-8">
+        <section className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
-            <h1 className="font-serif text-2xl font-semibold text-foreground">
-              Saved Verses
-            </h1>
-            <p className="text-sm text-muted-foreground">
+            <h1 className="font-serif mb-2">Saved Verses</h1>
+            <p className="text-muted-foreground">
               Your personal collection of wisdom
             </p>
           </div>
-          <Heart className="h-6 w-6 text-primary" />
-        </div>
+          <div className="flex items-center gap-2 text-primary">
+            <Heart className="h-6 w-6" />
+            <span className="text-sm font-medium">{savedVerses.length} saved</span>
+          </div>
+        </section>
 
         {savedVerses.length > 0 ? (
-          <div className="space-y-3">
+          <div className="space-y-4">
             {savedVerses.map((verse) => (
               <VerseListItem key={verse!.id} verse={verse!} />
             ))}
           </div>
         ) : (
-          <div className="text-center py-16">
-            <Heart className="h-16 w-16 mx-auto mb-4 text-muted-foreground/30" />
-            <h2 className="font-serif text-xl text-foreground mb-2">
+          <div className="text-center py-20">
+            <div className="inline-flex h-20 w-20 items-center justify-center rounded-full bg-secondary/50 mb-6">
+              <Heart className="h-10 w-10 text-muted-foreground/50" />
+            </div>
+            <h3 className="font-serif text-foreground mb-2">
               No saved verses yet
-            </h2>
-            <p className="text-muted-foreground mb-6">
+            </h3>
+            <p className="text-muted-foreground mb-8 max-w-sm mx-auto">
               Save verses that resonate with you for quick access later
             </p>
-            <Button asChild variant="outline">
+            <Button asChild variant="default" className="rounded-full px-8">
               <Link to="/browse">Browse Verses</Link>
             </Button>
           </div>
-        )}
-
-        {savedVerses.length > 0 && (
-          <p className="text-center text-sm text-muted-foreground mt-8">
-            {savedVerses.length} saved {savedVerses.length === 1 ? 'verse' : 'verses'}
-          </p>
         )}
       </div>
     </Layout>
