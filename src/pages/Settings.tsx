@@ -1,19 +1,44 @@
-import { ArrowLeft, LogOut } from 'lucide-react';
+import { useState } from 'react';
+import { ArrowLeft, LogOut, Lock, Loader2, Bell } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import { z } from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import Layout from '@/components/layout/Layout';
 import { useUser } from '@/contexts/UserContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { challenges } from '@/data/challenges';
 import { Challenge } from '@/types';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
+const passwordSchema = z.object({
+  currentPassword: z.string().min(1, 'Current password is required'),
+  newPassword: z.string().min(6, 'Password must be at least 6 characters'),
+  confirmPassword: z.string(),
+}).refine((data) => data.newPassword === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ['confirmPassword'],
+});
+
 const Settings = () => {
   const navigate = useNavigate();
   const { user, updateUser, setUser } = useUser();
+  const { user: authUser, profile, signOut, updatePassword, updateProfile } = useAuth();
+  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
+
+  const passwordForm = useForm<z.infer<typeof passwordSchema>>({
+    resolver: zodResolver(passwordSchema),
+    defaultValues: { currentPassword: '', newPassword: '', confirmPassword: '' },
+  });
 
   if (!user) {
     navigate('/');
@@ -34,11 +59,42 @@ const Settings = () => {
     toast.success('Preferences updated');
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await signOut();
     setUser(null);
     localStorage.removeItem('dailygita_favorites');
-    navigate('/');
+    navigate('/auth');
     toast.success('Logged out successfully');
+  };
+
+  const handlePasswordChange = async (values: z.infer<typeof passwordSchema>) => {
+    setIsUpdatingPassword(true);
+    const { error } = await updatePassword(values.newPassword);
+    setIsUpdatingPassword(false);
+
+    if (error) {
+      toast.error(error.message);
+    } else {
+      toast.success('Password updated successfully');
+      passwordForm.reset();
+      setShowPasswordForm(false);
+    }
+  };
+
+  const handleDailyVerseToggle = async (checked: boolean) => {
+    // Update local state
+    updateUser({ dailyEmailEnabled: checked });
+    
+    // Update in database
+    const { error } = await updateProfile({ daily_verse_enabled: checked });
+    
+    if (error) {
+      // Revert on error
+      updateUser({ dailyEmailEnabled: !checked });
+      toast.error('Failed to update preference');
+    } else {
+      toast.success(checked ? 'Daily emails enabled' : 'Daily emails disabled');
+    }
   };
 
   return (
@@ -62,71 +118,150 @@ const Settings = () => {
         </h1>
 
         {/* Account Info */}
-        <div className="bg-card border border-border rounded-lg p-5 mb-6">
-          <h2 className="font-medium text-foreground mb-4">Account</h2>
-          <div className="space-y-3">
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="text-lg">Account</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">Name</span>
-              <span className="text-sm text-foreground">{user.name}</span>
+              <span className="text-sm text-foreground">{profile?.display_name || user.name}</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">Email</span>
-              <span className="text-sm text-foreground">{user.email}</span>
+              <span className="text-sm text-foreground">{authUser?.email || user.email}</span>
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
+
+        {/* Password Settings */}
+        <Card className="mb-6">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Lock className="h-4 w-4" />
+                Password
+              </CardTitle>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowPasswordForm(!showPasswordForm)}
+              >
+                {showPasswordForm ? 'Cancel' : 'Change Password'}
+              </Button>
+            </div>
+          </CardHeader>
+          {showPasswordForm && (
+            <CardContent>
+              <Form {...passwordForm}>
+                <form onSubmit={passwordForm.handleSubmit(handlePasswordChange)} className="space-y-4">
+                  <FormField
+                    control={passwordForm.control}
+                    name="currentPassword"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Current Password</FormLabel>
+                        <FormControl>
+                          <Input type="password" placeholder="••••••••" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={passwordForm.control}
+                    name="newPassword"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>New Password</FormLabel>
+                        <FormControl>
+                          <Input type="password" placeholder="••••••••" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={passwordForm.control}
+                    name="confirmPassword"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Confirm New Password</FormLabel>
+                        <FormControl>
+                          <Input type="password" placeholder="••••••••" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <Button type="submit" disabled={isUpdatingPassword}>
+                    {isUpdatingPassword ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      'Update Password'
+                    )}
+                  </Button>
+                </form>
+              </Form>
+            </CardContent>
+          )}
+        </Card>
 
         {/* Daily Email */}
-        <div className="bg-card border border-border rounded-lg p-5 mb-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <Label htmlFor="daily-email" className="font-medium">
-                Daily Wisdom Email
-              </Label>
-              <p className="text-sm text-muted-foreground mt-1">
-                Receive one verse each morning
-              </p>
+        <Card className="mb-6">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Bell className="h-5 w-5 text-primary" />
+                <div>
+                  <Label htmlFor="daily-email" className="font-medium">
+                    Daily Wisdom Email
+                  </Label>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Receive one verse each morning
+                  </p>
+                </div>
+              </div>
+              <Switch
+                id="daily-email"
+                checked={profile?.daily_verse_enabled ?? user.dailyEmailEnabled}
+                onCheckedChange={handleDailyVerseToggle}
+              />
             </div>
-            <Switch
-              id="daily-email"
-              checked={user.dailyEmailEnabled}
-              onCheckedChange={(checked) => {
-                updateUser({ dailyEmailEnabled: checked });
-                toast.success(
-                  checked ? 'Daily emails enabled' : 'Daily emails disabled'
-                );
-              }}
-            />
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
         {/* Challenges */}
-        <div className="bg-card border border-border rounded-lg p-5 mb-6">
-          <h2 className="font-medium text-foreground mb-2">Your Challenges</h2>
-          <p className="text-sm text-muted-foreground mb-4">
-            We'll prioritize verses for these areas
-          </p>
-          <div className="grid grid-cols-2 gap-2">
-            {challenges.map((challenge) => {
-              const isSelected = user.selectedChallenges.includes(challenge.id);
-              return (
-                <button
-                  key={challenge.id}
-                  onClick={() => toggleChallenge(challenge.id)}
-                  className={cn(
-                    'p-3 rounded-lg border text-left text-sm transition-all flex items-center gap-2',
-                    isSelected
-                      ? 'border-primary bg-primary/5 text-foreground'
-                      : 'border-border bg-background text-muted-foreground hover:border-primary/50'
-                  )}
-                >
-                  <span>{challenge.icon}</span>
-                  <span>{challenge.label}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="text-lg">Your Challenges</CardTitle>
+            <p className="text-sm text-muted-foreground">
+              We'll prioritize verses for these areas
+            </p>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 gap-2">
+              {challenges.map((challenge) => {
+                const isSelected = user.selectedChallenges.includes(challenge.id);
+                return (
+                  <button
+                    key={challenge.id}
+                    onClick={() => toggleChallenge(challenge.id)}
+                    className={cn(
+                      'p-3 rounded-lg border text-left text-sm transition-all flex items-center gap-2',
+                      isSelected
+                        ? 'border-primary bg-primary/5 text-foreground'
+                        : 'border-border bg-background text-muted-foreground hover:border-primary/50'
+                    )}
+                  >
+                    <span>{challenge.icon}</span>
+                    <span>{challenge.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
 
         <Separator className="my-6" />
 
