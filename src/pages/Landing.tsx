@@ -1,10 +1,15 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Sparkles, BookOpen, Target, ArrowRight, Volume2, Heart, Share2 } from 'lucide-react';
+import { Sparkles, BookOpen, Target, ArrowRight, Volume2, Heart, Share2, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { curatedVerses } from '@/data/curatedVerses';
+import { VerseWithInsights } from '@/types';
 import { getChallengeById } from '@/data/challenges';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
 // Sample verses for the landing page
 const sampleVerses = curatedVerses.slice(0, 3);
@@ -171,75 +176,196 @@ const FeatureCard = ({ icon, title, description }: { icon: React.ReactNode; titl
   </div>
 );
 
-const SampleVerseCard = ({ verse }: { verse: typeof sampleVerses[0] }) => (
-  <Card className="overflow-hidden border-border/50 bg-card shadow-md">
-    <CardContent className="p-6 md:p-8">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          Chapter {verse.chapter} • Verse {verse.verse}
-        </span>
-        <div className="flex gap-2">
-          {verse.challenges.slice(0, 2).map((challengeId) => {
-            const challenge = getChallengeById(challengeId);
-            return challenge ? (
-              <Badge key={challengeId} variant="secondary" className="text-xs font-medium">
-                {challenge.icon} {challenge.label}
-              </Badge>
-            ) : null;
-          })}
+const SampleVerseCard = ({ verse }: { verse: VerseWithInsights }) => {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
+  const [cachedAudioUrl, setCachedAudioUrl] = useState<string | null>(null);
+
+  // Check for cached audio on mount
+  useEffect(() => {
+    const checkCachedAudio = async () => {
+      const storagePath = `${verse.chapter}/${verse.verse}.mp3`;
+      const { data } = supabase.storage
+        .from('verse-audio')
+        .getPublicUrl(storagePath);
+      
+      if (data?.publicUrl) {
+        const { data: audioRecord } = await supabase
+          .from('verse_audio')
+          .select('storage_path')
+          .eq('chapter_number', verse.chapter)
+          .eq('verse_number', verse.verse)
+          .single();
+        
+        if (audioRecord) {
+          setCachedAudioUrl(data.publicUrl);
+        }
+      }
+    };
+    
+    checkCachedAudio();
+  }, [verse.chapter, verse.verse]);
+
+  const handleReadAloud = async () => {
+    if (audioElement) {
+      audioElement.pause();
+      audioElement.currentTime = 0;
+      setAudioElement(null);
+      setIsPlaying(false);
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      let audioUrl = cachedAudioUrl;
+      
+      if (!audioUrl) {
+        const response = await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/elevenlabs-verse-tts`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+              'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+            },
+            body: JSON.stringify({
+              sanskrit: verse.sanskrit,
+              translation: verse.english,
+              explanation: verse.insight.explanation,
+              takeaway: verse.insight.takeaway,
+            }),
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error('Failed to generate audio');
+        }
+
+        const audioBlob = await response.blob();
+        audioUrl = URL.createObjectURL(audioBlob);
+      }
+
+      const audio = new Audio(audioUrl);
+      
+      audio.onended = () => {
+        setIsPlaying(false);
+        setAudioElement(null);
+        if (!cachedAudioUrl && audioUrl) {
+          URL.revokeObjectURL(audioUrl);
+        }
+      };
+      
+      setAudioElement(audio);
+      setIsLoading(false);
+      setIsPlaying(true);
+      await audio.play();
+    } catch (error) {
+      console.error('TTS error:', error);
+      toast.error('Failed to read verse aloud');
+      setIsLoading(false);
+      setIsPlaying(false);
+    }
+  };
+
+  const handleShare = async () => {
+    const shareText = `${verse.english}\n\n— Bhagavad Gita ${verse.chapter}.${verse.verse}`;
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `Bhagavad Gita ${verse.chapter}.${verse.verse}`,
+          text: shareText
+        });
+      } catch {
+        // User cancelled
+      }
+    } else {
+      await navigator.clipboard.writeText(shareText);
+      toast.success('Verse copied to clipboard');
+    }
+  };
+
+  return (
+    <Card className="overflow-hidden border-border/50 bg-card shadow-md">
+      <CardContent className="p-6 md:p-8">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6">
+          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Chapter {verse.chapter} • Verse {verse.verse}
+          </span>
+          <div className="flex gap-2">
+            {verse.challenges.slice(0, 2).map((challengeId) => {
+              const challenge = getChallengeById(challengeId);
+              return challenge ? (
+                <Badge key={challengeId} variant="secondary" className="text-xs font-medium">
+                  {challenge.icon} {challenge.label}
+                </Badge>
+              ) : null;
+            })}
+          </div>
         </div>
-      </div>
 
-      {/* Sanskrit */}
-      <div className="text-center mb-6">
-        <p className="font-sanskrit text-xl md:text-2xl leading-loose text-foreground whitespace-pre-line tracking-wide">
-          {verse.sanskrit}
+        {/* Sanskrit */}
+        <div className="text-center mb-6">
+          <p className="font-sanskrit text-xl md:text-2xl leading-loose text-foreground whitespace-pre-line tracking-wide">
+            {verse.sanskrit}
+          </p>
+        </div>
+
+        {/* Divider */}
+        <div className="flex items-center gap-6 my-6">
+          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+          <span className="text-primary text-lg">✦</span>
+          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+        </div>
+
+        {/* Translation */}
+        <p className="text-lg leading-relaxed text-foreground text-center mb-6 italic">
+          "{verse.english}"
         </p>
-      </div>
 
-      {/* Divider */}
-      <div className="flex items-center gap-6 my-6">
-        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
-        <span className="text-primary text-lg">✦</span>
-        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
-      </div>
+        {/* Explanation Preview */}
+        <div className="bg-secondary/30 rounded-xl p-4 mb-6">
+          <p className="text-muted-foreground text-sm leading-relaxed line-clamp-2">
+            {verse.insight.explanation}
+          </p>
+        </div>
 
-      {/* Translation */}
-      <p className="text-lg leading-relaxed text-foreground text-center mb-6 italic">
-        "{verse.english}"
-      </p>
-
-      {/* Explanation Preview */}
-      <div className="bg-secondary/30 rounded-xl p-4 mb-6">
-        <p className="text-muted-foreground text-sm leading-relaxed line-clamp-2">
-          {verse.insight.explanation}
-        </p>
-      </div>
-
-      {/* Actions (disabled preview) */}
-      <div className="flex items-center justify-center gap-2 pt-4 border-t border-border/50">
-        <Button variant="ghost" size="sm" className="gap-2 opacity-60" disabled>
-          <Volume2 className="h-4 w-4" />
-          Listen
-        </Button>
-        <Button variant="ghost" size="sm" className="gap-2 opacity-60" disabled>
-          <Heart className="h-4 w-4" />
-          Save
-        </Button>
-        <Button variant="ghost" size="sm" className="gap-2 opacity-60" disabled>
-          <Share2 className="h-4 w-4" />
-          Share
-        </Button>
-        <Button variant="ghost" size="sm" className="gap-2" asChild>
-          <Link to="/auth">
-            <Sparkles className="h-4 w-4" />
-            Sign up for AI Insights
-          </Link>
-        </Button>
-      </div>
-    </CardContent>
-  </Card>
-);
+        {/* Actions */}
+        <div className="flex items-center justify-center gap-2 pt-4 border-t border-border/50">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={handleReadAloud}
+            disabled={isLoading}
+            className={cn('gap-2', isPlaying && 'text-primary bg-primary/10')}
+          >
+            {isLoading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Volume2 className={cn('h-4 w-4', isPlaying && 'fill-current')} />
+            )}
+            {isLoading ? 'Loading...' : (isPlaying ? 'Stop' : 'Listen')}
+          </Button>
+          <Button variant="ghost" size="sm" className="gap-2 opacity-60" disabled>
+            <Heart className="h-4 w-4" />
+            Save
+          </Button>
+          <Button variant="ghost" size="sm" className="gap-2" onClick={handleShare}>
+            <Share2 className="h-4 w-4" />
+            Share
+          </Button>
+          <Button variant="ghost" size="sm" className="gap-2" asChild>
+            <Link to="/auth">
+              <Sparkles className="h-4 w-4" />
+              Sign up for AI Insights
+            </Link>
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
 
 export default Landing;
