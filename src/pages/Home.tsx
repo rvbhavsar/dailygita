@@ -57,8 +57,8 @@ const Home = () => {
       challenges: challengesList,
       insight: {
         verseId,
-        explanation: dailyVerse.aiSummary || 'Reflect on this ancient wisdom and how it applies to your life today.',
-        takeaway: dailyVerse.aiSummary ? 'Let this wisdom guide your day.' : 'Take a moment to contemplate this verse.',
+        explanation: 'This verse teaches us a timeless principle that can transform how we approach our daily challenges.',
+        takeaway: dailyVerse.aiSummary || 'Reflect on this ancient wisdom and how it applies to your life today.',
       },
       examples: challengesList.length > 0 ? [{
         verseId,
