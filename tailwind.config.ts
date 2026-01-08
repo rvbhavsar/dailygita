@@ -131,6 +131,10 @@ export default {
 				'Noto Sans Devanagari',
 				'Arial Unicode MS',
 				'sans-serif'
+			],
+			cursive: [
+				'Oooh Baby',
+				'cursive'
 			]
 		}
   	}
