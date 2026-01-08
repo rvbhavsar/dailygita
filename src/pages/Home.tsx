@@ -53,7 +53,7 @@ const Home = () => {
         <h1>
           Good {getTimeOfDay()}, <span className="gradient-text">{profile?.display_name?.split(' ')[0] || 'Seeker'}</span>
         </h1>
-        <p className="text-lg text-muted-foreground max-w-md lg:mx-0 mx-auto">
+        <p className="text-lg text-muted-foreground max-w-md mx-auto">
           Your daily wisdom awaits. Take a moment to reflect.
         </p>
       </section>
