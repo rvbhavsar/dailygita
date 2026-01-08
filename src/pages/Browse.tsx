@@ -38,11 +38,14 @@ const Browse = () => {
 
   const isLoading = chaptersLoading || versesLoading || translationsLoading;
 
-  // Create a map of verse challenges from AI analysis
+  // Create a map of verse challenges and AI summaries from AI analysis
   const verseChallengesMap = useMemo(() => {
-    const map = new Map<string, string[]>();
+    const map = new Map<string, { challenges: string[]; aiSummary: string }>();
     verseChallenges?.forEach(vc => {
-      map.set(`${vc.chapter_number}-${vc.verse_number}`, vc.challenges);
+      map.set(`${vc.chapter_number}-${vc.verse_number}`, {
+        challenges: vc.challenges,
+        aiSummary: vc.ai_summary || '',
+      });
     });
     return map;
   }, [verseChallenges]);
@@ -80,8 +83,8 @@ const Browse = () => {
       verses = verses.filter(v => {
         const verseId = `${v.chapter_number}-${v.verse_number}`;
         // Check AI-analyzed challenges first, then fall back to curated
-        const aiChallenges = verseChallengesMap.get(verseId);
-        if (aiChallenges?.includes(selectedChallenge)) return true;
+        const verseData = verseChallengesMap.get(verseId);
+        if (verseData?.challenges.includes(selectedChallenge)) return true;
         const curated = curatedVersesMap.get(verseId);
         return curated?.challenges.includes(selectedChallenge as any);
       });
@@ -232,7 +235,9 @@ const Browse = () => {
               paginatedVerses.map((verse) => {
                 const verseId = `${verse.chapter_number}-${verse.verse_number}`;
                 const hasCurated = curatedVersesMap.has(verseId);
-                const aiChallenges = verseChallengesMap.get(verseId) || [];
+                const verseData = verseChallengesMap.get(verseId);
+                const aiChallenges = verseData?.challenges || [];
+                const aiSummary = verseData?.aiSummary || '';
                 const english = englishTranslationsMap.get(verse.verse_id) || '';
                 
                 return (
@@ -253,7 +258,12 @@ const Browse = () => {
                         <p className="font-sanskrit text-base text-foreground leading-relaxed line-clamp-2 mb-3">
                           {verse.text.split('\n')[0]}
                         </p>
-                        <p className="text-sm text-muted-foreground line-clamp-3 mb-3">
+                        {aiSummary && (
+                          <p className="text-sm text-primary font-medium line-clamp-1 mb-2">
+                            ✦ {aiSummary}
+                          </p>
+                        )}
+                        <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
                           {english || 'Translation loading...'}
                         </p>
                         {aiChallenges.length > 0 && (
