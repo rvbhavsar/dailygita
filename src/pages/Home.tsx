@@ -52,8 +52,8 @@ const Home = () => {
   return (
     <Layout>
       <div className="flex flex-col lg:flex-row gap-8">
-        {/* Main Content - 70% */}
-        <div className="flex-1 lg:w-[70%] space-y-8">
+        {/* Main Content - fluid */}
+        <div className="flex-1 min-w-0 space-y-8">
           {/* Greeting Section */}
           <section className="text-center lg:text-left space-y-3">
             <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
@@ -124,8 +124,8 @@ const Home = () => {
           )}
         </div>
 
-        {/* Sidebar - 30% (hidden on mobile, shown on lg+) */}
-        <div className="hidden lg:block lg:w-[30%] lg:max-w-xs">
+        {/* Sidebar - fixed width (hidden on mobile, shown on lg+) */}
+        <div className="hidden lg:block w-72 xl:w-80 flex-shrink-0">
           <div className="sticky top-24">
             <HomeSidebar tomorrowsVerse={tomorrowsVerse} timeLeft={timeLeft} />
           </div>
