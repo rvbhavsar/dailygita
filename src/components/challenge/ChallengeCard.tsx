@@ -1,17 +1,15 @@
 import { Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { ChallengeInfo } from '@/types';
-import { getVersesByChallenge } from '@/data/verses';
 
 interface ChallengeCardProps {
   challenge: ChallengeInfo;
+  verseCount?: number;
 }
 
-const ChallengeCard = ({ challenge }: ChallengeCardProps) => {
-  const verseCount = getVersesByChallenge(challenge.id).length;
-
+const ChallengeCard = ({ challenge, verseCount = 0 }: ChallengeCardProps) => {
   return (
-    <Link to={`/challenges/${challenge.id}`}>
+    <Link to={`/browse?challenge=${challenge.id}`}>
       <Card className="h-full border-border/50 bg-card card-hover cursor-pointer group">
         <CardContent className="p-6 flex flex-col items-center text-center">
           <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">
