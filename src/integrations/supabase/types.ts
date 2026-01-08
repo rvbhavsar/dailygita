@@ -187,6 +187,33 @@ export type Database = {
         }
         Relationships: []
       }
+      verse_challenges: {
+        Row: {
+          ai_summary: string | null
+          analyzed_at: string
+          challenges: string[]
+          chapter_number: number
+          id: string
+          verse_number: number
+        }
+        Insert: {
+          ai_summary?: string | null
+          analyzed_at?: string
+          challenges?: string[]
+          chapter_number: number
+          id?: string
+          verse_number: number
+        }
+        Update: {
+          ai_summary?: string | null
+          analyzed_at?: string
+          challenges?: string[]
+          chapter_number?: number
+          id?: string
+          verse_number?: number
+        }
+        Relationships: []
+      }
       verses: {
         Row: {
           chapter_number: number

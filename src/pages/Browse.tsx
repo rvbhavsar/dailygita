@@ -3,13 +3,14 @@ import { BookOpen, Loader2, Sparkles, ChevronLeft, ChevronRight } from 'lucide-r
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Layout from '@/components/layout/Layout';
-import { useChapters, useAllVerses, useTranslations } from '@/hooks/useGitaData';
-import { curatedVersesMap, curatedVerses } from '@/data/curatedVerses';
+import { useChapters, useAllVerses, useTranslations, useVerseChallenges } from '@/hooks/useGitaData';
+import { curatedVersesMap } from '@/data/curatedVerses';
 import { challenges } from '@/data/challenges';
 import { Link } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { getChallengeById } from '@/data/challenges';
 
 const ITEMS_PER_PAGE = 12;
 
@@ -21,8 +22,18 @@ const Browse = () => {
   const { data: chapters, isLoading: chaptersLoading } = useChapters();
   const { data: allVerses, isLoading: versesLoading } = useAllVerses();
   const { data: translations, isLoading: translationsLoading } = useTranslations();
+  const { data: verseChallenges, isLoading: challengesLoading } = useVerseChallenges();
 
   const isLoading = chaptersLoading || versesLoading || translationsLoading;
+
+  // Create a map of verse challenges from AI analysis
+  const verseChallengesMap = useMemo(() => {
+    const map = new Map<string, string[]>();
+    verseChallenges?.forEach(vc => {
+      map.set(`${vc.chapter_number}-${vc.verse_number}`, vc.challenges);
+    });
+    return map;
+  }, [verseChallenges]);
 
   // Get translations map (verse_id -> translation, prefer Swami Sivananda)
   const englishTranslationsMap = useMemo(() => {
@@ -56,13 +67,16 @@ const Browse = () => {
     if (selectedChallenge) {
       verses = verses.filter(v => {
         const verseId = `${v.chapter_number}-${v.verse_number}`;
+        // Check AI-analyzed challenges first, then fall back to curated
+        const aiChallenges = verseChallengesMap.get(verseId);
+        if (aiChallenges?.includes(selectedChallenge)) return true;
         const curated = curatedVersesMap.get(verseId);
         return curated?.challenges.includes(selectedChallenge as any);
       });
     }
     
     return verses;
-  }, [allVerses, selectedChapter, selectedChallenge]);
+  }, [allVerses, selectedChapter, selectedChallenge, verseChallengesMap]);
 
   // Pagination
   const totalPages = Math.ceil(filteredVerses.length / ITEMS_PER_PAGE);
@@ -82,9 +96,19 @@ const Browse = () => {
     setCurrentPage(1);
   };
 
-  // Get curated verses for challenge filter
+  // Get verse count for each challenge (from AI analysis + curated)
   const getChallengeVerseCount = (challengeId: string) => {
-    return curatedVerses.filter(v => v.challenges.includes(challengeId as any)).length;
+    let count = 0;
+    verseChallenges?.forEach(vc => {
+      if (vc.challenges.includes(challengeId)) count++;
+    });
+    // Add curated verses not in AI analysis
+    curatedVersesMap.forEach((curated, verseId) => {
+      if (curated.challenges.includes(challengeId as any) && !verseChallengesMap.has(verseId)) {
+        count++;
+      }
+    });
+    return count;
   };
 
   return (
@@ -196,6 +220,7 @@ const Browse = () => {
               paginatedVerses.map((verse) => {
                 const verseId = `${verse.chapter_number}-${verse.verse_number}`;
                 const hasCurated = curatedVersesMap.has(verseId);
+                const aiChallenges = verseChallengesMap.get(verseId) || [];
                 const english = englishTranslationsMap.get(verse.verse_id) || '';
                 
                 return (
@@ -216,9 +241,21 @@ const Browse = () => {
                         <p className="font-sanskrit text-base text-foreground leading-relaxed line-clamp-2 mb-3">
                           {verse.text.split('\n')[0]}
                         </p>
-                        <p className="text-sm text-muted-foreground line-clamp-3">
+                        <p className="text-sm text-muted-foreground line-clamp-3 mb-3">
                           {english || 'Translation loading...'}
                         </p>
+                        {aiChallenges.length > 0 && (
+                          <div className="flex flex-wrap gap-1">
+                            {aiChallenges.slice(0, 2).map(challengeId => {
+                              const challenge = getChallengeById(challengeId);
+                              return challenge ? (
+                                <Badge key={challengeId} variant="outline" className="text-xs">
+                                  {challenge.icon} {challenge.label}
+                                </Badge>
+                              ) : null;
+                            })}
+                          </div>
+                        )}
                       </CardContent>
                     </Card>
                   </Link>

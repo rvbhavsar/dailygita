@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.generate-all-verse-audio]
 verify_jwt = false
+
+[functions.analyze-verses-challenges]
+verify_jwt = false
