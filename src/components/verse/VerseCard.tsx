@@ -72,7 +72,7 @@ const VerseCard = ({ verse, showFullContent = false, className }: VerseCardProps
         </div>
 
         {/* Translation */}
-        <p className="font-serif text-xl md:text-2xl leading-relaxed text-foreground text-center mb-8">
+        <p className="text-xl md:text-2xl leading-relaxed text-foreground text-center mb-8 italic">
           "{verse.english}"
         </p>
 

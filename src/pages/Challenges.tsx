@@ -9,7 +9,7 @@ const Challenges = () => {
       <div className="space-y-8">
         <section className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
-            <h1 className="font-serif mb-2">Life Challenges</h1>
+            <h1 className="mb-2">Life Challenges</h1>
             <p className="text-muted-foreground">
               Ancient wisdom for modern struggles
             </p>

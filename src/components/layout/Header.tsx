@@ -24,7 +24,7 @@ const Header = () => {
                 <span className="font-sanskrit text-lg md:text-xl text-primary-foreground">ॐ</span>
               </div>
               <div className="flex flex-col">
-                <span className="font-serif text-xl md:text-2xl font-bold text-foreground tracking-tight">
+                <span className="text-xl md:text-2xl font-bold text-foreground tracking-tight">
                   Daily Gita
                 </span>
                 <span className="text-xs text-muted-foreground hidden sm:block">

@@ -15,7 +15,7 @@ const ChallengeDetail = () => {
     return (
       <Layout>
         <div className="text-center py-12">
-          <h1 className="font-serif text-2xl text-foreground mb-4">
+          <h1 className="text-2xl font-bold text-foreground mb-4">
             Challenge not found
           </h1>
           <Button asChild variant="outline">
@@ -48,7 +48,7 @@ const ChallengeDetail = () => {
         {/* Header */}
         <div className="text-center mb-8">
           <span className="text-5xl mb-4 block">{challenge.icon}</span>
-          <h1 className="font-serif text-2xl font-semibold text-foreground mb-2">
+          <h1 className="text-2xl font-bold text-foreground mb-2">
             {challenge.label}
           </h1>
           <p className="text-muted-foreground">
