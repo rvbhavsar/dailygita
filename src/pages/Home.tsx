@@ -46,7 +46,7 @@ const Home = () => {
   };
   return <Layout fullWidth>
       {/* Greeting Section - Full Width at Top */}
-      <section className="text-center lg:text-left space-y-3 mb-8">
+      <section className="text-center space-y-3 mb-8">
         <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
           {today}
         </p>
