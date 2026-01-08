@@ -147,36 +147,50 @@
 
   html {
     scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
   }
 
   body {
     @apply bg-background text-foreground antialiased;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    overscroll-behavior-y: contain;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Typography Scale */
+  /* Typography Scale - Mobile First */
   h1 {
-    @apply text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight;
+    @apply text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight;
   }
 
   h2 {
-    @apply text-2xl md:text-3xl font-bold tracking-tight;
+    @apply text-xl sm:text-2xl md:text-3xl font-bold tracking-tight;
   }
 
   h3 {
-    @apply text-xl md:text-2xl font-semibold tracking-tight;
+    @apply text-lg sm:text-xl md:text-2xl font-semibold tracking-tight;
   }
 
   h4 {
-    @apply text-lg md:text-xl font-semibold;
+    @apply text-base sm:text-lg md:text-xl font-semibold;
   }
 
   h5 {
-    @apply text-base md:text-lg font-semibold;
+    @apply text-sm sm:text-base md:text-lg font-semibold;
   }
 
   h6 {
-    @apply text-sm md:text-base font-semibold;
+    @apply text-xs sm:text-sm md:text-base font-semibold;
+  }
+
+  /* Safe area padding for notched devices */
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+  
+  .pt-safe {
+    padding-top: env(safe-area-inset-top, 0);
   }
 }
 
@@ -203,17 +217,38 @@
 
   /* Fluid card hover effect */
   .card-hover {
-    @apply transition-all duration-300 ease-out hover:shadow-lg hover:-translate-y-0.5;
+    @apply transition-all duration-300 ease-out;
+  }
+  
+  @media (hover: hover) {
+    .card-hover:hover {
+      @apply shadow-lg -translate-y-0.5;
+    }
   }
 
-  /* Section spacing */
+  /* Section spacing - Mobile first */
   .section {
-    @apply py-12 md:py-16 lg:py-20;
+    @apply py-8 sm:py-12 md:py-16 lg:py-20;
   }
 
   /* Gradient text */
   .gradient-text {
     @apply bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent;
+  }
+
+  /* Touch-friendly buttons */
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px];
+  }
+
+  /* Hide scrollbar but keep functionality */
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
   }
 }
 
