@@ -25,7 +25,7 @@ const Browse = () => {
   const englishTranslationsMap = new Map<number, string>();
   if (translations) {
     // Get one English translation per verse (prefer Swami Sivananda)
-    const englishTranslations = translations.filter(t => t.lang === 'english');
+    const englishTranslations = translations.filter(t => t.language === 'english');
     const groupedByVerse = new Map<number, typeof englishTranslations>();
     
     englishTranslations.forEach(t => {
@@ -36,7 +36,7 @@ const Browse = () => {
     });
 
     groupedByVerse.forEach((trans, verseId) => {
-      const sivananda = trans.find(t => t.authorName.includes('Sivananda'));
+      const sivananda = trans.find(t => t.author_name.includes('Sivananda'));
       englishTranslationsMap.set(verseId, sivananda?.description || trans[0]?.description || '');
     });
   }
@@ -98,7 +98,7 @@ const Browse = () => {
                     variant={selectedChapter === chapter.chapter_number ? 'default' : 'outline'}
                     size="sm"
                     onClick={() => setSelectedChapter(chapter.chapter_number)}
-                    title={chapter.name_meaning}
+                    title={chapter.name_translated || chapter.name}
                   >
                     Ch. {chapter.chapter_number}
                   </Button>
@@ -110,7 +110,7 @@ const Browse = () => {
               <Card className="mb-6 bg-muted/50">
                 <CardContent className="pt-4">
                   <h3 className="font-serif text-lg font-medium">
-                    Chapter {selectedChapter}: {chapters.find(c => c.chapter_number === selectedChapter)?.name_meaning}
+                    Chapter {selectedChapter}: {chapters.find(c => c.chapter_number === selectedChapter)?.name_translated || chapters.find(c => c.chapter_number === selectedChapter)?.name}
                   </h3>
                   <p className="text-sm text-muted-foreground mt-1">
                     {chapters.find(c => c.chapter_number === selectedChapter)?.name_transliterated}
@@ -160,7 +160,7 @@ const Browse = () => {
               filteredVerses.slice(0, 50).map((verse) => {
                 const verseId = `${verse.chapter_number}-${verse.verse_number}`;
                 const hasCurated = curatedVersesMap.has(verseId);
-                const english = englishTranslationsMap.get(verse.id) || '';
+                const english = englishTranslationsMap.get(verse.verse_id) || '';
                 
                 return (
                   <Link key={verse.id} to={`/verse/${verseId}`}>

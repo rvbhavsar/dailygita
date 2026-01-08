@@ -1,91 +1,97 @@
-// Fetches Bhagavad Gita data from the gita/gita GitHub repository
-const BASE_URL = 'https://raw.githubusercontent.com/gita/gita/main/data';
+// Fetches Bhagavad Gita data from Supabase database
+import { supabase } from '@/integrations/supabase/client';
 
 export interface GitaChapter {
   id: number;
   chapter_number: number;
-  chapter_summary: string;
-  chapter_summary_hindi: string;
   name: string;
-  name_meaning: string;
-  name_translation: string;
-  name_transliterated: string;
+  name_transliterated: string | null;
+  name_translated: string | null;
   verses_count: number;
-  image_name: string;
+  chapter_summary: string | null;
+  chapter_summary_hindi: string | null;
 }
 
 export interface GitaVerse {
   id: number;
-  chapter_id: number;
+  verse_id: number;
   chapter_number: number;
   verse_number: number;
-  verse_order: number;
   text: string;
-  transliteration: string;
-  word_meanings: string;
-  title: string;
-  externalId: number;
+  transliteration: string | null;
+  word_meanings: string | null;
 }
 
 export interface GitaTranslation {
   id: number;
   verse_id: number;
-  verseNumber: number;
-  author_id: number;
-  authorName: string;
+  author_name: string;
+  language: string;
   description: string;
-  lang: string;
-  language_id: number;
 }
 
-// Cache the data in memory to avoid refetching
-let chaptersCache: GitaChapter[] | null = null;
-let versesCache: GitaVerse[] | null = null;
-let translationsCache: GitaTranslation[] | null = null;
-
 export async function fetchChapters(): Promise<GitaChapter[]> {
-  if (chaptersCache) return chaptersCache;
+  const { data, error } = await supabase
+    .from('chapters')
+    .select('*')
+    .order('chapter_number');
   
-  const response = await fetch(`${BASE_URL}/chapters.json`);
-  if (!response.ok) throw new Error('Failed to fetch chapters');
-  
-  chaptersCache = await response.json();
-  return chaptersCache!;
+  if (error) throw new Error(`Failed to fetch chapters: ${error.message}`);
+  return data || [];
 }
 
 export async function fetchVerses(): Promise<GitaVerse[]> {
-  if (versesCache) return versesCache;
+  const { data, error } = await supabase
+    .from('verses')
+    .select('*')
+    .order('chapter_number')
+    .order('verse_number');
   
-  const response = await fetch(`${BASE_URL}/verse.json`);
-  if (!response.ok) throw new Error('Failed to fetch verses');
-  
-  versesCache = await response.json();
-  return versesCache!;
+  if (error) throw new Error(`Failed to fetch verses: ${error.message}`);
+  return data || [];
 }
 
 export async function fetchTranslations(): Promise<GitaTranslation[]> {
-  if (translationsCache) return translationsCache;
+  const { data, error } = await supabase
+    .from('translations')
+    .select('*');
   
-  const response = await fetch(`${BASE_URL}/translation.json`);
-  if (!response.ok) throw new Error('Failed to fetch translations');
-  
-  translationsCache = await response.json();
-  return translationsCache!;
+  if (error) throw new Error(`Failed to fetch translations: ${error.message}`);
+  return data || [];
 }
 
 export async function fetchChapterVerses(chapterNumber: number): Promise<GitaVerse[]> {
-  const verses = await fetchVerses();
-  return verses.filter(v => v.chapter_number === chapterNumber);
+  const { data, error } = await supabase
+    .from('verses')
+    .select('*')
+    .eq('chapter_number', chapterNumber)
+    .order('verse_number');
+  
+  if (error) throw new Error(`Failed to fetch chapter verses: ${error.message}`);
+  return data || [];
 }
 
 export async function fetchVerse(chapterNumber: number, verseNumber: number): Promise<GitaVerse | undefined> {
-  const verses = await fetchVerses();
-  return verses.find(v => v.chapter_number === chapterNumber && v.verse_number === verseNumber);
+  const { data, error } = await supabase
+    .from('verses')
+    .select('*')
+    .eq('chapter_number', chapterNumber)
+    .eq('verse_number', verseNumber)
+    .maybeSingle();
+  
+  if (error) throw new Error(`Failed to fetch verse: ${error.message}`);
+  return data || undefined;
 }
 
-export async function fetchVerseTranslations(verseId: number, lang: string = 'english'): Promise<GitaTranslation[]> {
-  const translations = await fetchTranslations();
-  return translations.filter(t => t.verse_id === verseId && t.lang === lang);
+export async function fetchVerseTranslations(verseId: number, language: string = 'english'): Promise<GitaTranslation[]> {
+  const { data, error } = await supabase
+    .from('translations')
+    .select('*')
+    .eq('verse_id', verseId)
+    .eq('language', language);
+  
+  if (error) throw new Error(`Failed to fetch translations: ${error.message}`);
+  return data || [];
 }
 
 // Get a single English translation (prefer Swami Sivananda or first available)
@@ -93,7 +99,7 @@ export async function fetchVerseEnglishTranslation(verseId: number): Promise<str
   const translations = await fetchVerseTranslations(verseId, 'english');
   
   // Prefer Swami Sivananda's translation for clarity
-  const sivananda = translations.find(t => t.authorName.includes('Sivananda'));
+  const sivananda = translations.find(t => t.author_name.includes('Sivananda'));
   if (sivananda) return sivananda.description;
   
   // Otherwise return the first English translation
