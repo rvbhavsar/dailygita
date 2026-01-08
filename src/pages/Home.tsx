@@ -257,7 +257,12 @@ const Home = () => {
                       <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                         Chapter {dailyVerse.nextVerse.chapter_number} • Verse {dailyVerse.nextVerse.verse_number}
                       </span>
-                      <p className="text-foreground mt-2 line-clamp-2 italic">
+                      {dailyVerse.nextVerse.aiSummary && (
+                        <p className="text-primary font-medium mt-2 line-clamp-1 text-sm">
+                          ✦ {dailyVerse.nextVerse.aiSummary}
+                        </p>
+                      )}
+                      <p className="text-muted-foreground mt-1 line-clamp-1 italic text-sm">
                         "{dailyVerse.nextVerse.translation}"
                       </p>
                     </div>
