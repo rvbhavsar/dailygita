@@ -28,7 +28,6 @@ export interface Verse {
   chapter: number;
   verse: number;
   sanskrit: string;
-  transliteration: string;
   english: string;
 }
 

@@ -18,7 +18,6 @@ export interface GitaVerse {
   chapter_number: number;
   verse_number: number;
   text: string;
-  transliteration: string | null;
   word_meanings: string | null;
 }
 
