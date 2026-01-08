@@ -14,6 +14,11 @@ interface DailyVerseData {
   challenges: string[];
   aiSummary: string;
   isFromHistory: boolean;
+  nextVerse: {
+    chapter_number: number;
+    verse_number: number;
+    translation: string;
+  } | null;
 }
 
 export const useDailyVerse = () => {
