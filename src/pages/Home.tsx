@@ -64,10 +64,10 @@ const Home = () => {
         </p>
       </section>
 
-      {/* Main Content & Sidebar Row */}
-      <div className="flex flex-col lg:flex-row gap-8">
-        {/* Main Content - fills available space */}
-        <div className="flex-1 min-w-0 space-y-8">
+      {/* Main Content & Sidebar Row - max 1280px, centered */}
+      <div className="flex flex-col lg:flex-row gap-8 max-w-[1280px] mx-auto w-full">
+        {/* Main Content - 70% width */}
+        <div className="flex-1 lg:w-[70%] min-w-0 space-y-8">
           {/* Daily Verse */}
           <VerseCard verse={dailyVerse} showFullContent />
 
@@ -125,8 +125,8 @@ const Home = () => {
           )}
         </div>
 
-        {/* Sidebar - fixed width (hidden on mobile, shown on lg+) */}
-        <div className="hidden lg:block w-72 xl:w-80 flex-shrink-0">
+        {/* Sidebar - 30% width (hidden on mobile, shown on lg+) */}
+        <div className="hidden lg:block lg:w-[30%] flex-shrink-0">
           <div className="sticky top-24">
             <HomeSidebar tomorrowsVerse={tomorrowsVerse} timeLeft={timeLeft} />
           </div>
