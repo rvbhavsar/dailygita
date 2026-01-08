@@ -18,7 +18,6 @@ interface DailyVerseData {
     chapter_number: number;
     verse_number: number;
     translation: string;
-    aiSummary: string;
   } | null;
 }
 

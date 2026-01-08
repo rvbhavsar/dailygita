@@ -61,7 +61,6 @@ async function getNextVersePreview(supabase: any, challenges: string[], excludeV
       chapter_number: verse.chapter_number,
       verse_number: verse.verse_number,
       translation: translation?.description || "",
-      aiSummary: nextVerseChallenge.ai_summary || "",
     };
   } catch (error) {
     console.error("Error getting next verse preview:", error);
