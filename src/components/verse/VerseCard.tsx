@@ -9,25 +9,28 @@ import { getChallengeById } from '@/data/challenges';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import PersonalizedInsight from './PersonalizedInsight';
-
 interface VerseCardProps {
   verse: VerseWithInsights;
   showFullContent?: boolean;
   className?: string;
 }
-
-const VerseCard = ({ verse, showFullContent = false, className }: VerseCardProps) => {
-  const { toggleFavorite, isFavorite } = useUser();
+const VerseCard = ({
+  verse,
+  showFullContent = false,
+  className
+}: VerseCardProps) => {
+  const {
+    toggleFavorite,
+    isFavorite
+  } = useUser();
   const saved = isFavorite(verse.id);
-
   const handleShare = async () => {
     const shareText = `${verse.english}\n\n— Bhagavad Gita ${verse.chapter}.${verse.verse}`;
-    
     if (navigator.share) {
       try {
         await navigator.share({
           title: `Bhagavad Gita ${verse.chapter}.${verse.verse}`,
-          text: shareText,
+          text: shareText
         });
       } catch {
         // User cancelled or error
@@ -37,9 +40,7 @@ const VerseCard = ({ verse, showFullContent = false, className }: VerseCardProps
       toast.success('Verse copied to clipboard');
     }
   };
-
-  return (
-    <Card className={cn('overflow-hidden border-border/50 bg-card shadow-md card-hover', className)}>
+  return <Card className={cn('overflow-hidden border-border/50 bg-card shadow-md card-hover', className)}>
       <CardContent className="p-6 md:p-10">
         {/* Chapter & Verse Header */}
         <div className="flex items-center justify-between mb-8">
@@ -47,20 +48,18 @@ const VerseCard = ({ verse, showFullContent = false, className }: VerseCardProps
             Chapter {verse.chapter} • Verse {verse.verse}
           </span>
           <div className="flex gap-2">
-            {verse.challenges.slice(0, 2).map((challengeId) => {
-              const challenge = getChallengeById(challengeId);
-              return challenge ? (
-                <Badge key={challengeId} variant="secondary" className="text-xs font-medium">
+            {verse.challenges.slice(0, 2).map(challengeId => {
+            const challenge = getChallengeById(challengeId);
+            return challenge ? <Badge key={challengeId} variant="secondary" className="text-xs font-medium">
                   {challenge.icon} {challenge.label}
-                </Badge>
-              ) : null;
-            })}
+                </Badge> : null;
+          })}
           </div>
         </div>
 
         {/* Sanskrit */}
         <div className="text-center mb-8">
-          <p className="font-sanskrit text-2xl md:text-3xl lg:text-4xl leading-loose text-foreground whitespace-pre-line tracking-wide">
+          <p className="font-sanskrit text-2xl md:text-3xl leading-loose text-foreground whitespace-pre-line tracking-wide lg:text-3xl">
             {verse.sanskrit}
           </p>
         </div>
@@ -77,8 +76,7 @@ const VerseCard = ({ verse, showFullContent = false, className }: VerseCardProps
           "{verse.english}"
         </p>
 
-        {showFullContent && (
-          <div className="space-y-6 mt-10">
+        {showFullContent && <div className="space-y-6 mt-10">
             {/* Explanation with Takeaway */}
             <div className="bg-secondary/30 rounded-2xl p-6 md:p-8">
               <h4 className="text-foreground mb-3">What This Means</h4>
@@ -95,25 +93,13 @@ const VerseCard = ({ verse, showFullContent = false, className }: VerseCardProps
             {/* AI-Powered Personalized Example */}
             <div>
               <h4 className="text-foreground mb-4">Personalized for You</h4>
-              <PersonalizedInsight 
-                verse={verse} 
-                selectedChallenge={getChallengeById(verse.challenges[0])} 
-              />
+              <PersonalizedInsight verse={verse} selectedChallenge={getChallengeById(verse.challenges[0])} />
             </div>
-          </div>
-        )}
+          </div>}
 
         {/* Actions */}
         <div className="flex items-center justify-center gap-2 pt-8 mt-8 border-t border-border/50">
-          <Button
-            variant="ghost"
-            size="lg"
-            onClick={() => toggleFavorite(verse.id)}
-            className={cn(
-              'gap-2 rounded-full px-6',
-              saved && 'text-primary bg-primary/10'
-            )}
-          >
+          <Button variant="ghost" size="lg" onClick={() => toggleFavorite(verse.id)} className={cn('gap-2 rounded-full px-6', saved && 'text-primary bg-primary/10')}>
             <Heart className={cn('h-5 w-5', saved && 'fill-current')} />
             {saved ? 'Saved' : 'Save'}
           </Button>
@@ -123,18 +109,14 @@ const VerseCard = ({ verse, showFullContent = false, className }: VerseCardProps
             Share
           </Button>
 
-          {!showFullContent && (
-            <Button variant="ghost" size="lg" asChild className="gap-2 rounded-full px-6">
+          {!showFullContent && <Button variant="ghost" size="lg" asChild className="gap-2 rounded-full px-6">
               <Link to={`/verse/${verse.id}`}>
                 <BookOpen className="h-5 w-5" />
                 Read More
               </Link>
-            </Button>
-          )}
+            </Button>}
         </div>
       </CardContent>
-    </Card>
-  );
+    </Card>;
 };
-
 export default VerseCard;
