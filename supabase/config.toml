@@ -8,15 +8,3 @@ verify_jwt = false
 
 [functions.analyze-verses-challenges]
 verify_jwt = false
-
-[functions.get-daily-verse]
-verify_jwt = false
-
-[functions.generate-personalized-insight]
-verify_jwt = false
-
-[functions.seed-gita-data]
-verify_jwt = false
-
-[functions.send-daily-verse]
-verify_jwt = false

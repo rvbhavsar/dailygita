@@ -50,39 +50,6 @@ export type Database = {
         }
         Relationships: []
       }
-      daily_verse_history: {
-        Row: {
-          chapter_number: number
-          created_at: string
-          id: string
-          shown_date: string
-          user_id: string
-          verse_id: number
-          verse_number: number
-          was_liked: boolean | null
-        }
-        Insert: {
-          chapter_number: number
-          created_at?: string
-          id?: string
-          shown_date?: string
-          user_id: string
-          verse_id: number
-          verse_number: number
-          was_liked?: boolean | null
-        }
-        Update: {
-          chapter_number?: number
-          created_at?: string
-          id?: string
-          shown_date?: string
-          user_id?: string
-          verse_id?: number
-          verse_number?: number
-          was_liked?: boolean | null
-        }
-        Relationships: []
-      }
       profiles: {
         Row: {
           age: number | null
@@ -249,39 +216,6 @@ export type Database = {
           challenges?: string[]
           chapter_number?: number
           id?: string
-          verse_number?: number
-        }
-        Relationships: []
-      }
-      verse_feedback: {
-        Row: {
-          challenge_context: string[]
-          chapter_number: number
-          created_at: string
-          feedback: string
-          id: string
-          user_id: string
-          verse_id: number
-          verse_number: number
-        }
-        Insert: {
-          challenge_context?: string[]
-          chapter_number: number
-          created_at?: string
-          feedback: string
-          id?: string
-          user_id: string
-          verse_id: number
-          verse_number: number
-        }
-        Update: {
-          challenge_context?: string[]
-          chapter_number?: number
-          created_at?: string
-          feedback?: string
-          id?: string
-          user_id?: string
-          verse_id?: number
           verse_number?: number
         }
         Relationships: []
