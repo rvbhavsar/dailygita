@@ -8,6 +8,7 @@ import { useUser } from '@/contexts/UserContext';
 import { getChallengeById } from '@/data/challenges';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import PersonalizedInsight from './PersonalizedInsight';
 
 interface VerseCardProps {
   verse: VerseWithInsights;
@@ -108,6 +109,15 @@ const VerseCard = ({ verse, showFullContent = false, className }: VerseCardProps
                 </div>
               </div>
             )}
+
+            {/* AI-Powered Personalized Example */}
+            <div>
+              <h4 className="text-foreground mb-4">Personalized for You</h4>
+              <PersonalizedInsight 
+                verse={verse} 
+                selectedChallenge={verse.challenges[0]} 
+              />
+            </div>
           </div>
         )}
 
