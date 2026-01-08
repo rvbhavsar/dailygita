@@ -157,6 +157,36 @@ export type Database = {
           },
         ]
       }
+      verse_audio: {
+        Row: {
+          chapter_number: number
+          created_at: string
+          duration_seconds: number | null
+          file_size: number | null
+          id: string
+          storage_path: string
+          verse_number: number
+        }
+        Insert: {
+          chapter_number: number
+          created_at?: string
+          duration_seconds?: number | null
+          file_size?: number | null
+          id?: string
+          storage_path: string
+          verse_number: number
+        }
+        Update: {
+          chapter_number?: number
+          created_at?: string
+          duration_seconds?: number | null
+          file_size?: number | null
+          id?: string
+          storage_path?: string
+          verse_number?: number
+        }
+        Relationships: []
+      }
       verses: {
         Row: {
           chapter_number: number

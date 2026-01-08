@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Heart, Share2, BookOpen, Volume2, Loader2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -9,25 +9,56 @@ import { useUser } from '@/contexts/UserContext';
 import { getChallengeById } from '@/data/challenges';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 import PersonalizedInsight from './PersonalizedInsight';
+
 interface VerseCardProps {
   verse: VerseWithInsights;
   showFullContent?: boolean;
   className?: string;
 }
+
 const VerseCard = ({
   verse,
   showFullContent = false,
   className
 }: VerseCardProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
+  const [cachedAudioUrl, setCachedAudioUrl] = useState<string | null>(null);
   
   const {
     toggleFavorite,
     isFavorite
   } = useUser();
   const saved = isFavorite(verse.id);
+
+  // Check for cached audio on mount
+  useEffect(() => {
+    const checkCachedAudio = async () => {
+      const storagePath = `${verse.chapter}/${verse.verse}.mp3`;
+      const { data } = supabase.storage
+        .from('verse-audio')
+        .getPublicUrl(storagePath);
+      
+      if (data?.publicUrl) {
+        // Verify the file exists by checking verse_audio table
+        const { data: audioRecord } = await supabase
+          .from('verse_audio')
+          .select('storage_path')
+          .eq('chapter_number', verse.chapter)
+          .eq('verse_number', verse.verse)
+          .single();
+        
+        if (audioRecord) {
+          setCachedAudioUrl(data.publicUrl);
+        }
+      }
+    };
+    
+    checkCachedAudio();
+  }, [verse.chapter, verse.verse]);
 
   const handleReadAloud = async () => {
     // If already playing, stop it
@@ -39,45 +70,57 @@ const VerseCard = ({
       return;
     }
 
-    setIsPlaying(true);
+    setIsLoading(true);
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/elevenlabs-verse-tts`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-          },
-          body: JSON.stringify({
-            sanskrit: verse.sanskrit,
-            translation: verse.english,
-            explanation: verse.insight.explanation,
-            takeaway: verse.insight.takeaway,
-          }),
-        }
-      );
+      let audioUrl = cachedAudioUrl;
+      
+      // If no cached audio, generate on-the-fly
+      if (!audioUrl) {
+        const response = await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/elevenlabs-verse-tts`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+              'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+            },
+            body: JSON.stringify({
+              sanskrit: verse.sanskrit,
+              translation: verse.english,
+              explanation: verse.insight.explanation,
+              takeaway: verse.insight.takeaway,
+            }),
+          }
+        );
 
-      if (!response.ok) {
-        throw new Error('Failed to generate audio');
+        if (!response.ok) {
+          throw new Error('Failed to generate audio');
+        }
+
+        const audioBlob = await response.blob();
+        audioUrl = URL.createObjectURL(audioBlob);
       }
 
-      const audioBlob = await response.blob();
-      const audioUrl = URL.createObjectURL(audioBlob);
       const audio = new Audio(audioUrl);
       
       audio.onended = () => {
         setIsPlaying(false);
         setAudioElement(null);
-        URL.revokeObjectURL(audioUrl);
+        // Only revoke if it was a blob URL (not cached)
+        if (!cachedAudioUrl && audioUrl) {
+          URL.revokeObjectURL(audioUrl);
+        }
       };
       
       setAudioElement(audio);
+      setIsLoading(false);
+      setIsPlaying(true);
       await audio.play();
     } catch (error) {
       console.error('TTS error:', error);
       toast.error('Failed to read verse aloud');
+      setIsLoading(false);
       setIsPlaying(false);
     }
   };
@@ -159,15 +202,15 @@ const VerseCard = ({
             variant="ghost" 
             size="lg" 
             onClick={handleReadAloud} 
-            disabled={isPlaying && !audioElement}
+            disabled={isLoading}
             className={cn('gap-2 rounded-full px-6', isPlaying && 'text-primary bg-primary/10')}
           >
-            {isPlaying && !audioElement ? (
+            {isLoading ? (
               <Loader2 className="h-5 w-5 animate-spin" />
             ) : (
               <Volume2 className={cn('h-5 w-5', isPlaying && 'fill-current')} />
             )}
-            {isPlaying ? (audioElement ? 'Stop' : 'Loading...') : 'Listen'}
+            {isLoading ? 'Loading...' : (isPlaying ? 'Stop' : (cachedAudioUrl ? 'Listen' : 'Listen'))}
           </Button>
 
           <Button variant="ghost" size="lg" onClick={() => toggleFavorite(verse.id)} className={cn('gap-2 rounded-full px-6', saved && 'text-primary bg-primary/10')}>

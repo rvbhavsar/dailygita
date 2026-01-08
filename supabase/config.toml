@@ -2,3 +2,6 @@ project_id = "fhnnqhjzdksklmdjbcev"
 
 [functions.elevenlabs-verse-tts]
 verify_jwt = false
+
+[functions.generate-all-verse-audio]
+verify_jwt = false
