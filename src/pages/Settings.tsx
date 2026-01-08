@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowLeft, LogOut, Lock, Loader2, Bell } from 'lucide-react';
+import { ArrowLeft, LogOut, Lock, Loader2, Bell, Calendar, Briefcase, Heart } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
@@ -11,6 +11,7 @@ import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Layout from '@/components/layout/Layout';
 import { useUser } from '@/contexts/UserContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -28,16 +29,33 @@ const passwordSchema = z.object({
   path: ['confirmPassword'],
 });
 
+const profileSchema = z.object({
+  age: z.string().optional(),
+  profession: z.string().optional(),
+  maritalStatus: z.string().optional(),
+});
+
 const Settings = () => {
   const navigate = useNavigate();
   const { user, updateUser, setUser } = useUser();
   const { user: authUser, profile, signOut, updatePassword, updateProfile } = useAuth();
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
+  const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
   const [showPasswordForm, setShowPasswordForm] = useState(false);
+  const [showProfileForm, setShowProfileForm] = useState(false);
 
   const passwordForm = useForm<z.infer<typeof passwordSchema>>({
     resolver: zodResolver(passwordSchema),
     defaultValues: { currentPassword: '', newPassword: '', confirmPassword: '' },
+  });
+
+  const profileForm = useForm<z.infer<typeof profileSchema>>({
+    resolver: zodResolver(profileSchema),
+    defaultValues: { 
+      age: profile?.age?.toString() || '', 
+      profession: profile?.profession || '', 
+      maritalStatus: profile?.marital_status || '' 
+    },
   });
 
   if (!user) {
@@ -97,6 +115,28 @@ const Settings = () => {
     }
   };
 
+  const handleProfileUpdate = async (values: z.infer<typeof profileSchema>) => {
+    setIsUpdatingProfile(true);
+    const { error } = await updateProfile({
+      age: values.age ? parseInt(values.age) : null,
+      profession: values.profession || null,
+      marital_status: values.maritalStatus || null,
+    });
+    setIsUpdatingProfile(false);
+
+    if (error) {
+      toast.error(error.message);
+    } else {
+      toast.success('Profile updated successfully');
+      setShowProfileForm(false);
+    }
+  };
+
+  const getMaritalStatusLabel = (status: string | null | undefined) => {
+    if (!status) return 'Not set';
+    return status.charAt(0).toUpperCase() + status.slice(1);
+  };
+
   return (
     <Layout>
       <div className="max-w-lg mx-auto">
@@ -131,6 +171,124 @@ const Settings = () => {
               <span className="text-sm text-muted-foreground">Email</span>
               <span className="text-sm text-foreground">{authUser?.email || user.email}</span>
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Profile Info */}
+        <Card className="mb-6">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg">Profile</CardTitle>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  profileForm.reset({
+                    age: profile?.age?.toString() || '',
+                    profession: profile?.profession || '',
+                    maritalStatus: profile?.marital_status || '',
+                  });
+                  setShowProfileForm(!showProfileForm);
+                }}
+              >
+                {showProfileForm ? 'Cancel' : 'Edit Profile'}
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {!showProfileForm ? (
+              <>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground flex items-center gap-2">
+                    <Calendar className="h-4 w-4" />
+                    Age
+                  </span>
+                  <span className="text-sm text-foreground">{profile?.age || 'Not set'}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground flex items-center gap-2">
+                    <Briefcase className="h-4 w-4" />
+                    Profession
+                  </span>
+                  <span className="text-sm text-foreground">{profile?.profession || 'Not set'}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground flex items-center gap-2">
+                    <Heart className="h-4 w-4" />
+                    Marital Status
+                  </span>
+                  <span className="text-sm text-foreground">{getMaritalStatusLabel(profile?.marital_status)}</span>
+                </div>
+              </>
+            ) : (
+              <Form {...profileForm}>
+                <form onSubmit={profileForm.handleSubmit(handleProfileUpdate)} className="space-y-4">
+                  <FormField
+                    control={profileForm.control}
+                    name="age"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Age</FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <Calendar className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                            <Input type="number" placeholder="Your age" className="pl-10" {...field} />
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={profileForm.control}
+                    name="profession"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Profession</FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <Briefcase className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                            <Input placeholder="e.g., Engineer, Teacher" className="pl-10" {...field} />
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={profileForm.control}
+                    name="maritalStatus"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Marital Status</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger className="pl-10">
+                              <Heart className="absolute left-3 h-4 w-4 text-muted-foreground" />
+                              <SelectValue placeholder="Select status" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="single">Single</SelectItem>
+                            <SelectItem value="married">Married</SelectItem>
+                            <SelectItem value="divorced">Divorced</SelectItem>
+                            <SelectItem value="widowed">Widowed</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <Button type="submit" disabled={isUpdatingProfile}>
+                    {isUpdatingProfile ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      'Save Profile'
+                    )}
+                  </Button>
+                </form>
+              </Form>
+            )}
           </CardContent>
         </Card>
 

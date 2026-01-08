@@ -52,29 +52,38 @@ export type Database = {
       }
       profiles: {
         Row: {
+          age: number | null
           avatar_url: string | null
           created_at: string
           daily_verse_enabled: boolean
           display_name: string | null
           id: string
+          marital_status: string | null
+          profession: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          age?: number | null
           avatar_url?: string | null
           created_at?: string
           daily_verse_enabled?: boolean
           display_name?: string | null
           id?: string
+          marital_status?: string | null
+          profession?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          age?: number | null
           avatar_url?: string | null
           created_at?: string
           daily_verse_enabled?: boolean
           display_name?: string | null
           id?: string
+          marital_status?: string | null
+          profession?: string | null
           updated_at?: string
           user_id?: string
         }

@@ -3,11 +3,12 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Loader2, Mail, Lock, User, ArrowLeft } from 'lucide-react';
+import { Loader2, Mail, Lock, User, ArrowLeft, Briefcase, Heart, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -21,6 +22,9 @@ const signUpSchema = z.object({
   email: z.string().email('Please enter a valid email'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
   confirmPassword: z.string(),
+  age: z.string().optional(),
+  profession: z.string().optional(),
+  maritalStatus: z.string().optional(),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords don't match",
   path: ['confirmPassword'],
@@ -63,7 +67,7 @@ const Auth = () => {
 
   const signUpForm = useForm<z.infer<typeof signUpSchema>>({
     resolver: zodResolver(signUpSchema),
-    defaultValues: { displayName: '', email: '', password: '', confirmPassword: '' },
+    defaultValues: { displayName: '', email: '', password: '', confirmPassword: '', age: '', profession: '', maritalStatus: '' },
   });
 
   const resetForm = useForm<z.infer<typeof resetSchema>>({
@@ -97,7 +101,14 @@ const Auth = () => {
 
   const handleSignUp = async (values: z.infer<typeof signUpSchema>) => {
     setIsSubmitting(true);
-    const { error } = await signUp(values.email, values.password, values.displayName);
+    const { error } = await signUp(
+      values.email, 
+      values.password, 
+      values.displayName,
+      values.age ? parseInt(values.age) : undefined,
+      values.profession || undefined,
+      values.maritalStatus || undefined
+    );
     setIsSubmitting(false);
 
     if (error) {
@@ -263,6 +274,62 @@ const Auth = () => {
                           <Input type="password" placeholder="••••••••" className="pl-10" {...field} />
                         </div>
                       </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={signUpForm.control}
+                  name="age"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Age (optional)</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Calendar className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                          <Input type="number" placeholder="Your age" className="pl-10" {...field} />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={signUpForm.control}
+                  name="profession"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Profession (optional)</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Briefcase className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                          <Input placeholder="e.g., Engineer, Teacher" className="pl-10" {...field} />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={signUpForm.control}
+                  name="maritalStatus"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Marital Status (optional)</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="pl-10">
+                            <Heart className="absolute left-3 h-4 w-4 text-muted-foreground" />
+                            <SelectValue placeholder="Select status" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="single">Single</SelectItem>
+                          <SelectItem value="married">Married</SelectItem>
+                          <SelectItem value="divorced">Divorced</SelectItem>
+                          <SelectItem value="widowed">Widowed</SelectItem>
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
