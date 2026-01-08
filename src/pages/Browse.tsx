@@ -1,15 +1,15 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { BookOpen, Loader2, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Layout from '@/components/layout/Layout';
 import { useChapters, useAllVerses, useTranslations } from '@/hooks/useGitaData';
-import { curatedVersesMap } from '@/data/curatedVerses';
+import { curatedVersesMap, curatedVerses } from '@/data/curatedVerses';
 import { challenges } from '@/data/challenges';
-import { Link } from 'react-router-dom';
-import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import VerseCard from '@/components/verse/VerseCard';
+import { VerseWithInsights } from '@/types';
 
 const Browse = () => {
   const [selectedChapter, setSelectedChapter] = useState<number | null>(null);
@@ -22,41 +22,75 @@ const Browse = () => {
   const isLoading = chaptersLoading || versesLoading || translationsLoading;
 
   // Get translations map (verse_id -> translation, prefer Swami Sivananda)
-  const englishTranslationsMap = new Map<number, string>();
-  if (translations) {
-    const groupedByVerse = new Map<number, typeof translations>();
-    
-    translations.forEach(t => {
-      if (!groupedByVerse.has(t.verse_id)) {
-        groupedByVerse.set(t.verse_id, []);
-      }
-      groupedByVerse.get(t.verse_id)!.push(t);
-    });
+  const englishTranslationsMap = useMemo(() => {
+    const map = new Map<number, string>();
+    if (translations) {
+      const groupedByVerse = new Map<number, typeof translations>();
+      
+      translations.forEach(t => {
+        if (!groupedByVerse.has(t.verse_id)) {
+          groupedByVerse.set(t.verse_id, []);
+        }
+        groupedByVerse.get(t.verse_id)!.push(t);
+      });
 
-    groupedByVerse.forEach((trans, verseId) => {
-      const sivananda = trans.find(t => t.author_name.includes('Sivananda'));
-      englishTranslationsMap.set(verseId, sivananda?.description || trans[0]?.description || '');
-    });
-  }
+      groupedByVerse.forEach((trans, verseId) => {
+        const sivananda = trans.find(t => t.author_name.includes('Sivananda'));
+        map.set(verseId, sivananda?.description || trans[0]?.description || '');
+      });
+    }
+    return map;
+  }, [translations]);
 
-  // Filter verses based on selection
-  const filteredVerses = allVerses?.filter((verse) => {
-    if (selectedChapter && verse.chapter_number !== selectedChapter) return false;
+  // Convert database verses to VerseWithInsights format
+  const versesWithInsights = useMemo(() => {
+    if (!allVerses) return [];
     
-    if (selectedChallenge) {
+    return allVerses.map((verse): VerseWithInsights => {
       const verseId = `${verse.chapter_number}-${verse.verse_number}`;
       const curated = curatedVersesMap.get(verseId);
-      if (!curated?.challenges.includes(selectedChallenge as any)) return false;
+      const english = englishTranslationsMap.get(verse.verse_id) || '';
+      
+      if (curated) {
+        return curated;
+      }
+      
+      // Generate default insight for non-curated verses
+      return {
+        id: verseId,
+        chapter: verse.chapter_number,
+        verse: verse.verse_number,
+        sanskrit: verse.text,
+        english,
+        insight: {
+          verseId,
+          explanation: `This verse from Chapter ${verse.chapter_number} offers profound wisdom about life, duty, and spiritual growth.`,
+          takeaway: 'Reflect on this teaching and apply its wisdom to your daily life.',
+        },
+        examples: [],
+        challenges: [],
+      };
+    });
+  }, [allVerses, englishTranslationsMap]);
+
+  // Filter verses based on selection
+  const filteredVerses = useMemo(() => {
+    let verses = versesWithInsights;
+    
+    if (selectedChapter) {
+      verses = verses.filter(v => v.chapter === selectedChapter);
     }
     
-    return true;
-  }) || [];
+    if (selectedChallenge) {
+      verses = verses.filter(v => v.challenges.includes(selectedChallenge as any));
+    }
+    
+    return verses;
+  }, [versesWithInsights, selectedChapter, selectedChallenge]);
 
   // Get curated verses for challenge filter
   const getChallengeVerseCount = (challengeId: string) => {
-    return Array.from(curatedVersesMap.values()).filter(
-      v => v.challenges.includes(challengeId as any)
-    ).length;
+    return curatedVerses.filter(v => v.challenges.includes(challengeId as any)).length;
   };
 
   return (
@@ -163,41 +197,17 @@ const Browse = () => {
             <span className="ml-3 text-muted-foreground">Loading the Gita...</span>
           </div>
         ) : (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="space-y-6">
             {filteredVerses.length > 0 ? (
-              filteredVerses.slice(0, 50).map((verse) => {
-                const verseId = `${verse.chapter_number}-${verse.verse_number}`;
-                const hasCurated = curatedVersesMap.has(verseId);
-                const english = englishTranslationsMap.get(verse.verse_id) || '';
-                
-                return (
-                  <Link key={verse.id} to={`/verse/${verseId}`}>
-                    <Card className="h-full card-hover cursor-pointer border-border/50">
-                      <CardContent className="p-5">
-                        <div className="flex items-start justify-between gap-2 mb-3">
-                          <span className="text-xs font-semibold uppercase tracking-wider text-primary">
-                            Chapter {verse.chapter_number} • Verse {verse.verse_number}
-                          </span>
-                          {hasCurated && (
-                            <Badge variant="secondary" className="gap-1 text-xs">
-                              <Sparkles className="h-3 w-3" />
-                              Curated
-                            </Badge>
-                          )}
-                        </div>
-                        <p className="font-sanskrit text-base text-foreground leading-relaxed line-clamp-2 mb-3">
-                          {verse.text.split('\n')[0]}
-                        </p>
-                        <p className="text-sm text-muted-foreground line-clamp-3">
-                          {english || 'Translation loading...'}
-                        </p>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                );
-              })
+              filteredVerses.slice(0, 20).map((verse) => (
+                <VerseCard 
+                  key={verse.id} 
+                  verse={verse} 
+                  showFullContent={verse.challenges.length > 0}
+                />
+              ))
             ) : (
-              <div className="col-span-full text-center py-16 text-muted-foreground">
+              <div className="text-center py-16 text-muted-foreground">
                 <BookOpen className="h-12 w-12 mx-auto mb-4 opacity-50" />
                 <p className="text-lg">No verses found with these filters</p>
               </div>
@@ -205,9 +215,9 @@ const Browse = () => {
           </div>
         )}
         
-        {filteredVerses.length > 50 && (
+        {filteredVerses.length > 20 && (
           <p className="text-center text-sm text-muted-foreground">
-            Showing first 50 of {filteredVerses.length} verses
+            Showing first 20 of {filteredVerses.length} verses
           </p>
         )}
 
