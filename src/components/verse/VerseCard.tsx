@@ -62,9 +62,6 @@ const VerseCard = ({ verse, showFullContent = false, className }: VerseCardProps
           <p className="font-sanskrit text-xl md:text-2xl leading-relaxed text-foreground whitespace-pre-line">
             {verse.sanskrit}
           </p>
-          <p className="text-xs text-muted-foreground mt-3 italic">
-            {verse.transliteration}
-          </p>
         </div>
 
         {/* Divider */}
