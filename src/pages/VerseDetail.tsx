@@ -109,7 +109,7 @@ const VerseDetail = () => {
     return (
       <Layout>
         <div className="text-center py-12">
-          <h1 className="font-serif text-2xl text-foreground mb-4">
+          <h1 className="text-2xl font-bold text-foreground mb-4">
             Verse not found
           </h1>
           <Button asChild variant="outline">

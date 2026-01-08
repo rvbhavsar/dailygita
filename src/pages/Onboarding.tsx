@@ -58,7 +58,7 @@ const Onboarding = () => {
           <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary mb-4">
             <span className="font-sanskrit text-2xl text-primary-foreground">ॐ</span>
           </div>
-          <h1 className="font-serif text-3xl md:text-4xl font-semibold text-foreground mb-2">
+          <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
             Daily Gita
           </h1>
           <p className="text-muted-foreground">
@@ -87,7 +87,7 @@ const Onboarding = () => {
         {step === 1 && (
           <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
             <div className="text-center mb-8">
-              <h2 className="font-serif text-2xl font-semibold text-foreground mb-2">
+              <h2 className="text-2xl font-bold text-foreground mb-2">
                 Welcome, Seeker
               </h2>
               <p className="text-muted-foreground">
@@ -135,7 +135,7 @@ const Onboarding = () => {
         {step === 2 && (
           <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
             <div className="text-center mb-8">
-              <h2 className="font-serif text-2xl font-semibold text-foreground mb-2">
+              <h2 className="text-2xl font-bold text-foreground mb-2">
                 What brings you here?
               </h2>
               <p className="text-muted-foreground">
@@ -187,7 +187,7 @@ const Onboarding = () => {
           <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
             <div className="text-center mb-8">
               <Sparkles className="h-12 w-12 text-primary mx-auto mb-4" />
-              <h2 className="font-serif text-2xl font-semibold text-foreground mb-2">
+              <h2 className="text-2xl font-bold text-foreground mb-2">
                 You're all set, {name}!
               </h2>
               <p className="text-muted-foreground">

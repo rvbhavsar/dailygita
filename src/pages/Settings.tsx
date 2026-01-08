@@ -150,7 +150,7 @@ const Settings = () => {
         </Button>
 
         <section>
-          <h1 className="font-serif mb-2">Settings</h1>
+          <h1 className="mb-2">Settings</h1>
           <p className="text-muted-foreground">Manage your account and preferences</p>
         </section>
 

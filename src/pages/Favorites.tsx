@@ -17,7 +17,7 @@ const Favorites = () => {
       <div className="space-y-8">
         <section className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
-            <h1 className="font-serif mb-2">Saved Verses</h1>
+            <h1 className="mb-2">Saved Verses</h1>
             <p className="text-muted-foreground">
               Your personal collection of wisdom
             </p>
@@ -39,7 +39,7 @@ const Favorites = () => {
             <div className="inline-flex h-20 w-20 items-center justify-center rounded-full bg-secondary/50 mb-6">
               <Heart className="h-10 w-10 text-muted-foreground/50" />
             </div>
-            <h3 className="font-serif text-foreground mb-2">
+            <h3 className="text-foreground mb-2">
               No saved verses yet
             </h3>
             <p className="text-muted-foreground mb-8 max-w-sm mx-auto">

@@ -65,7 +65,7 @@ const Browse = () => {
         {/* Header */}
         <section className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
-            <h1 className="font-serif mb-2">Browse Verses</h1>
+            <h1 className="mb-2">Browse Verses</h1>
             <p className="text-muted-foreground">
               {isLoading ? 'Loading...' : `${allVerses?.length || 0} verses across 18 chapters`}
             </p>
@@ -116,7 +116,7 @@ const Browse = () => {
             {selectedChapter && chapters && (
               <Card className="bg-secondary/30 border-0">
                 <CardContent className="py-4">
-                  <h4 className="font-serif">
+                  <h4>
                     Chapter {selectedChapter}: {chapters.find(c => c.chapter_number === selectedChapter)?.name_translated || chapters.find(c => c.chapter_number === selectedChapter)?.name}
                   </h4>
                   <p className="text-sm text-muted-foreground mt-1">

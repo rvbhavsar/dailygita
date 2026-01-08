@@ -21,7 +21,7 @@ const Home = () => {
           <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
             {today}
           </p>
-          <h1 className="font-serif">
+          <h1>
             Good {getTimeOfDay()}, <span className="gradient-text">{user?.name?.split(' ')[0]}</span>
           </h1>
           <p className="text-lg text-muted-foreground max-w-md mx-auto">
