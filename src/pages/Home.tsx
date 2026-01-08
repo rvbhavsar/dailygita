@@ -53,7 +53,7 @@ const Home = () => {
     <Layout>
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Main Content - fluid */}
-        <div className="flex-1 min-w-0 space-y-8">
+        <div className="flex-1 min-w-0 max-w-3xl space-y-8">
           {/* Greeting Section */}
           <section className="text-center lg:text-left space-y-3">
             <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
