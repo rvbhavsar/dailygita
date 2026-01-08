@@ -20,7 +20,7 @@ const VerseDetail = () => {
   
   // Fetch from API for non-curated verses
   const { data: apiVerse, isLoading: verseLoading } = useVerse(chapterNum, verseNum);
-  const { data: translation, isLoading: translationLoading } = useVerseTranslation(apiVerse?.id);
+  const { data: translation, isLoading: translationLoading } = useVerseTranslation(apiVerse?.verse_id);
   
   const isLoading = !curatedVerse && (verseLoading || (apiVerse && translationLoading));
 
