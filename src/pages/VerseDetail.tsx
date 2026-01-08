@@ -104,7 +104,7 @@ const VerseDetail = () => {
     );
   }
 
-  // For non-curated verses, show API data
+  // For non-curated verses, convert API data to VerseWithInsights format
   if (!apiVerse) {
     return (
       <Layout>
@@ -123,6 +123,22 @@ const VerseDetail = () => {
     );
   }
 
+  // Convert API verse to VerseWithInsights format
+  const verseWithInsights = {
+    id: `${apiVerse.chapter_number}-${apiVerse.verse_number}`,
+    chapter: apiVerse.chapter_number,
+    verse: apiVerse.verse_number,
+    sanskrit: apiVerse.text,
+    english: translation || 'Translation loading...',
+    insight: {
+      verseId: `${apiVerse.chapter_number}-${apiVerse.verse_number}`,
+      explanation: `This verse from Chapter ${apiVerse.chapter_number} offers profound wisdom about life, duty, and spiritual growth. The teachings of the Bhagavad Gita guide us toward self-realization and inner peace.`,
+      takeaway: 'Reflect on this teaching and apply its wisdom to your daily life.',
+    },
+    examples: [],
+    challenges: [],
+  };
+
   return (
     <Layout>
       <div className="max-w-2xl mx-auto">
@@ -138,39 +154,7 @@ const VerseDetail = () => {
           </Link>
         </Button>
 
-        <Card className="overflow-hidden">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <Badge variant="outline" className="text-sm">
-                Chapter {apiVerse.chapter_number}, Verse {apiVerse.verse_number}
-              </Badge>
-            </div>
-
-            {/* Sanskrit Text */}
-            <div className="font-sanskrit text-xl text-foreground leading-relaxed mb-6 text-center">
-              {apiVerse.text.split('\n').map((line, idx) => (
-                <p key={idx}>{line}</p>
-              ))}
-            </div>
-
-
-            {/* Translation */}
-            {translation && (
-              <div className="border-t border-border pt-6">
-                <p className="text-foreground leading-relaxed">
-                  {translation}
-                </p>
-              </div>
-            )}
-
-            {/* No curated content message */}
-            <div className="mt-6 p-4 bg-muted/50 rounded-lg text-center">
-              <p className="text-sm text-muted-foreground">
-                This verse doesn't have curated insights yet. Check back soon!
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+        <VerseCard verse={verseWithInsights} showFullContent />
       </div>
     </Layout>
   );
