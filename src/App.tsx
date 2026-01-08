@@ -37,8 +37,7 @@ const AuthLoadingWrapper = ({ children }: { children: React.ReactNode }) => {
 
 // Protected route wrapper - requires auth AND onboarding
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user } = useAuth();
-  const { isOnboarded } = useUser();
+  const { user, isOnboarded } = useAuth();
   
   if (!user) {
     return <Navigate to="/auth" replace />;
@@ -53,8 +52,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
 // Auth route - redirect if already logged in
 const AuthRoute = () => {
-  const { user } = useAuth();
-  const { isOnboarded } = useUser();
+  const { user, isOnboarded } = useAuth();
   
   if (user) {
     return <Navigate to={isOnboarded ? "/home" : "/onboarding"} replace />;
@@ -65,8 +63,7 @@ const AuthRoute = () => {
 
 // Landing route - redirect if already logged in
 const LandingRoute = () => {
-  const { user } = useAuth();
-  const { isOnboarded } = useUser();
+  const { user, isOnboarded } = useAuth();
   
   if (user) {
     return <Navigate to={isOnboarded ? "/home" : "/onboarding"} replace />;
@@ -77,8 +74,7 @@ const LandingRoute = () => {
 
 // Onboarding route - requires auth, redirect if already onboarded
 const OnboardingRoute = () => {
-  const { user } = useAuth();
-  const { isOnboarded } = useUser();
+  const { user, isOnboarded } = useAuth();
   
   if (!user) {
     return <Navigate to="/auth" replace />;
