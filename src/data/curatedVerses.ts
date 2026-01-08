@@ -157,11 +157,30 @@ export const getCuratedVersesByChallenge = (challenge: Challenge): VerseWithInsi
   return curatedVerses.filter((v) => v.challenges.includes(challenge));
 };
 
-// Get daily verse from curated content
+// Get daily verse from curated content (changes each day)
 export const getDailyVerse = (): VerseWithInsights => {
   const today = new Date();
   const dayOfYear = Math.floor(
     (today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) / 86400000
   );
   return curatedVerses[dayOfYear % curatedVerses.length];
+};
+
+// Get tomorrow's verse preview
+export const getTomorrowsVerse = (): VerseWithInsights => {
+  const today = new Date();
+  const dayOfYear = Math.floor(
+    (today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) / 86400000
+  );
+  return curatedVerses[(dayOfYear + 1) % curatedVerses.length];
+};
+
+// Get time until next verse (midnight)
+export const getTimeUntilNextVerse = (): { hours: number; minutes: number } => {
+  const now = new Date();
+  const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+  const diff = tomorrow.getTime() - now.getTime();
+  const hours = Math.floor(diff / (1000 * 60 * 60));
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+  return { hours, minutes };
 };

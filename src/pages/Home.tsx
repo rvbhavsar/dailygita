@@ -1,11 +1,25 @@
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { Clock, ChevronRight } from 'lucide-react';
 import { useUser } from '@/contexts/UserContext';
-import { getDailyVerse } from '@/data/curatedVerses';
+import { getDailyVerse, getTomorrowsVerse, getTimeUntilNextVerse } from '@/data/curatedVerses';
 import Layout from '@/components/layout/Layout';
 import VerseCard from '@/components/verse/VerseCard';
+import { Card, CardContent } from '@/components/ui/card';
 
 const Home = () => {
   const { user } = useUser();
   const dailyVerse = getDailyVerse();
+  const tomorrowsVerse = getTomorrowsVerse();
+  const [timeLeft, setTimeLeft] = useState(getTimeUntilNextVerse());
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTimeLeft(getTimeUntilNextVerse());
+    }, 60000); // Update every minute
+
+    return () => clearInterval(interval);
+  }, []);
 
   const today = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
@@ -41,6 +55,35 @@ const Home = () => {
             </p>
             <span className="text-primary">✦</span>
           </div>
+        </section>
+
+        {/* Tomorrow's Verse Preview */}
+        <section className="pt-4">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-foreground">Tomorrow's Verse</h3>
+            <div className="flex items-center gap-2 text-muted-foreground text-sm">
+              <Clock className="h-4 w-4" />
+              <span>New verse in {timeLeft.hours}h {timeLeft.minutes}m</span>
+            </div>
+          </div>
+          
+          <Link to={`/verse/${tomorrowsVerse.id}`}>
+            <Card className="overflow-hidden border-border/50 bg-card/50 hover:bg-card transition-colors cursor-pointer group">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                      Chapter {tomorrowsVerse.chapter} • Verse {tomorrowsVerse.verse}
+                    </span>
+                    <p className="text-foreground mt-2 line-clamp-2 italic">
+                      "{tomorrowsVerse.english}"
+                    </p>
+                  </div>
+                  <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors ml-4 flex-shrink-0" />
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
         </section>
       </div>
     </Layout>
