@@ -12,6 +12,62 @@ interface DailyVerseRequest {
   shuffle?: boolean;
 }
 
+// Helper function to get a preview of the next verse
+async function getNextVersePreview(supabase: any, challenges: string[], excludeVerseId: number) {
+  try {
+    let query = supabase
+      .from("verse_challenges")
+      .select("chapter_number, verse_number, challenges, ai_summary");
+
+    if (challenges && challenges.length > 0) {
+      query = query.overlaps("challenges", challenges);
+    }
+
+    const { data: matchingVerses } = await query.limit(50);
+
+    if (!matchingVerses || matchingVerses.length === 0) {
+      return null;
+    }
+
+    // Pick a random verse that's different from today's
+    const eligibleVerses = matchingVerses.filter((v: any) => {
+      const compositeId = v.chapter_number * 1000 + v.verse_number;
+      return compositeId !== excludeVerseId;
+    });
+
+    if (eligibleVerses.length === 0) {
+      return null;
+    }
+
+    const nextVerseChallenge = eligibleVerses[Math.floor(Math.random() * eligibleVerses.length)];
+
+    const { data: verse } = await supabase
+      .from("verses")
+      .select("verse_id, chapter_number, verse_number, text")
+      .eq("chapter_number", nextVerseChallenge.chapter_number)
+      .eq("verse_number", nextVerseChallenge.verse_number)
+      .single();
+
+    if (!verse) return null;
+
+    const { data: translation } = await supabase
+      .from("translations")
+      .select("description")
+      .eq("verse_id", verse.verse_id)
+      .eq("author_name", "Swami Sivananda")
+      .single();
+
+    return {
+      chapter_number: verse.chapter_number,
+      verse_number: verse.verse_number,
+      translation: translation?.description || "",
+    };
+  } catch (error) {
+    console.error("Error getting next verse preview:", error);
+    return null;
+  }
+}
+
 serve(async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -57,12 +113,16 @@ serve(async (req: Request): Promise<Response> => {
             .eq("verse_number", verse.verse_number)
             .single();
 
+          // Get next verse preview (different from today's)
+          const nextVersePreview = await getNextVersePreview(supabase, challenges, verse.verse_id);
+
           return new Response(JSON.stringify({
             verse,
             translation: translation?.description || "",
             challenges: verseChallenge?.challenges || [],
             aiSummary: verseChallenge?.ai_summary || "",
             isFromHistory: true,
+            nextVerse: nextVersePreview,
           }), {
             headers: { ...corsHeaders, "Content-Type": "application/json" },
           });
@@ -213,12 +273,16 @@ serve(async (req: Request): Promise<Response> => {
         onConflict: "user_id,shown_date",
       });
 
+    // Get next verse preview
+    const nextVersePreview = await getNextVersePreview(supabase, challenges, verse.verse_id);
+
     return new Response(JSON.stringify({
       verse,
       translation: translation?.description || "",
       challenges: selectedVerseChallenge.challenges || [],
       aiSummary: selectedVerseChallenge.ai_summary || "",
       isFromHistory: false,
+      nextVerse: nextVersePreview,
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

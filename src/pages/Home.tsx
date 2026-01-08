@@ -248,13 +248,33 @@ const Home = () => {
             </div>
           </div>
           
-          <Card className="overflow-hidden border-border/50 bg-card/30">
-            <CardContent className="p-6 text-center">
-              <p className="text-muted-foreground text-sm">
-                Your next personalized verse will be ready at midnight, selected based on your challenges and feedback.
-              </p>
-            </CardContent>
-          </Card>
+          {dailyVerse?.nextVerse ? (
+            <Link to={`/verse/${dailyVerse.nextVerse.chapter_number}-${dailyVerse.nextVerse.verse_number}`}>
+              <Card className="overflow-hidden border-border/50 bg-card/50 hover:bg-card transition-colors cursor-pointer group">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                        Chapter {dailyVerse.nextVerse.chapter_number} • Verse {dailyVerse.nextVerse.verse_number}
+                      </span>
+                      <p className="text-foreground mt-2 line-clamp-2 italic">
+                        "{dailyVerse.nextVerse.translation}"
+                      </p>
+                    </div>
+                    <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors ml-4 flex-shrink-0" />
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+          ) : (
+            <Card className="overflow-hidden border-border/50 bg-card/30">
+              <CardContent className="p-6 text-center">
+                <p className="text-muted-foreground text-sm">
+                  Your next personalized verse will be ready at midnight.
+                </p>
+              </CardContent>
+            </Card>
+          )}
         </section>
       </div>
     </Layout>
