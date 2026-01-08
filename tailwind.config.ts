@@ -96,8 +96,9 @@ export default {
   		},
 		fontFamily: {
 			sans: [
-				'Oooh Baby',
-				'cursive'
+				'Calibri',
+				'Arial',
+				'sans-serif'
 			],
 			serif: [
 				'Playfair Display',
