@@ -19,8 +19,8 @@ serve(async (req) => {
       throw new Error('ElevenLabs API key not configured');
     }
 
-    // User's custom voice from ElevenLabs collection
-    const voiceId = 'HP3OkBOPWanmqpjL7XVM';
+    // Brian voice - warm, mature male voice ideal for spiritual content
+    const voiceId = 'nPczCjzI2devNBz1zQrb';
 
     // Compose the full text to be spoken
     const fullText = `
