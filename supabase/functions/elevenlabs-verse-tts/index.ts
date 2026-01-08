@@ -19,8 +19,8 @@ serve(async (req) => {
       throw new Error('ElevenLabs API key not configured');
     }
 
-    // Deepak Chopra voice from user's ElevenLabs collection
-    const voiceId = 'XbNXY1ai1K6AW8tnVNdN';
+    // User's custom voice from ElevenLabs collection
+    const voiceId = 'HP3OkBOPWanmqpjL7XVM';
 
     // Compose the full text to be spoken
     const fullText = `
