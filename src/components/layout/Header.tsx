@@ -25,7 +25,7 @@ const Header = () => {
               </div>
               <div className="flex flex-col">
                 <span className="text-xl md:text-2xl font-bold text-foreground tracking-tight">
-                  Daily Gita
+                  Bhagavad Gita Wisdom
                 </span>
                 <span className="text-xs text-muted-foreground hidden sm:block">
                   Ancient wisdom, modern life
