@@ -96,16 +96,8 @@ export default {
   		},
 		fontFamily: {
 			sans: [
-				'Inter',
-				'ui-sans-serif',
-				'system-ui',
-				'-apple-system',
-				'BlinkMacSystemFont',
-				'Segoe UI',
-				'Helvetica Neue',
-				'Arial',
-				'Noto Sans',
-				'sans-serif'
+				'Oooh Baby',
+				'cursive'
 			],
 			serif: [
 				'Playfair Display',
