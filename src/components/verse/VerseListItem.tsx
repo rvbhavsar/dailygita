@@ -15,9 +15,9 @@ const VerseListItem = ({ verse }: VerseListItemProps) => {
   return (
     <Link
       to={`/verse/${verse.id}`}
-      className="group flex items-center gap-4 p-4 rounded-lg border border-border/50 bg-card hover:bg-muted/50 transition-colors"
+      className="group flex items-center gap-4 p-5 rounded-2xl border border-border/50 bg-card card-hover"
     >
-      <div className="flex-shrink-0 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary font-semibold text-sm">
+      <div className="flex-shrink-0 flex h-14 w-14 items-center justify-center rounded-xl bg-primary/10 text-primary font-bold">
         {verse.chapter}.{verse.verse}
       </div>
       
@@ -25,16 +25,16 @@ const VerseListItem = ({ verse }: VerseListItemProps) => {
         <p className="font-sanskrit text-sm text-muted-foreground truncate mb-1">
           {verse.sanskrit.split('\n')[0]}
         </p>
-        <p className="text-sm text-foreground line-clamp-2">
+        <p className="text-foreground line-clamp-2 leading-relaxed">
           {verse.english}
         </p>
       </div>
 
-      <div className="flex items-center gap-2 flex-shrink-0">
+      <div className="flex items-center gap-3 flex-shrink-0">
         {saved && (
           <Heart className="h-4 w-4 text-primary fill-primary" />
         )}
-        <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
+        <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
       </div>
     </Link>
   );

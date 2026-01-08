@@ -38,18 +38,18 @@ const VerseCard = ({ verse, showFullContent = false, className }: VerseCardProps
   };
 
   return (
-    <Card className={cn('overflow-hidden border-border/50 bg-card', className)}>
-      <CardContent className="p-6 md:p-8">
-        {/* Chapter & Verse */}
-        <div className="flex items-center justify-between mb-6">
-          <span className="text-sm font-medium text-muted-foreground">
-            Chapter {verse.chapter}, Verse {verse.verse}
+    <Card className={cn('overflow-hidden border-border/50 bg-card shadow-md card-hover', className)}>
+      <CardContent className="p-6 md:p-10">
+        {/* Chapter & Verse Header */}
+        <div className="flex items-center justify-between mb-8">
+          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Chapter {verse.chapter} • Verse {verse.verse}
           </span>
           <div className="flex gap-2">
             {verse.challenges.slice(0, 2).map((challengeId) => {
               const challenge = getChallengeById(challengeId);
               return challenge ? (
-                <Badge key={challengeId} variant="secondary" className="text-xs">
+                <Badge key={challengeId} variant="secondary" className="text-xs font-medium">
                   {challenge.icon} {challenge.label}
                 </Badge>
               ) : null;
@@ -58,37 +58,37 @@ const VerseCard = ({ verse, showFullContent = false, className }: VerseCardProps
         </div>
 
         {/* Sanskrit */}
-        <div className="text-center mb-6">
-          <p className="font-sanskrit text-xl md:text-2xl leading-relaxed text-foreground whitespace-pre-line">
+        <div className="text-center mb-8">
+          <p className="font-sanskrit text-xl md:text-2xl lg:text-3xl leading-relaxed text-foreground whitespace-pre-line">
             {verse.sanskrit}
           </p>
         </div>
 
-        {/* Divider */}
-        <div className="flex items-center gap-4 my-6">
-          <div className="flex-1 h-px bg-border" />
-          <span className="text-primary text-lg">✦</span>
-          <div className="flex-1 h-px bg-border" />
+        {/* Elegant Divider */}
+        <div className="flex items-center gap-6 my-8">
+          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+          <span className="text-primary text-xl">✦</span>
+          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
         </div>
 
         {/* Translation */}
-        <p className="font-serif text-lg md:text-xl leading-relaxed text-foreground text-center mb-6">
+        <p className="font-serif text-xl md:text-2xl leading-relaxed text-foreground text-center mb-8">
           "{verse.english}"
         </p>
 
         {showFullContent && (
-          <>
+          <div className="space-y-6 mt-10">
             {/* Explanation */}
-            <div className="bg-muted/30 rounded-lg p-5 mb-6">
-              <h3 className="font-semibold text-foreground mb-2">What This Means</h3>
+            <div className="bg-secondary/30 rounded-2xl p-6 md:p-8">
+              <h4 className="text-foreground mb-3">What This Means</h4>
               <p className="text-muted-foreground leading-relaxed">
                 {verse.insight.explanation}
               </p>
             </div>
 
             {/* Takeaway */}
-            <div className="bg-primary/5 border border-primary/20 rounded-lg p-5 mb-6">
-              <h3 className="font-semibold text-primary mb-2">Key Takeaway</h3>
+            <div className="bg-primary/5 border border-primary/20 rounded-2xl p-6 md:p-8">
+              <h4 className="text-primary mb-3">Key Takeaway</h4>
               <p className="text-foreground leading-relaxed italic">
                 {verse.insight.takeaway}
               </p>
@@ -96,45 +96,45 @@ const VerseCard = ({ verse, showFullContent = false, className }: VerseCardProps
 
             {/* Real-Life Example */}
             {verse.examples[0] && (
-              <div className="mb-6">
-                <h3 className="font-semibold text-foreground mb-3">Real-Life Example</h3>
-                <div className="bg-card border border-border rounded-lg p-5">
-                  <h4 className="font-medium text-foreground mb-2">
+              <div>
+                <h4 className="text-foreground mb-4">Real-Life Example</h4>
+                <div className="bg-card border border-border rounded-2xl p-6 md:p-8 shadow-sm">
+                  <h5 className="text-foreground mb-2">
                     {verse.examples[0].title}
-                  </h4>
+                  </h5>
                   <p className="text-muted-foreground leading-relaxed">
                     {verse.examples[0].description}
                   </p>
                 </div>
               </div>
             )}
-          </>
+          </div>
         )}
 
         {/* Actions */}
-        <div className="flex items-center justify-center gap-3 pt-4 border-t border-border/50">
+        <div className="flex items-center justify-center gap-2 pt-8 mt-8 border-t border-border/50">
           <Button
             variant="ghost"
-            size="sm"
+            size="lg"
             onClick={() => toggleFavorite(verse.id)}
             className={cn(
-              'gap-2',
-              saved && 'text-primary'
+              'gap-2 rounded-full px-6',
+              saved && 'text-primary bg-primary/10'
             )}
           >
-            <Heart className={cn('h-4 w-4', saved && 'fill-current')} />
+            <Heart className={cn('h-5 w-5', saved && 'fill-current')} />
             {saved ? 'Saved' : 'Save'}
           </Button>
           
-          <Button variant="ghost" size="sm" onClick={handleShare} className="gap-2">
-            <Share2 className="h-4 w-4" />
+          <Button variant="ghost" size="lg" onClick={handleShare} className="gap-2 rounded-full px-6">
+            <Share2 className="h-5 w-5" />
             Share
           </Button>
 
           {!showFullContent && (
-            <Button variant="ghost" size="sm" asChild className="gap-2">
+            <Button variant="ghost" size="lg" asChild className="gap-2 rounded-full px-6">
               <Link to={`/verse/${verse.id}`}>
-                <BookOpen className="h-4 w-4" />
+                <BookOpen className="h-5 w-5" />
                 Read More
               </Link>
             </Button>

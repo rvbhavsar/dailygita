@@ -15,27 +15,33 @@ const Home = () => {
 
   return (
     <Layout>
-      <div className="max-w-2xl mx-auto">
-        {/* Greeting */}
-        <div className="text-center mb-8">
-          <p className="text-sm text-muted-foreground mb-1">{today}</p>
-          <h1 className="font-serif text-2xl md:text-3xl font-semibold text-foreground">
-            Good {getTimeOfDay()}, {user?.name?.split(' ')[0]}
-          </h1>
-          <p className="text-muted-foreground mt-2">
-            Your daily wisdom awaits
+      <div className="space-y-8 md:space-y-12">
+        {/* Greeting Section */}
+        <section className="text-center space-y-3">
+          <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+            {today}
           </p>
-        </div>
+          <h1 className="font-serif">
+            Good {getTimeOfDay()}, <span className="gradient-text">{user?.name?.split(' ')[0]}</span>
+          </h1>
+          <p className="text-lg text-muted-foreground max-w-md mx-auto">
+            Your daily wisdom awaits. Take a moment to reflect.
+          </p>
+        </section>
 
         {/* Daily Verse */}
         <VerseCard verse={dailyVerse} showFullContent />
 
         {/* Reflection Prompt */}
-        <div className="mt-8 text-center">
-          <p className="text-sm text-muted-foreground italic">
-            "Take a moment to reflect on how this verse applies to your day."
-          </p>
-        </div>
+        <section className="text-center pt-4">
+          <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-secondary/50 border border-border/50">
+            <span className="text-primary">✦</span>
+            <p className="text-sm text-muted-foreground italic">
+              How does this verse apply to your day?
+            </p>
+            <span className="text-primary">✦</span>
+          </div>
+        </section>
       </div>
     </Layout>
   );

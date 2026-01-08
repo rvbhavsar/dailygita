@@ -60,35 +60,43 @@ const Browse = () => {
   };
 
   return (
-    <Layout>
-      <div className="max-w-2xl mx-auto">
-        <div className="flex items-center justify-between mb-6">
+    <Layout fullWidth>
+      <div className="space-y-8">
+        {/* Header */}
+        <section className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
-            <h1 className="font-serif text-2xl font-semibold text-foreground">
-              Browse Verses
-            </h1>
-            <p className="text-sm text-muted-foreground">
+            <h1 className="font-serif mb-2">Browse Verses</h1>
+            <p className="text-muted-foreground">
               {isLoading ? 'Loading...' : `${allVerses?.length || 0} verses across 18 chapters`}
             </p>
           </div>
-          <BookOpen className="h-6 w-6 text-primary" />
-        </div>
+          <div className="flex items-center gap-2 text-primary">
+            <BookOpen className="h-6 w-6" />
+            <span className="text-sm font-medium">Bhagavad Gita</span>
+          </div>
+        </section>
 
-        <Tabs defaultValue="chapter" className="mb-6">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="chapter">By Chapter</TabsTrigger>
-            <TabsTrigger value="challenge">By Challenge</TabsTrigger>
+        {/* Tabs */}
+        <Tabs defaultValue="chapter" className="space-y-6">
+          <TabsList className="grid w-full max-w-md grid-cols-2 p-1 h-12 rounded-full bg-secondary/50">
+            <TabsTrigger value="chapter" className="rounded-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              By Chapter
+            </TabsTrigger>
+            <TabsTrigger value="challenge" className="rounded-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              By Challenge
+            </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="chapter" className="mt-4">
+          <TabsContent value="chapter" className="space-y-6">
             <ScrollArea className="w-full">
-              <div className="flex flex-wrap gap-2 mb-6">
+              <div className="flex flex-wrap gap-2">
                 <Button
                   variant={selectedChapter === null ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setSelectedChapter(null)}
+                  className="rounded-full"
                 >
-                  All
+                  All Chapters
                 </Button>
                 {(chapters || []).map((chapter) => (
                   <Button
@@ -97,6 +105,7 @@ const Browse = () => {
                     size="sm"
                     onClick={() => setSelectedChapter(chapter.chapter_number)}
                     title={chapter.name_translated || chapter.name}
+                    className="rounded-full"
                   >
                     Ch. {chapter.chapter_number}
                   </Button>
@@ -105,11 +114,11 @@ const Browse = () => {
             </ScrollArea>
             
             {selectedChapter && chapters && (
-              <Card className="mb-6 bg-muted/50">
-                <CardContent className="pt-4">
-                  <h3 className="font-serif text-lg font-medium">
+              <Card className="bg-secondary/30 border-0">
+                <CardContent className="py-4">
+                  <h4 className="font-serif">
                     Chapter {selectedChapter}: {chapters.find(c => c.chapter_number === selectedChapter)?.name_translated || chapters.find(c => c.chapter_number === selectedChapter)?.name}
-                  </h3>
+                  </h4>
                   <p className="text-sm text-muted-foreground mt-1">
                     {chapters.find(c => c.chapter_number === selectedChapter)?.name_transliterated}
                   </p>
@@ -118,12 +127,13 @@ const Browse = () => {
             )}
           </TabsContent>
 
-          <TabsContent value="challenge" className="mt-4">
-            <div className="flex flex-wrap gap-2 mb-6">
+          <TabsContent value="challenge" className="space-y-6">
+            <div className="flex flex-wrap gap-2">
               <Button
                 variant={selectedChallenge === null ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setSelectedChallenge(null)}
+                className="rounded-full"
               >
                 All Curated
               </Button>
@@ -133,14 +143,14 @@ const Browse = () => {
                   variant={selectedChallenge === challenge.id ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setSelectedChallenge(challenge.id)}
-                  className="gap-1"
+                  className="gap-2 rounded-full"
                 >
                   {challenge.icon} {challenge.label}
                   <span className="text-xs opacity-70">({getChallengeVerseCount(challenge.id)})</span>
                 </Button>
               ))}
             </div>
-            <p className="text-sm text-muted-foreground mb-4">
+            <p className="text-sm text-muted-foreground">
               Showing verses with curated insights and real-life examples
             </p>
           </TabsContent>
@@ -148,12 +158,12 @@ const Browse = () => {
 
         {/* Results */}
         {isLoading ? (
-          <div className="flex items-center justify-center py-12">
+          <div className="flex items-center justify-center py-16">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <span className="ml-2 text-muted-foreground">Loading the Gita...</span>
+            <span className="ml-3 text-muted-foreground">Loading the Gita...</span>
           </div>
         ) : (
-          <div className="flex flex-col gap-3">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {filteredVerses.length > 0 ? (
               filteredVerses.slice(0, 50).map((verse) => {
                 const verseId = `${verse.chapter_number}-${verse.verse_number}`;
@@ -162,11 +172,11 @@ const Browse = () => {
                 
                 return (
                   <Link key={verse.id} to={`/verse/${verseId}`}>
-                    <Card className="transition-all hover:shadow-md hover:border-primary/30 cursor-pointer">
-                      <CardContent className="p-4">
-                        <div className="flex items-start justify-between gap-2 mb-2">
-                          <span className="text-sm font-medium text-primary">
-                            Chapter {verse.chapter_number}, Verse {verse.verse_number}
+                    <Card className="h-full card-hover cursor-pointer border-border/50">
+                      <CardContent className="p-5">
+                        <div className="flex items-start justify-between gap-2 mb-3">
+                          <span className="text-xs font-semibold uppercase tracking-wider text-primary">
+                            Chapter {verse.chapter_number} • Verse {verse.verse_number}
                           </span>
                           {hasCurated && (
                             <Badge variant="secondary" className="gap-1 text-xs">
@@ -175,10 +185,10 @@ const Browse = () => {
                             </Badge>
                           )}
                         </div>
-                        <p className="font-sanskrit text-base text-foreground leading-relaxed line-clamp-2 mb-2">
+                        <p className="font-sanskrit text-base text-foreground leading-relaxed line-clamp-2 mb-3">
                           {verse.text.split('\n')[0]}
                         </p>
-                        <p className="text-sm text-muted-foreground line-clamp-2">
+                        <p className="text-sm text-muted-foreground line-clamp-3">
                           {english || 'Translation loading...'}
                         </p>
                       </CardContent>
@@ -187,21 +197,21 @@ const Browse = () => {
                 );
               })
             ) : (
-              <div className="text-center py-12 text-muted-foreground">
+              <div className="col-span-full text-center py-16 text-muted-foreground">
                 <BookOpen className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>No verses found with these filters</p>
+                <p className="text-lg">No verses found with these filters</p>
               </div>
-            )}
-            
-            {filteredVerses.length > 50 && (
-              <p className="text-center text-sm text-muted-foreground pt-4">
-                Showing first 50 of {filteredVerses.length} verses
-              </p>
             )}
           </div>
         )}
+        
+        {filteredVerses.length > 50 && (
+          <p className="text-center text-sm text-muted-foreground">
+            Showing first 50 of {filteredVerses.length} verses
+          </p>
+        )}
 
-        <p className="text-center text-sm text-muted-foreground mt-8">
+        <p className="text-center text-sm text-muted-foreground pt-4">
           {!isLoading && `${filteredVerses.length} ${filteredVerses.length === 1 ? 'verse' : 'verses'}`}
         </p>
       </div>
