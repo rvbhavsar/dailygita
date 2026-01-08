@@ -8,6 +8,9 @@ interface Profile {
   display_name: string | null;
   avatar_url: string | null;
   daily_verse_enabled: boolean;
+  age: number | null;
+  profession: string | null;
+  marital_status: string | null;
 }
 
 interface AuthContextType {
@@ -15,7 +18,7 @@ interface AuthContextType {
   session: Session | null;
   profile: Profile | null;
   isLoading: boolean;
-  signUp: (email: string, password: string, displayName?: string) => Promise<{ error: Error | null }>;
+  signUp: (email: string, password: string, displayName?: string, age?: number, profession?: string, maritalStatus?: string) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: Error | null }>;
@@ -75,7 +78,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return () => subscription.unsubscribe();
   }, []);
 
-  const signUp = async (email: string, password: string, displayName?: string) => {
+  const signUp = async (email: string, password: string, displayName?: string, age?: number, profession?: string, maritalStatus?: string) => {
     const redirectUrl = `${window.location.origin}/`;
     
     const { error } = await supabase.auth.signUp({
@@ -85,6 +88,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         emailRedirectTo: redirectUrl,
         data: {
           display_name: displayName,
+          age: age,
+          profession: profession,
+          marital_status: maritalStatus,
         },
       },
     });
