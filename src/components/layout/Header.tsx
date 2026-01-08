@@ -3,7 +3,7 @@ import { Heart, BookOpen, Compass, Settings, Sun, Menu } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
-  { path: '/', label: 'Today', icon: Sun },
+  { path: '/home', label: 'Today', icon: Sun },
   { path: '/browse', label: 'Browse', icon: BookOpen },
   { path: '/challenges', label: 'Challenges', icon: Compass },
   { path: '/favorites', label: 'Saved', icon: Heart },
@@ -19,7 +19,7 @@ const Header = () => {
         <div className="page-container">
           <div className="flex h-16 md:h-20 items-center justify-between">
             {/* Logo */}
-            <Link to="/" className="flex items-center gap-3 group">
+            <Link to="/home" className="flex items-center gap-3 group">
               <div className="flex h-10 w-10 md:h-11 md:w-11 items-center justify-center rounded-xl bg-primary shadow-md group-hover:shadow-lg transition-shadow">
                 <span className="font-sanskrit text-lg md:text-xl text-primary-foreground">ॐ</span>
               </div>
