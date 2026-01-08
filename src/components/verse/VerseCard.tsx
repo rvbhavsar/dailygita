@@ -72,7 +72,7 @@ const VerseCard = ({
         </div>
 
         {/* Translation */}
-        <p className="text-xl md:text-2xl leading-relaxed text-foreground text-center mb-8 italic">
+        <p className="text-xl leading-relaxed text-foreground text-center mb-8 italic md:text-xl">
           "{verse.english}"
         </p>
 
