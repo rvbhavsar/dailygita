@@ -136,8 +136,8 @@ serve(async (req) => {
 
     console.log(`${versesToProcess.length} verses need audio generation`);
 
-    // Brian voice - warm, mature male voice
-    const voiceId = 'nPczCjzI2devNBz1zQrb';
+    // User's custom voice from ElevenLabs
+    const voiceId = 'MwYJJAHHO7HKX7gxuRnI';
     
     let successCount = 0;
     let errorCount = 0;
