@@ -26,7 +26,6 @@ export interface GitaTranslation {
   id: number;
   verse_id: number;
   author_name: string;
-  language: string;
   description: string;
 }
 
@@ -83,12 +82,11 @@ export async function fetchVerse(chapterNumber: number, verseNumber: number): Pr
   return data || undefined;
 }
 
-export async function fetchVerseTranslations(verseId: number, language: string = 'english'): Promise<GitaTranslation[]> {
+export async function fetchVerseTranslations(verseId: number): Promise<GitaTranslation[]> {
   const { data, error } = await supabase
     .from('translations')
     .select('*')
-    .eq('verse_id', verseId)
-    .eq('language', language);
+    .eq('verse_id', verseId);
   
   if (error) throw new Error(`Failed to fetch translations: ${error.message}`);
   return data || [];
@@ -96,12 +94,12 @@ export async function fetchVerseTranslations(verseId: number, language: string =
 
 // Get a single English translation (prefer Swami Sivananda or first available)
 export async function fetchVerseEnglishTranslation(verseId: number): Promise<string> {
-  const translations = await fetchVerseTranslations(verseId, 'english');
+  const translations = await fetchVerseTranslations(verseId);
   
   // Prefer Swami Sivananda's translation for clarity
   const sivananda = translations.find(t => t.author_name.includes('Sivananda'));
   if (sivananda) return sivananda.description;
   
-  // Otherwise return the first English translation
+  // Otherwise return the first translation
   return translations[0]?.description || '';
 }

@@ -86,7 +86,6 @@ export type Database = {
           created_at: string
           description: string
           id: number
-          language: string
           verse_id: number
         }
         Insert: {
@@ -94,7 +93,6 @@ export type Database = {
           created_at?: string
           description: string
           id?: number
-          language?: string
           verse_id: number
         }
         Update: {
@@ -102,7 +100,6 @@ export type Database = {
           created_at?: string
           description?: string
           id?: number
-          language?: string
           verse_id?: number
         }
         Relationships: [
