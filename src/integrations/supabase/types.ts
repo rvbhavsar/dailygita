@@ -118,7 +118,6 @@ export type Database = {
           created_at: string
           id: number
           text: string
-          transliteration: string | null
           verse_id: number
           verse_number: number
           word_meanings: string | null
@@ -128,7 +127,6 @@ export type Database = {
           created_at?: string
           id?: number
           text: string
-          transliteration?: string | null
           verse_id: number
           verse_number: number
           word_meanings?: string | null
@@ -138,7 +136,6 @@ export type Database = {
           created_at?: string
           id?: number
           text?: string
-          transliteration?: string | null
           verse_id?: number
           verse_number?: number
           word_meanings?: string | null

@@ -153,12 +153,6 @@ const VerseDetail = () => {
               ))}
             </div>
 
-            {/* Transliteration */}
-            {apiVerse.transliteration && (
-              <p className="text-sm text-muted-foreground italic text-center mb-6">
-                {apiVerse.transliteration}
-              </p>
-            )}
 
             {/* Translation */}
             {translation && (

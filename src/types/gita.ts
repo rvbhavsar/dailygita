@@ -6,7 +6,6 @@ export interface CombinedVerse {
   chapter: number;
   verse: number;
   sanskrit: string;
-  transliteration: string;
   english: string;
   wordMeanings?: string;
   // Local curated content (optional - not all verses have this)

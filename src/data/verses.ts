@@ -7,7 +7,6 @@ export const verses: VerseWithInsights[] = [
     chapter: 2,
     verse: 47,
     sanskrit: 'कर्मण्येवाधिकारस्ते मा फलेषु कदाचन ।\nमा कर्मफलहेतुर्भूर्मा ते सङ्गोऽस्त्वकर्मणि ॥',
-    transliteration: 'karmaṇy evādhikāras te mā phaleṣhu kadāchana\nmā karma-phala-hetur bhūr mā te saṅgo \'stv akarmaṇi',
     english: 'You have the right to perform your duties, but you are not entitled to the fruits of your actions. Never consider yourself the cause of the results, nor be attached to inaction.',
     insight: {
       verseId: '2-47',
@@ -35,7 +34,6 @@ export const verses: VerseWithInsights[] = [
     chapter: 2,
     verse: 14,
     sanskrit: 'मात्रास्पर्शास्तु कौन्तेय शीतोष्णसुखदुःखदाः ।\nआगमापायिनोऽनित्यास्तांस्तितिक्षस्व भारत ॥',
-    transliteration: 'mātrā-sparśhās tu kaunteya śhītoṣhṇa-sukha-duḥkha-dāḥ\nāgamāpāyino \'nityās tāns titikṣhasva bhārata',
     english: 'The contact between the senses and their objects gives rise to fleeting perceptions of pleasure and pain. These are temporary, appearing and disappearing like winter and summer. Bear them patiently, O Arjuna.',
     insight: {
       verseId: '2-14',
@@ -57,7 +55,6 @@ export const verses: VerseWithInsights[] = [
     chapter: 3,
     verse: 21,
     sanskrit: 'यद्यदाचरति श्रेष्ठस्तत्तदेवेतरो जनः ।\nस यत्प्रमाणं कुरुते लोकस्तदनुवर्तते ॥',
-    transliteration: 'yad yad ācharati śhreṣhṭhas tat tad evetaro janaḥ\nsa yat pramāṇaṁ kurute lokas tad anuvartate',
     english: 'Whatever actions great persons perform, common people follow. Whatever standards they set by exemplary acts, the whole world pursues.',
     insight: {
       verseId: '3-21',
@@ -79,7 +76,6 @@ export const verses: VerseWithInsights[] = [
     chapter: 6,
     verse: 5,
     sanskrit: 'उद्धरेदात्मनात्मानं नात्मानमवसादयेत् ।\nआत्मैव ह्यात्मनो बन्धुरात्मैव रिपुरात्मनः ॥',
-    transliteration: 'uddhared ātmanātmānaṁ nātmānam avasādayet\nātmaiva hyātmano bandhur ātmaiva ripur ātmanaḥ',
     english: 'Elevate yourself through the power of your mind, and not degrade yourself. The mind can be the friend of the self, and also its enemy.',
     insight: {
       verseId: '6-5',
@@ -101,7 +97,6 @@ export const verses: VerseWithInsights[] = [
     chapter: 2,
     verse: 62,
     sanskrit: 'ध्यायतो विषयान्पुंसः सङ्गस्तेषूपजायते ।\nसङ्गात्सञ्जायते कामः कामात्क्रोधोऽभिजायते ॥',
-    transliteration: 'dhyāyato viṣhayān puṁsaḥ saṅgas teṣhūpajāyate\nsaṅgāt sañjāyate kāmaḥ kāmāt krodho \'bhijāyate',
     english: 'When a person dwells on sense objects, attachment to them arises. From attachment springs desire, and from desire arises anger.',
     insight: {
       verseId: '2-62',
@@ -123,7 +118,6 @@ export const verses: VerseWithInsights[] = [
     chapter: 18,
     verse: 63,
     sanskrit: 'इति ते ज्ञानमाख्यातं गुह्याद्गुह्यतरं मया ।\nविमृश्यैतदशेषेण यथेच्छसि तथा कुरु ॥',
-    transliteration: 'iti te jñānam ākhyātaṁ guhyād guhyataraṁ mayā\nvimṛiśhyaitad aśheṣheṇa yathechchhasi tathā kuru',
     english: 'Thus, I have explained to you this knowledge that is more secret than all secrets. Ponder over it deeply, and then do as you wish.',
     insight: {
       verseId: '18-63',
