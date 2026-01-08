@@ -4,6 +4,7 @@ import { Sparkles, BookOpen, Target, ArrowRight, Volume2, Heart, Share2, Loader2
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import AudioWaveform from '@/components/ui/AudioWaveform';
 import { curatedVerses } from '@/data/curatedVerses';
 import { VerseWithInsights } from '@/types';
 import { getChallengeById } from '@/data/challenges';
@@ -343,8 +344,10 @@ const SampleVerseCard = ({ verse }: { verse: VerseWithInsights }) => {
           >
             {isLoading ? (
               <Loader2 className="h-4 w-4 animate-spin" />
+            ) : isPlaying ? (
+              <AudioWaveform isPlaying={isPlaying} />
             ) : (
-              <Volume2 className={cn('h-4 w-4', isPlaying && 'fill-current')} />
+              <Volume2 className="h-4 w-4" />
             )}
             {isLoading ? 'Loading...' : (isPlaying ? 'Stop' : 'Listen')}
           </Button>
