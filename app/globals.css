@@ -1,142 +1,199 @@
-@import url("https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&display=swap");
+/* =========================================================================
+   Daily Gita — AIX Theme v2 "Liquid Glass", expressed in Tailwind v3 + shadcn.
+
+   Ported from the AIX UI template's design system (its globals.css is the
+   canonical source). The template runs Tailwind v4 with `@theme`; we re-express
+   the same tokens through shadcn's `hsl(var(--x))` indirection so every
+   existing component picks the new system up without being rewritten.
+
+   What is deliberately NOT adopted: AIX's logo, product name, agent identity
+   colors, and its Inter-only type. Daily Gita keeps its own devotional
+   identity — the saffron accent (which lands within a hair of AIX orange
+   anyway) and the Devanagari faces used for Sanskrit.
+   ========================================================================= */
+
+/* Devanagari — Daily Gita's own. Never replaced by the template's type. */
 @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Arya:wght@400;700&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Modern Fluid Design System for Daily Gita */
+/* -------------------------------------------------------------------------
+   Self-hosted Latin type — Inter (UI/body), Geist (display), JetBrains Mono.
+   No CDN, no layout shift. Files in public/fonts/.
+   ------------------------------------------------------------------------- */
+@font-face {
+  font-family: "Inter";
+  src: url("/fonts/inter-variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("/fonts/jetbrains-mono-variable.woff2") format("woff2");
+  font-weight: 100 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Geist";
+  src: url("/fonts/Geist-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Geist";
+  src: url("/fonts/Geist-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Geist";
+  src: url("/fonts/Geist-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Geist";
+  src: url("/fonts/Geist-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
 
 @layer base {
   :root {
-    /* Clean, warm background palette */
-    --background: 40 30% 97%;
-    --foreground: 20 25% 12%;
+    /* --- shadcn semantic tokens, mapped onto AIX values -------------------
+       Neutrals are the Untitled-UI gray ramp the template uses; the accent is
+       Daily Gita's saffron, which measures hsl(25 91% 54%) — the same colour
+       AIX ships as brand-500 (#F47920). No palette fork needed. */
+    --background: 222 42% 95%;        /* backdrop base — the canvas the app floats on */
+    --foreground: 214 33% 17%;        /* gray-800 */
 
     --card: 0 0% 100%;
-    --card-foreground: 20 25% 12%;
+    --card-foreground: 214 33% 17%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 20 25% 12%;
+    --popover-foreground: 214 33% 17%;
 
-    /* Saffron/Orange - Sacred spiritual color */
-    --primary: 25 90% 52%;
+    --primary: 25 91% 54%;            /* brand-500 */
     --primary-foreground: 0 0% 100%;
 
-    /* Deep warm secondary */
-    --secondary: 25 15% 94%;
-    --secondary-foreground: 20 25% 20%;
+    --secondary: 216 24% 96%;         /* gray-100 */
+    --secondary-foreground: 218 24% 27%;
 
-    /* Muted tones */
-    --muted: 30 10% 92%;
-    --muted-foreground: 20 15% 45%;
+    --muted: 210 20% 98%;             /* gray-50 */
+    --muted-foreground: 221 13% 46%;  /* gray-500 */
 
-    /* Gold accent */
-    --accent: 38 95% 55%;
-    --accent-foreground: 20 40% 12%;
+    --accent: 30 92% 95%;             /* brand-50 tint */
+    --accent-foreground: 26 85% 40%;  /* brand-700 — orange-on-orange-50 needs the dark step */
 
-    --destructive: 0 72% 50%;
+    --destructive: 4 86% 58%;         /* error-500 */
     --destructive-foreground: 0 0% 100%;
 
-    /* Clean borders */
-    --border: 30 15% 88%;
-    --input: 30 15% 88%;
-    --ring: 25 90% 52%;
+    --border: 218 17% 91%;            /* gray-200 — hairline, never coloured */
+    --input: 217 16% 84%;             /* gray-300 — interactive borders */
+    --ring: 25 91% 54%;
 
-    --radius: 1rem;
+    /* Radii run tight — controls 5px, cards 8px. --radius is the card step;
+       the control step is derived in tailwind.config. Never hardcode radii. */
+    --radius: 0.5rem;
 
-    --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 20 25% 12%;
-    --sidebar-primary: 25 90% 52%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 38 95% 55%;
-    --sidebar-accent-foreground: 20 40% 12%;
-    --sidebar-border: 30 15% 88%;
-    --sidebar-ring: 25 90% 52%;
+    --font-sans: "Inter", "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --font-display: "Geist", "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    --font-sanskrit: "Arya", "Noto Sans Devanagari", sans-serif;
 
-    /* Chart colors */
-    --chart-1: 25 90% 52%;
-    --chart-2: 38 95% 55%;
-    --chart-3: 350 45% 45%;
-    --chart-4: 200 60% 45%;
-    --chart-5: 35 30% 50%;
+    /* Ambient backdrop — a fixed, GPU-cheap gradient canvas under everything.
+       Warm on purpose: it reads as devotional brand, not the cyan/violet
+       AI-gradient tell. */
+    --backdrop-base: #eef1f8;
+    --backdrop-blob-a: rgba(244, 121, 32, 0.12); /* saffron */
+    --backdrop-blob-b: rgba(251, 113, 133, 0.07); /* soft rose */
+    --backdrop-blob-c: rgba(245, 158, 11, 0.08); /* amber gold */
 
-    --sidebar: 0 0% 100%;
+    /* Liquid-glass material — CHROME ONLY (header, bottom nav, menus, modals).
+       Alphas are tuned so page content behind chrome never reads through as
+       legible text: frosted, not see-through. Never put glass on a card. */
+    --glass-bg: rgba(255, 255, 255, 0.78);
+    --glass-bg-thick: rgba(255, 255, 255, 0.92);
+    --glass-popover-bg: rgba(255, 255, 255, 0.98);
+    --glass-bg-solid: #ffffff;
+    --glass-blur: 20px;
+    --glass-saturate: 155%;
+    --glass-border: rgba(16, 24, 40, 0.08);
+    --glass-border-strong: rgba(16, 24, 40, 0.12);
+    --glass-rim: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+    --glass-rim-strong: inset 0 1px 0 rgba(255, 255, 255, 0.92);
 
-    --font-sans: 'Lato', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
-    --font-mono: 'Roboto Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
-    --font-sanskrit: 'Noto Sans Devanagari', 'Arial Unicode MS', sans-serif;
+    /* Elevation — cards sit flat. Shadow exists only on the primary CTA and
+       on floating chrome. */
+    --shadow-cta: 0 4px 12px rgba(244, 121, 32, 0.2);
+    --shadow-cta-strong: 0 4px 12px rgba(244, 121, 32, 0.27);
+    --shadow-elevated: 0 24px 48px -12px rgba(16, 24, 40, 0.16), 0 0 0 1px rgba(16, 24, 40, 0.04);
+    --shadow-theme-xs: 0 1px 2px 0 rgba(16, 24, 40, 0.05);
+    --shadow-theme-sm: 0 1px 3px 0 rgba(16, 24, 40, 0.1), 0 1px 2px 0 rgba(16, 24, 40, 0.06);
+    --shadow-theme-md: 0 4px 8px -2px rgba(16, 24, 40, 0.1), 0 2px 4px -2px rgba(16, 24, 40, 0.06);
 
-    --shadow-2xs: 0 1px 2px 0 hsl(20 15% 20% / 0.03);
-    --shadow-xs: 0 1px 3px 0 hsl(20 15% 20% / 0.04);
-    --shadow-sm: 0 2px 6px -1px hsl(20 15% 20% / 0.06);
-    --shadow: 0 4px 12px -2px hsl(20 15% 20% / 0.08);
-    --shadow-md: 0 8px 20px -4px hsl(20 15% 20% / 0.1);
-    --shadow-lg: 0 12px 32px -6px hsl(20 15% 20% / 0.12);
-    --shadow-xl: 0 20px 48px -10px hsl(20 15% 20% / 0.15);
-    --shadow-2xl: 0 32px 64px -16px hsl(20 15% 20% / 0.2);
+    /* Gradients — at most one per page, hero bands only. */
+    --gradient-brand-panel: linear-gradient(180deg, #f47920 0%, #e0580b 100%);
+    --gradient-welcome: linear-gradient(90deg, #f47920 0%, #ff9f4a 100%);
 
-    --tracking-normal: 0em;
-    --spacing: 0.25rem;
+    /* Motion — exponential ease-out. Never bounce, elastic or spring. */
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-quiet: cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .dark {
-    /* Dark mode - Deep elegant blue */
-    --background: 220 25% 8%;
-    --foreground: 40 15% 95%;
+    --background: 224 48% 6%;
+    --foreground: 0 0% 100%;
 
-    --card: 220 20% 12%;
-    --card-foreground: 40 15% 95%;
+    --card: 220 43% 11%;              /* gray-900 */
+    --card-foreground: 0 0% 100%;
 
-    --popover: 220 20% 14%;
-    --popover-foreground: 40 15% 95%;
+    --popover: 220 43% 11%;
+    --popover-foreground: 0 0% 100%;
 
-    /* Golden saffron for dark mode */
-    --primary: 35 95% 58%;
-    --primary-foreground: 220 25% 8%;
+    --primary: 28 92% 62%;            /* brand-400 — lighter step carries on dark */
+    --primary-foreground: 220 43% 11%;
 
-    /* Dark secondary */
-    --secondary: 220 15% 18%;
-    --secondary-foreground: 40 15% 90%;
+    --secondary: 214 33% 17%;         /* gray-800 */
+    --secondary-foreground: 218 15% 82%;
 
-    --muted: 220 15% 22%;
-    --muted-foreground: 40 10% 60%;
+    --muted: 220 43% 11%;
+    --muted-foreground: 218 15% 65%;  /* gray-400 */
 
-    /* Gold accent */
-    --accent: 40 95% 62%;
-    --accent-foreground: 220 25% 8%;
+    --accent: 25 40% 12%;
+    --accent-foreground: 28 92% 62%;
 
-    --destructive: 0 84% 60%;
+    --destructive: 4 86% 58%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 15% 20%;
-    --input: 220 15% 20%;
-    --ring: 35 95% 58%;
+    --border: 214 33% 17%;            /* gray-800 */
+    --input: 218 24% 27%;             /* gray-700 */
+    --ring: 28 92% 62%;
 
-    --sidebar-background: 220 20% 10%;
-    --sidebar-foreground: 40 15% 95%;
-    --sidebar-primary: 35 95% 58%;
-    --sidebar-primary-foreground: 220 25% 8%;
-    --sidebar-accent: 40 95% 62%;
-    --sidebar-accent-foreground: 220 25% 8%;
-    --sidebar-border: 220 15% 20%;
-    --sidebar-ring: 35 95% 58%;
+    --backdrop-base: #080c17;
+    --backdrop-blob-a: rgba(244, 121, 32, 0.16);
+    --backdrop-blob-b: rgba(251, 113, 133, 0.11);
+    --backdrop-blob-c: rgba(245, 158, 11, 0.12);
 
-    --chart-1: 35 95% 58%;
-    --chart-2: 40 95% 62%;
-    --chart-3: 350 50% 55%;
-    --chart-4: 200 70% 55%;
-    --chart-5: 40 25% 50%;
+    --glass-bg: rgba(17, 24, 39, 0.74);
+    --glass-bg-thick: rgba(17, 24, 39, 0.92);
+    --glass-popover-bg: rgba(17, 24, 39, 0.98);
+    --glass-bg-solid: #101828;
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --glass-border-strong: rgba(255, 255, 255, 0.12);
+    --glass-rim: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    --glass-rim-strong: inset 0 1px 0 rgba(255, 255, 255, 0.1);
 
-    --sidebar: 220 20% 12%;
-
-    --shadow-2xs: 0 1px 2px 0 hsl(0 0% 0% / 0.15);
-    --shadow-xs: 0 1px 3px 0 hsl(0 0% 0% / 0.2);
-    --shadow-sm: 0 2px 6px -1px hsl(0 0% 0% / 0.25);
-    --shadow: 0 4px 12px -2px hsl(0 0% 0% / 0.3);
-    --shadow-md: 0 8px 20px -4px hsl(0 0% 0% / 0.35);
-    --shadow-lg: 0 12px 32px -6px hsl(0 0% 0% / 0.4);
-    --shadow-xl: 0 20px 48px -10px hsl(0 0% 0% / 0.45);
-    --shadow-2xl: 0 32px 64px -16px hsl(0 0% 0% / 0.5);
+    --shadow-elevated: 0 24px 48px -12px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.06);
   }
 }
 
@@ -149,116 +206,271 @@
     scroll-behavior: smooth;
     -webkit-tap-highlight-color: transparent;
     -webkit-text-size-adjust: 100%;
+    /* Matches the backdrop so there's no white flash before the blobs paint. */
+    background-color: var(--backdrop-base);
   }
 
   body {
-    @apply bg-background text-foreground antialiased;
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    /* Transparent so the ambient canvas reads through the gaps between chrome
+       and content. The backdrop is mounted first inside <body>. */
+    @apply relative text-foreground antialiased;
+    background-color: transparent;
+    font-feature-settings: "cv11", "ss01", "tnum";
     overscroll-behavior-y: contain;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Typography Scale - Mobile First */
+  /* Display type — Geist, Apple-style tight tracking. Headings only; labels
+     and data always stay on Inter. */
+  .font-display {
+    font-family: var(--font-display);
+    letter-spacing: -0.022em;
+    font-feature-settings: "ss01", "cv11";
+  }
+
+  h1, h2, h3 {
+    letter-spacing: -0.021em;
+  }
+  h4, h5 {
+    letter-spacing: -0.014em;
+  }
+
   h1 {
-    @apply text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight;
+    @apply font-display text-3xl sm:text-4xl md:text-title-md font-bold;
   }
-
   h2 {
-    @apply text-xl sm:text-2xl md:text-3xl font-bold tracking-tight;
+    @apply font-display text-2xl sm:text-3xl md:text-title-sm font-bold;
   }
-
   h3 {
-    @apply text-lg sm:text-xl md:text-2xl font-semibold tracking-tight;
+    @apply text-lg sm:text-xl md:text-2xl font-semibold;
   }
-
   h4 {
-    @apply text-base sm:text-lg md:text-xl font-semibold;
+    @apply text-base sm:text-lg font-semibold;
   }
-
   h5 {
-    @apply text-sm sm:text-base md:text-lg font-semibold;
+    @apply text-sm sm:text-base font-semibold;
   }
-
   h6 {
-    @apply text-xs sm:text-sm md:text-base font-semibold;
+    @apply text-xs sm:text-sm font-semibold;
   }
 
-  /* Safe area padding for notched devices */
+  ::selection {
+    @apply bg-brand-100 text-gray-900;
+  }
+  .dark ::selection {
+    @apply bg-brand-500/30 text-white;
+  }
+
   .pb-safe {
     padding-bottom: env(safe-area-inset-bottom, 0);
   }
-  
   .pt-safe {
     padding-top: env(safe-area-inset-top, 0);
   }
 }
 
+/* =========================================================================
+   Ambient backdrop + liquid glass
+   ========================================================================= */
 @layer components {
-  /* Page container for full-width layouts */
+  .liquid-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+    background: var(--backdrop-base);
+  }
+  .liquid-backdrop-blob {
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(72px);
+    will-change: transform;
+  }
+  .liquid-blob-a {
+    width: 55vw;
+    height: 55vw;
+    left: -12vw;
+    top: -18vw;
+    background: radial-gradient(circle at center, var(--backdrop-blob-a) 0%, transparent 65%);
+    animation: liquid-drift-a 90s var(--ease-quiet) infinite alternate;
+  }
+  .liquid-blob-b {
+    width: 60vw;
+    height: 60vw;
+    right: -18vw;
+    bottom: -22vw;
+    background: radial-gradient(circle at center, var(--backdrop-blob-b) 0%, transparent 65%);
+    animation: liquid-drift-b 110s var(--ease-quiet) infinite alternate;
+  }
+  .liquid-blob-c {
+    width: 36vw;
+    height: 36vw;
+    right: 8vw;
+    top: -10vw;
+    background: radial-gradient(circle at center, var(--backdrop-blob-c) 0%, transparent 65%);
+    animation: liquid-drift-c 70s var(--ease-quiet) infinite alternate;
+  }
+
+  /* Doubled selectors so these outrank any single bg-* utility on the same
+     element regardless of source order. */
+  .glass-surface.glass-surface {
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+    border-color: var(--glass-border);
+    box-shadow: var(--glass-rim);
+  }
+  .glass-float.glass-float {
+    background: var(--glass-bg-thick);
+    -webkit-backdrop-filter: blur(28px) saturate(170%);
+    backdrop-filter: blur(28px) saturate(170%);
+    border-color: var(--glass-border-strong);
+    box-shadow: var(--glass-rim-strong), var(--shadow-elevated);
+  }
+  .glass-popover.glass-popover {
+    /* Near-opaque: translucent menus that let the page bleed through are
+       unreadable over a verse card. */
+    background: var(--glass-popover-bg);
+    -webkit-backdrop-filter: blur(18px) saturate(160%);
+    backdrop-filter: blur(18px) saturate(160%);
+    border-color: var(--glass-border-strong);
+  }
+
+  /* Legacy alias — `.glass` predates the port. Kept so nothing breaks. */
+  .glass {
+    @apply glass-surface;
+  }
+}
+
+@keyframes liquid-drift-a {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(9vw, 7vh) scale(1.12); }
+}
+@keyframes liquid-drift-b {
+  0% { transform: translate(0, 0) scale(1.08); }
+  100% { transform: translate(-8vw, -6vh) scale(0.96); }
+}
+@keyframes liquid-drift-c {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(-6vw, 8vh) scale(1.18); }
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass-surface, .glass-float, .glass-popover, .glass {
+    background: var(--glass-bg-solid);
+  }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .glass-surface, .glass-float, .glass-popover, .glass {
+    background: var(--glass-bg-solid);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .liquid-backdrop { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .liquid-backdrop-blob { animation: none; }
+}
+
+/* =========================================================================
+   Layout + shared vocabulary
+   ========================================================================= */
+@layer components {
   .page-container {
     @apply w-full px-4 sm:px-6 lg:px-8;
   }
 
-  /* Content container with max-width */
   .content-container {
     @apply w-full max-w-7xl mx-auto;
   }
 
-  /* Narrow content for reading */
+  /* Verses are long-form. This stays capped for line length even though the
+     AIX system runs fluid full-width — reading beats density here. */
   .reading-container {
     @apply w-full max-w-3xl mx-auto;
   }
 
-  /* Glass morphism effect */
-  .glass {
-    @apply bg-background/80 backdrop-blur-xl;
-  }
-
-  /* Fluid card hover effect */
+  /* Cards are FLAT. Hover shifts the border; it never lifts or scales.
+     Redefined rather than deleted so every existing `card-hover` call site
+     adopts the rule without being touched. */
   .card-hover {
-    @apply transition-all duration-300 ease-out;
+    @apply transition-colors duration-150;
+    transition-timing-function: var(--ease-out-expo);
   }
-  
   @media (hover: hover) {
     .card-hover:hover {
-      @apply shadow-lg -translate-y-0.5;
+      @apply border-gray-300 dark:border-gray-700;
     }
   }
 
-  /* Section spacing - Mobile first */
   .section {
-    @apply py-8 sm:py-12 md:py-16 lg:py-20;
+    @apply py-6 md:py-8;
   }
 
-  /* Gradient text */
+  /* At most one per page, hero bands only. */
   .gradient-text {
-    @apply bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent;
+    background: var(--gradient-welcome);
+    @apply bg-clip-text text-transparent;
   }
 
-  /* Touch-friendly buttons */
   .touch-target {
     @apply min-h-[44px] min-w-[44px];
   }
 
-  /* Hide scrollbar but keep functionality */
+  /* Devanagari stacks matras above and below the headline, so it needs far
+     more leading than Latin at the same size — `leading-loose` (2.0) still
+     let line 1's descenders collide with line 2's vowel signs. */
+  .sanskrit-verse {
+    @apply font-sanskrit whitespace-pre-line tracking-wide;
+    line-height: 2.4;
+  }
+
   .hide-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
-  
   .hide-scrollbar::-webkit-scrollbar {
     display: none;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    @apply w-1.5 h-1.5;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply rounded-full;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-gray-200 rounded-full dark:bg-gray-700;
+  }
+
+  /* Nav vocabulary — one menu-item language across header, bottom nav and
+     dropdowns, ported from the template. */
+  .menu-item {
+    @apply relative flex items-center w-full gap-3 px-3 py-2 font-medium rounded-lg text-theme-sm transition-colors duration-150;
+  }
+  .menu-item-active {
+    @apply bg-brand-50 text-brand-700 dark:bg-brand-500/[0.12] dark:text-brand-400;
+  }
+  .menu-item-inactive {
+    @apply text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5;
+  }
+  .menu-item-icon-active {
+    @apply text-brand-500 dark:text-brand-400;
+  }
+  .menu-item-icon-inactive {
+    @apply text-gray-500 group-hover:text-gray-700 dark:text-gray-400 dark:group-hover:text-gray-300;
   }
 }
 
 @layer utilities {
-  /* Smooth transitions */
+  /* Colour/opacity only, 150ms, ease-out. No transform transitions. */
   .transition-smooth {
-    @apply transition-all duration-300 ease-out;
+    @apply transition-colors duration-150;
+    transition-timing-function: var(--ease-out-expo);
   }
 
-  /* Focus ring */
   .focus-ring {
     @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background;
   }
