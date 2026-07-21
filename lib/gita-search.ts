@@ -93,8 +93,8 @@ function toOrTerms(query: string): string | null {
 }
 
 /**
- * Full-text search over the English translations, returning the verses most
- * relevant to what the reader raised.
+ * Full-text search over the verse_search materialized view, returning the
+ * verses most relevant to what the reader raised.
  *
  * This exists so the chat agent quotes scripture we actually hold rather than
  * scripture it half-remembers. A model asked to cite the Gita from its own
@@ -102,45 +102,46 @@ function toOrTerms(query: string): string | null {
  * claims — in a devotional app that is the worst possible failure. Everything
  * the agent cites has to come from here.
  *
- * Terms are OR-ed, and ts_rank does the discriminating. The obvious choices —
+ * Ranking runs against a weighted, aggregated document per verse (all
+ * translations + word-by-word meanings + chapter summary; see the migration),
+ * scored with ts_rank_cd so proximity and source weight both count. The single
+ * best-matching translation is returned alongside for the agent to quote — the
+ * aggregated blob would be unwieldy to cite.
+ *
+ * Terms are OR-ed and the weighted rank discriminates. The obvious choices —
  * websearch_to_tsquery and plainto_tsquery — both AND every term, which means a
- * whole conversational sentence only matches a translation containing every one
- * of its words. In practice that returned nothing at all for real questions.
+ * whole conversational sentence only matches a document containing every one of
+ * its words. In practice that returned nothing at all for real questions.
  */
 export async function searchVerses(query: string, limit = 8): Promise<RetrievedVerse[]> {
   const terms = toOrTerms(query);
   if (!terms) return [];
 
-  // A verse has several translations, so the inner DISTINCT ON keeps only the
-  // best-matching one per verse. That forces an ORDER BY verse_id, which is why
-  // the relevance ordering has to happen in the outer query — sorting by rank
-  // inside would be discarded.
   const rows = await db.execute<{
     chapter_number: number;
     verse_number: number;
-    text: string;
+    sanskrit: string;
     description: string;
   }>(sql`
-    SELECT chapter_number, verse_number, text, description
-      FROM (
-        SELECT DISTINCT ON (v.verse_id)
-               v.verse_id, v.chapter_number, v.verse_number, v.text, t.description,
-               ts_rank(to_tsvector('english', t.description),
-                       to_tsquery('english', ${terms})) AS rank
+    SELECT vs.chapter_number, vs.verse_number, vs.sanskrit, best.description
+      FROM verse_search vs
+      CROSS JOIN LATERAL (
+        SELECT t.description
           FROM translations t
-          JOIN verses v ON v.verse_id = t.verse_id
-         WHERE t.language = 'english'
-           AND to_tsvector('english', t.description) @@ to_tsquery('english', ${terms})
-         ORDER BY v.verse_id, rank DESC
-      ) ranked
-     ORDER BY rank DESC
+         WHERE t.verse_id = vs.verse_id AND t.language = 'english'
+         ORDER BY ts_rank(to_tsvector('english', t.description),
+                          to_tsquery('english', ${terms})) DESC
+         LIMIT 1
+      ) best
+     WHERE vs.search_vector @@ to_tsquery('english', ${terms})
+     ORDER BY ts_rank_cd(vs.search_vector, to_tsquery('english', ${terms}), 32) DESC
      LIMIT ${limit}
   `);
 
   return rows.map((r) => ({
     chapter: r.chapter_number,
     verse: r.verse_number,
-    sanskrit: r.text,
+    sanskrit: r.sanskrit,
     translation: r.description,
   }));
 }
