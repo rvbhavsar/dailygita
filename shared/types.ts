@@ -75,7 +75,10 @@ export interface VerseChallenge {
 }
 
 export interface AudioResponse {
-  url: string | null;
+  /** Authentic Sanskrit chanting, or null if unavailable for this verse. */
+  recitation: string | null;
+  /** English narration, present once generated. */
+  narration: string | null;
 }
 
 export interface AuthResponse {

@@ -7,8 +7,13 @@ export default defineConfig({
     host: "::",
     port: 5173,
     // Same-origin in dev so cookie behaviour matches production exactly.
+    // /audio serves generated narration off the server's volume.
     proxy: {
       "/api": {
+        target: "http://localhost:3001",
+        changeOrigin: true,
+      },
+      "/audio": {
         target: "http://localhost:3001",
         changeOrigin: true,
       },

@@ -133,17 +133,24 @@ export const verseChallenges = pgTable(
   }),
 );
 
-// Phase 2: TTS / recitation audio URLs.
+/**
+ * Audio per verse. Two kinds, from different sources:
+ * - 'recitation': authentic Sanskrit chanting hotlinked from the gita/gita
+ *   dataset. Deepgram has no Sanskrit voice, and real recitation beats TTS.
+ * - 'narration': English translation + insight, generated on demand by
+ *   Deepgram and cached on disk.
+ */
 export const verseAudio = pgTable(
   'verse_audio',
   {
     id: uuid('id').primaryKey().defaultRandom(),
     chapterNumber: integer('chapter_number').notNull(),
     verseNumber: integer('verse_number').notNull(),
+    kind: text('kind').notNull().default('recitation'),
     url: text('url').notNull(),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => ({
-    verseIdx: uniqueIndex('verse_audio_verse_idx').on(t.chapterNumber, t.verseNumber),
+    verseIdx: uniqueIndex('verse_audio_verse_idx').on(t.chapterNumber, t.verseNumber, t.kind),
   }),
 );

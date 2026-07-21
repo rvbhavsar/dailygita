@@ -9,6 +9,7 @@
     "generate": "drizzle-kit generate",
     "migrate": "tsx src/db/migrate.ts",
     "seed": "tsx src/db/seed.ts",
+    "seed:recitation": "tsx src/db/seed-recitation.ts",
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {

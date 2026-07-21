@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+
 import { Link } from 'react-router-dom';
-import { Heart, Share2, BookOpen, Volume2, Loader2 } from 'lucide-react';
+import { Heart, Share2, BookOpen, Volume2, Loader2, Music } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -9,8 +9,7 @@ import { useFavorites } from '@/hooks/useFavorites';
 import { getChallengeById } from '@/data/challenges';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
-import { apiGet } from '@/lib/api';
-import type { AudioResponse } from 'shared';
+import { useVerseAudio } from '@/hooks/useVerseAudio';
 import PersonalizedInsight from './PersonalizedInsight';
 
 interface VerseCardProps {
@@ -24,72 +23,18 @@ const VerseCard = ({
   showFullContent = false,
   className
 }: VerseCardProps) => {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
-  const [cachedAudioUrl, setCachedAudioUrl] = useState<string | null>(null);
-  
   const {
     toggleFavorite,
     isFavorite
   } = useFavorites();
   const saved = isFavorite(verse.id);
 
-  // Audio is generated in phase 2; until then the API returns a null url and
-  // the listen button stays hidden.
-  useEffect(() => {
-    let cancelled = false;
+  const { hasRecitation, playing, loading, toggle } = useVerseAudio(verse.chapter, verse.verse, {
+    english: verse.english,
+    explanation: verse.insight?.explanation,
+    takeaway: verse.insight?.takeaway,
+  });
 
-    apiGet<AudioResponse>(`/verses/${verse.chapter}/${verse.verse}/audio`)
-      .then(({ url }) => {
-        if (!cancelled) setCachedAudioUrl(url);
-      })
-      .catch(() => {
-        if (!cancelled) setCachedAudioUrl(null);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [verse.chapter, verse.verse]);
-
-  const handleReadAloud = async () => {
-    // If already playing, stop it
-    if (audioElement) {
-      audioElement.pause();
-      audioElement.currentTime = 0;
-      setAudioElement(null);
-      setIsPlaying(false);
-      return;
-    }
-
-    if (!cachedAudioUrl) return;
-
-    setIsLoading(true);
-    try {
-      const audioUrl = cachedAudioUrl;
-      const audio = new Audio(audioUrl);
-      
-      audio.onended = () => {
-        setIsPlaying(false);
-        setAudioElement(null);
-        // Only revoke if it was a blob URL (not cached)
-        if (!cachedAudioUrl && audioUrl) {
-          URL.revokeObjectURL(audioUrl);
-        }
-      };
-      
-      setAudioElement(audio);
-      setIsLoading(false);
-      setIsPlaying(true);
-      await audio.play();
-    } catch (error) {
-      console.error('TTS error:', error);
-      toast.error('Failed to read verse aloud');
-      setIsLoading(false);
-      setIsPlaying(false);
-    }
-  };
   const handleShare = async () => {
     const shareText = `${verse.english}\n\n— Bhagavad Gita ${verse.chapter}.${verse.verse}`;
     if (navigator.share) {
@@ -164,22 +109,36 @@ const VerseCard = ({
           </div>}
 
         <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 pt-6 sm:pt-8 mt-6 sm:mt-8 border-t border-border/50">
-          {cachedAudioUrl && (
+          {hasRecitation && (
             <Button
               variant="ghost"
               size="lg"
-              onClick={handleReadAloud}
-              disabled={isLoading}
-              className={cn('gap-1.5 sm:gap-2 rounded-full px-3 sm:px-6 h-10 sm:h-11', isPlaying && 'text-primary bg-primary/10')}
+              onClick={() => toggle('recitation')}
+              className={cn('gap-1.5 sm:gap-2 rounded-full px-3 sm:px-6 h-10 sm:h-11', playing === 'recitation' && 'text-primary bg-primary/10')}
+              title="Hear the Sanskrit chanted"
             >
-              {isLoading ? (
-                <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
-              ) : (
-                <Volume2 className={cn('h-4 w-4 sm:h-5 sm:w-5', isPlaying && 'fill-current')} />
-              )}
-              <span className="hidden xs:inline text-sm sm:text-base">{isLoading ? 'Loading...' : (isPlaying ? 'Stop' : 'Listen')}</span>
+              <Music className={cn('h-4 w-4 sm:h-5 sm:w-5', playing === 'recitation' && 'fill-current')} />
+              <span className="hidden xs:inline text-sm sm:text-base">{playing === 'recitation' ? 'Stop' : 'Chant'}</span>
             </Button>
           )}
+
+          <Button
+            variant="ghost"
+            size="lg"
+            onClick={() => toggle('narration')}
+            disabled={loading === 'narration'}
+            className={cn('gap-1.5 sm:gap-2 rounded-full px-3 sm:px-6 h-10 sm:h-11', playing === 'narration' && 'text-primary bg-primary/10')}
+            title="Hear the English read aloud"
+          >
+            {loading === 'narration' ? (
+              <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
+            ) : (
+              <Volume2 className={cn('h-4 w-4 sm:h-5 sm:w-5', playing === 'narration' && 'fill-current')} />
+            )}
+            <span className="hidden xs:inline text-sm sm:text-base">
+              {loading === 'narration' ? 'Loading...' : playing === 'narration' ? 'Stop' : 'Listen'}
+            </span>
+          </Button>
 
           <Button 
             variant="ghost" 

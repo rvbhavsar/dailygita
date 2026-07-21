@@ -20,6 +20,7 @@
     "generate": "npm run generate --workspace server",
     "migrate": "npm run migrate --workspace server",
     "seed": "npm run seed --workspace server",
+    "seed:recitation": "npm run seed:recitation --workspace server",
     "lint": "eslint .",
     "typecheck": "npm run typecheck --workspace client && npm run typecheck --workspace server"
   },

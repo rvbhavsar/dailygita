@@ -1,10 +1,12 @@
 import { existsSync } from 'node:fs';
+import { mkdir } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import fastifyCookie from '@fastify/cookie';
 import fastifyStatic from '@fastify/static';
 import Fastify from 'fastify';
 import { env, isProd } from './lib/env.js';
+import audioRoutes from './routes/audio.js';
 import authRoutes from './routes/auth.js';
 import favoriteRoutes from './routes/favorites.js';
 import gitaRoutes from './routes/gita.js';
@@ -25,9 +27,18 @@ await app.register(
     await api.register(profileRoutes);
     await api.register(favoriteRoutes);
     await api.register(insightRoutes);
+    await api.register(audioRoutes);
   },
   { prefix: '/api' },
 );
+
+// Generated narration mp3s, cached on the mounted volume.
+await mkdir(env.AUDIO_DIR, { recursive: true }).catch(() => undefined);
+await app.register(fastifyStatic, {
+  root: env.AUDIO_DIR,
+  prefix: '/audio/',
+  decorateReply: false,
+});
 
 // dist/server/index.js -> dist/client
 const clientDist = join(dirname(fileURLToPath(import.meta.url)), '../client');

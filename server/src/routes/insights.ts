@@ -5,6 +5,33 @@ import { db } from '../db/index.js';
 import { savedInsights } from '../db/schema.js';
 import { currentUser, requireAuth } from '../middleware/requireAuth.js';
 import { toSavedInsight } from '../lib/serialize.js';
+import { AiError, generateInsight } from '../lib/ai.js';
+
+const insightRequestSchema = z.object({
+  verse: z.object({
+    chapter: z.number().int().positive(),
+    verse: z.number().int().positive(),
+    sanskrit: z.string().optional(),
+    english: z.string().optional(),
+    insight: z
+      .object({ explanation: z.string().optional(), takeaway: z.string().optional() })
+      .optional(),
+  }),
+  profile: z
+    .object({
+      age: z.number().nullable().optional(),
+      profession: z.string().nullable().optional(),
+      marital_status: z.string().nullable().optional(),
+    })
+    .nullable()
+    .optional()
+    .transform((v) => v ?? null),
+  challenge: z
+    .object({ label: z.string().optional(), description: z.string().optional() })
+    .nullable()
+    .optional()
+    .transform((v) => v ?? null),
+});
 
 const saveSchema = z.object({
   verse_id: z.string().min(1),
@@ -70,8 +97,20 @@ export default async function insightRoutes(app: FastifyInstance) {
     return { ok: true };
   });
 
-  // Phase 2 seam: the personalized-insight generator lands here.
-  app.post('/insights/personalized', async (_request, reply) =>
-    reply.code(501).send({ error: 'Personalized insights are coming soon' }),
-  );
+  app.post('/insights/personalized', async (request, reply) => {
+    const parsed = insightRequestSchema.safeParse(request.body);
+    if (!parsed.success) {
+      return reply.code(400).send({ error: 'Invalid verse payload' });
+    }
+
+    try {
+      return { insight: await generateInsight(parsed.data) };
+    } catch (error) {
+      if (error instanceof AiError) {
+        return reply.code(error.status).send({ error: error.message });
+      }
+      request.log.error(error);
+      return reply.code(502).send({ error: 'Could not generate an insight right now' });
+    }
+  });
 }

@@ -14,6 +14,10 @@ const schema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   RESEND_API_KEY: z.string().optional(),
   RESEND_FROM: z.string().default('DailyGita <onboarding@resend.dev>'),
+  META_API_KEY: z.string().optional(),
+  DEEPGRAM_API_KEY: z.string().optional(),
+  // Where generated narration mp3s are written. Railway mounts a volume here.
+  AUDIO_DIR: z.string().default('/data/audio'),
 });
 
 const parsed = schema.safeParse(process.env);

@@ -67,10 +67,8 @@ export default async function gitaRoutes(app: FastifyInstance) {
     return rows.map(toVerseChallenge);
   });
 
-  // Phase 2 seam: returns a null url until audio is generated, which the
-  // client reads as "hide the play button".
   app.get<{ Params: { c: string; v: string } }>('/verses/:c/:v/audio', async (request) => {
-    const [row] = await db
+    const rows = await db
       .select()
       .from(verseAudio)
       .where(
@@ -78,9 +76,11 @@ export default async function gitaRoutes(app: FastifyInstance) {
           eq(verseAudio.chapterNumber, Number(request.params.c)),
           eq(verseAudio.verseNumber, Number(request.params.v)),
         ),
-      )
-      .limit(1);
+      );
 
-    return { url: row?.url ?? null };
+    return {
+      recitation: rows.find((r) => r.kind === 'recitation')?.url ?? null,
+      narration: rows.find((r) => r.kind === 'narration')?.url ?? null,
+    };
   });
 }

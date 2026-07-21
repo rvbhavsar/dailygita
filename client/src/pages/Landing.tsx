@@ -1,6 +1,5 @@
-import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Sparkles, BookOpen, Target, ArrowRight, Volume2, Heart, Share2, Loader2 } from 'lucide-react';
+import { Sparkles, BookOpen, Target, ArrowRight, Volume2, Heart, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -8,8 +7,7 @@ import AudioWaveform from '@/components/ui/AudioWaveform';
 import { curatedVerses } from '@/data/curatedVerses';
 import { VerseWithInsights } from '@/types';
 import { getChallengeById } from '@/data/challenges';
-import { apiGet } from '@/lib/api';
-import type { AudioResponse } from 'shared';
+import { useVerseAudio } from '@/hooks/useVerseAudio';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
@@ -179,59 +177,9 @@ const FeatureCard = ({ icon, title, description }: { icon: React.ReactNode; titl
 );
 
 const SampleVerseCard = ({ verse }: { verse: VerseWithInsights }) => {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
-  const [cachedAudioUrl, setCachedAudioUrl] = useState<string | null>(null);
-
-  // Audio is generated in phase 2; a null url keeps the listen button hidden.
-  useEffect(() => {
-    let cancelled = false;
-
-    apiGet<AudioResponse>(`/verses/${verse.chapter}/${verse.verse}/audio`)
-      .then(({ url }) => {
-        if (!cancelled) setCachedAudioUrl(url);
-      })
-      .catch(() => {
-        if (!cancelled) setCachedAudioUrl(null);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [verse.chapter, verse.verse]);
-
-  const handleReadAloud = async () => {
-    if (audioElement) {
-      audioElement.pause();
-      audioElement.currentTime = 0;
-      setAudioElement(null);
-      setIsPlaying(false);
-      return;
-    }
-
-    if (!cachedAudioUrl) return;
-
-    setIsLoading(true);
-    try {
-      const audio = new Audio(cachedAudioUrl);
-
-      audio.onended = () => {
-        setIsPlaying(false);
-        setAudioElement(null);
-      };
-      
-      setAudioElement(audio);
-      setIsLoading(false);
-      setIsPlaying(true);
-      await audio.play();
-    } catch (error) {
-      console.error('TTS error:', error);
-      toast.error('Failed to read verse aloud');
-      setIsLoading(false);
-      setIsPlaying(false);
-    }
-  };
+  // Signed-out visitors get the Sanskrit chanting; English narration is
+  // generated on demand and needs an account.
+  const { hasRecitation, playing, toggle } = useVerseAudio(verse.chapter, verse.verse, {});
 
   const handleShare = async () => {
     const shareText = `${verse.english}\n\n— Bhagavad Gita ${verse.chapter}.${verse.verse}`;
@@ -298,22 +246,20 @@ const SampleVerseCard = ({ verse }: { verse: VerseWithInsights }) => {
 
         {/* Actions */}
         <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 pt-3 sm:pt-4 border-t border-border/50">
-          {cachedAudioUrl && (
+          {hasRecitation && (
             <Button
               variant="ghost"
               size="sm"
-              onClick={handleReadAloud}
-              disabled={isLoading}
-              className={cn('gap-1.5 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3', isPlaying && 'text-primary bg-primary/10')}
+              onClick={() => toggle('recitation')}
+              className={cn('gap-1.5 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3', playing === 'recitation' && 'text-primary bg-primary/10')}
+              title="Hear the Sanskrit chanted"
             >
-              {isLoading ? (
-                <Loader2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 animate-spin" />
-              ) : isPlaying ? (
-                <AudioWaveform isPlaying={isPlaying} />
+              {playing === 'recitation' ? (
+                <AudioWaveform isPlaying />
               ) : (
                 <Volume2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               )}
-              <span className="hidden xs:inline">{isLoading ? 'Loading...' : (isPlaying ? 'Stop' : 'Listen')}</span>
+              <span className="hidden xs:inline">{playing === 'recitation' ? 'Stop' : 'Chant'}</span>
             </Button>
           )}
           <Button variant="ghost" size="sm" className="gap-1.5 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3 opacity-60" disabled>
