@@ -1,6 +1,6 @@
 import { env } from './env';
 import { AiError } from './ai';
-import { searchVerses, type RetrievedVerse } from './gita-search';
+import { extractRefs, getVersesByRef, searchVerses, type RetrievedVerse } from './gita-search';
 
 const META_API_URL = 'https://api.meta.ai/v1/chat/completions';
 const MODEL = 'muse-spark-1.1';
@@ -68,12 +68,36 @@ export async function streamGitaChat(messages: ChatMessage[]): Promise<ReadableS
     throw new AiError('The chat companion is not configured', 501);
   }
 
-  const lastUserMessage = [...messages].reverse().find((m) => m.role === 'user');
-  if (!lastUserMessage) throw new AiError('No message to respond to', 400);
+  const userTurns = messages.filter((m) => m.role === 'user');
+  if (userTurns.length === 0) throw new AiError('No message to respond to', 400);
 
-  // Retrieval runs on the latest message only. Threading the whole history into
-  // one tsquery drags in every earlier topic and dilutes the ranking.
-  const verses = await searchVerses(lastUserMessage.content);
+  // Retrieve over the last few user turns, not only the latest. A follow-up
+  // like "say more about that second verse" carries no searchable words of its
+  // own — retrieving on it alone matches nothing, and the agent would then deny
+  // the very verse it just cited. Weighting the newest turn (repeated) keeps
+  // the current message dominant while the prior turns supply the missing
+  // context. The whole history is still too much — it dilutes the ranking.
+  const recent = userTurns.slice(-3);
+  const query = [recent[recent.length - 1].content, ...recent].join(' ');
+
+  // Two sources, merged. Full-text search handles new topics. Direct lookup
+  // handles anaphora — any verse already cited in the conversation (by the agent
+  // or the reader) stays available, so "say more about that second verse" can
+  // still be answered. Cited verses lead, since a follow-up is usually about
+  // one of them.
+  const citedRefs = messages.flatMap((m) => extractRefs(m.content));
+  const [cited, searched] = await Promise.all([
+    getVersesByRef(citedRefs),
+    searchVerses(query),
+  ]);
+
+  const seen = new Set<string>();
+  const verses = [...cited, ...searched].filter((v) => {
+    const key = `${v.chapter}-${v.verse}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 
   const response = await fetch(META_API_URL, {
     method: 'POST',

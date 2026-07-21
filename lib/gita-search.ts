@@ -1,11 +1,67 @@
-import { sql } from 'drizzle-orm';
+import { and, eq, inArray, sql } from 'drizzle-orm';
 import { db } from '@/db';
+import { translations, verses } from '@/db/schema';
 
 export interface RetrievedVerse {
   chapter: number;
   verse: number;
   sanskrit: string;
   translation: string;
+}
+
+/**
+ * Looks up specific verses by chapter/verse reference.
+ *
+ * The chat agent needs this because a follow-up like "say more about that
+ * second verse" points at a reference the *agent itself* gave in an earlier
+ * turn — there are no searchable words to recover it, so it has to be pulled by
+ * citation, not by full-text search.
+ */
+export async function getVersesByRef(
+  refs: { chapter: number; verse: number }[],
+): Promise<RetrievedVerse[]> {
+  if (refs.length === 0) return [];
+
+  const ids = refs.map((r) => r.chapter * 1000 + r.verse);
+  const rows = await db
+    .select({
+      chapter: verses.chapterNumber,
+      verse: verses.verseNumber,
+      sanskrit: verses.text,
+      translation: translations.description,
+    })
+    .from(verses)
+    .innerJoin(
+      translations,
+      and(eq(translations.verseId, verses.verseId), eq(translations.language, 'english')),
+    )
+    .where(inArray(sql`${verses.chapterNumber} * 1000 + ${verses.verseNumber}`, ids));
+
+  // Several English translations per verse; keep the first of each.
+  const seen = new Set<string>();
+  return rows.filter((r) => {
+    const key = `${r.chapter}-${r.verse}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+/** Pulls "Chapter X, Verse Y" / "X.Y" / "X:Y" references out of free text. */
+export function extractRefs(text: string): { chapter: number; verse: number }[] {
+  const refs: { chapter: number; verse: number }[] = [];
+  const patterns = [
+    /chapter\s+(\d{1,2})\s*,?\s*verse\s+(\d{1,3})/gi,
+    /\b(\d{1,2})[.:](\d{1,3})\b/g,
+  ];
+  for (const re of patterns) {
+    for (const m of text.matchAll(re)) {
+      const chapter = Number(m[1]);
+      const verse = Number(m[2]);
+      if (chapter >= 1 && chapter <= 18 && verse >= 1) refs.push({ chapter, verse });
+    }
+  }
+  return refs;
 }
 
 // Common words carry no signal and, being stopwords, make Postgres emit an
