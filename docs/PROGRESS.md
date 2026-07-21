@@ -29,6 +29,26 @@ Status log for DailyGita. Newest phase first. See [BACKLOG.md](./BACKLOG.md) for
 
 ---
 
+## Phase 5 — Sidebar shell and Settings (2026-07-21) ✅
+
+Adopted the template's app shell and settings layout.
+
+- **Sidebar** replaces the top nav. Desktop persists expanded/collapsed in
+  localStorage; collapsed is an 80px icon rail that expands on hover *over* the
+  content rather than pushing it — reflowing verse text on hover would be worse
+  than the overlap. Below `lg` it's a drawer opened from the header, sitting
+  under the header in both position and stacking order so the close button
+  stays reachable. Items are flat: the template nests because it has ~80 admin
+  destinations, this app has five.
+- **The mobile bottom nav was removed.** A drawer and a bottom nav showing the
+  same five links would be redundant, so the template's pattern won. This costs
+  a tap on every mobile navigation and is worth revisiting — see the backlog.
+- **Settings** rebuilt on the section-rail pattern (rail on desktop, scrolling
+  tab strip below `lg`): General / Your profile / Practice / Notifications /
+  Account. All prior behaviour preserved against the same endpoints, plus a
+  theme picker with preview cards and — new — an editable display name, which
+  had been set at onboarding and read-only ever since.
+
 ## Phase 4 — AIX design system (2026-07-21) ✅
 
 Adopted the design language of the

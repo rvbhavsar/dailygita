@@ -47,10 +47,11 @@ Port it as a batch script using the Meta integration we already have.
 
 ## 🎨 Design system — finish the page pass
 
-Phase 4 landed the token layer, the nav chrome and the shared primitives. The
-pages themselves were only swept for breakage, not restyled. These are the
-places page markup still contradicts the system (see `AIX-DESIGN-SYSTEM.md` and
-`DESIGN.md` in the template for the rules).
+Phase 4 landed the token layer, the nav chrome and the shared primitives;
+phase 5 landed the sidebar shell and rebuilt Settings. The remaining pages were
+only swept for breakage, not restyled. These are the places page markup still
+contradicts the system (see `AIX-DESIGN-SYSTEM.md` and `DESIGN.md` in the
+template for the rules).
 
 - **Emoji in the challenge badges** (🔍 Focus & Distraction, ⚡ Discipline &
   Consistency). The system calls for one icon language — stroke icons, ~1.5–2px,
@@ -61,8 +62,16 @@ places page markup still contradicts the system (see `AIX-DESIGN-SYSTEM.md` and
 - **Pill-shaped controls on Browse.** The chapter filter chips and the
   By Chapter / By Challenge tabs are `rounded-full`; controls are `rounded-lg`
   (5px) and pills are reserved for avatars, dots and badges.
-- **Sentence case everywhere.** Several headings are Title Case
-  ("Welcome Back", "Browse Verses", "Personalized for You").
+- **Sentence case everywhere.** Several headings are still Title Case
+  ("Welcome Back", "Browse Verses", "Personalized for You"). Settings is done.
+- **Sidebar drawer has no Escape-to-close and no focus trap.** Tab order runs
+  straight through the drawer into the page behind it. The template's drawer
+  has the same gap, so this is faithful adoption rather than a regression —
+  but it's still an accessibility bug worth fixing on our side.
+- **Reconsider the mobile bottom nav.** Phase 5 replaced it with a hamburger
+  drawer to match the template, which costs a tap on every navigation. For a
+  daily-habit reading app with five destinations, sidebar-on-desktop plus
+  bottom-nav-on-mobile may serve better. Shipped as-is deliberately.
 - **Empty states as invitations** (icon + one sentence + an action), never
   "No data" / bare "Nothing here yet".
 - Consider adopting the template's **density control** (`data-density` on
@@ -112,6 +121,12 @@ as the gate.
 ---
 
 ## 🔵 Technical improvements
+
+- **Validate `selected_challenges` against the known challenge ids.** Both the
+  profile and onboarding endpoints accept `z.array(z.string())`, so a client
+  can persist ids that don't exist in `data/challenges.ts`. They then silently
+  never match anything — no error, just a user whose preferences quietly do
+  nothing. Caught while testing Settings with hand-written ids.
 
 - **`output: 'standalone'`** for Railway — smaller image, faster boots. Needs
   `outputFileTracingRoot` care; deliberately deferred so it wouldn't entangle with
