@@ -34,7 +34,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     // suppressHydrationWarning: next-themes stamps the theme class on <html>
     // before hydration, so server and client markup differ by design.
-    <html lang="en" suppressHydrationWarning>
+    // data-scroll-behavior: globals.css sets scroll-behavior:smooth, which Next
+    // otherwise warns about because it also applies to route transitions.
+    <html lang="en" data-scroll-behavior="smooth" suppressHydrationWarning>
       <head>
         {/* Devanagari only. The Latin faces (Inter/Geist/JetBrains Mono) are
             self-hosted from public/fonts — no CDN, no layout shift. */}
