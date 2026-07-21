@@ -1,73 +1,84 @@
-# Welcome to your Lovable project
+# DailyGita
 
-## Project info
+Bhagavad Gita reading app. Sign up, pick the life challenges you're working through, and get a daily verse plus verses matched to those challenges.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## Stack
 
-## How can I edit this code?
+| Layer | Choice |
+|---|---|
+| Frontend | Vite + React 18 + TypeScript + shadcn/ui + Tailwind |
+| Backend | Fastify + TypeScript |
+| Database | Postgres via Drizzle ORM |
+| Auth | JWT + bcrypt in an httpOnly cookie |
+| Email | Resend (password reset) |
+| Hosting | Railway (one service serving API + static client) |
 
-There are several ways of editing your application.
+## Layout
 
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```
+client/    React SPA
+server/    Fastify API + Drizzle schema, migrations, seed
+shared/    Types used by both sides
+dist/      Build output (client/ and server/)
 ```
 
-**Edit a file directly in GitHub**
+## Local setup
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+Requires Node 20+ and a local Postgres.
 
-**Use GitHub Codespaces**
+```sh
+npm install
+createdb dailygita
+cp .env.example .env      # then edit DATABASE_URL and JWT_SECRET
+npm run migrate           # create tables
+npm run seed              # load 18 chapters, 701 verses, 4907 translations
+npm run dev               # API on :3001, client on :5173
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+Open http://localhost:5173. The Vite dev server proxies `/api` to the API, so
+the app is same-origin in development exactly as it is in production.
 
-## What technologies are used for this project?
+Without a `RESEND_API_KEY`, password-reset links are printed to the server log
+instead of emailed — enough to exercise the flow locally.
 
-This project is built with:
+## Scripts
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+| Command | What it does |
+|---|---|
+| `npm run dev` | API + client with hot reload |
+| `npm run build` | Build client and server into `dist/` |
+| `npm start` | Run the production server (serves API + built client) |
+| `npm run generate` | Generate a migration after changing `server/src/db/schema.ts` |
+| `npm run migrate` | Apply pending migrations |
+| `npm run seed` | Load Gita content (idempotent, safe to re-run) |
+| `npm run typecheck` | Typecheck both workspaces |
 
-## How can I deploy this project?
+## Deploying to Railway
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+1. `railway login`
+2. Create a project and add the **Postgres** plugin.
+3. Point a service at this repo. `railway.json` supplies the build and start
+   commands; migrations run before the server accepts traffic.
+4. Set service variables:
+   - `DATABASE_URL` → `${{Postgres.DATABASE_URL}}` (reference variable)
+   - `JWT_SECRET` → `openssl rand -hex 32`
+   - `APP_URL` → your public URL, e.g. `https://dailygita.up.railway.app`
+   - `NODE_ENV` → `production`
+   - `RESEND_API_KEY` → optional, needed for password-reset emails
+5. After the first deploy, load content once: `railway run npm run seed`
 
-## Can I connect a custom domain to my Lovable project?
+Session cookies are set `secure` whenever `NODE_ENV=production`, so the app
+must be served over HTTPS in production. Railway does this by default.
 
-Yes, you can!
+## Authorization
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+There is no row-level security. Every protected route pairs the `requireAuth`
+middleware with an explicit `WHERE user_id = <session user>`, and the user id
+always comes from the verified JWT — never from the request body.
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+## Roadmap
+
+Phase 2 adds AI-personalized insights and verse audio. The seams already exist:
+`POST /api/insights/personalized` returns 501, and
+`GET /api/verses/:c/:v/audio` returns `{ url: null }`, which the client reads
+as "hide the listen button". Both become server-only changes.
