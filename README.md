@@ -2,6 +2,11 @@
 
 Bhagavad Gita reading app. Sign up, pick the life challenges you're working through, and get a daily verse plus verses matched to those challenges.
 
+## Docs
+
+- [Project progress](docs/PROGRESS.md) — what's been built, phase by phase
+- [Backlog](docs/BACKLOG.md) — what's next, and known gaps
+
 ## Stack
 
 | Layer | Choice |
