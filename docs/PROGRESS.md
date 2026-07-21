@@ -5,6 +5,10 @@ Status log for DailyGita. Newest phase first. See [BACKLOG.md](./BACKLOG.md) for
 **Live:** https://dailygita-app-production.up.railway.app
 **Repo:** https://github.com/rvbhavsar/dailygita (`main`)
 
+> **Deploying:** the Railway service has **no GitHub repo connected**, so
+> pushing to `main` does *not* deploy. Ship with `railway up --service
+> dailygita-app`. (Connecting the repo for push-to-deploy is in the backlog.)
+
 ---
 
 ## Current state at a glance
@@ -12,7 +16,8 @@ Status log for DailyGita. Newest phase first. See [BACKLOG.md](./BACKLOG.md) for
 | | |
 |---|---|
 | Framework | Next.js 16 (App Router) + React 19 + TypeScript |
-| UI | shadcn/ui + Tailwind |
+| UI | shadcn/ui + Tailwind v3, on the AIX Theme v2 "Liquid Glass" design system |
+| Type | Inter (UI) + Geist (display), self-hosted; Arya / Noto Sans Devanagari for Sanskrit |
 | Database | Postgres on Railway via Drizzle ORM |
 | Auth | Hand-rolled JWT + bcrypt in an httpOnly cookie |
 | AI | Meta Model API (`muse-spark-1.1`) — personalized insights |
@@ -23,6 +28,48 @@ Status log for DailyGita. Newest phase first. See [BACKLOG.md](./BACKLOG.md) for
 **Content loaded:** 18 chapters, 701 verses, 4,907 translations, 701 Sanskrit recitations.
 
 ---
+
+## Phase 4 — AIX design system (2026-07-21) ✅
+
+Adopted the design language of the
+[aix-ui-template](https://github.com/Ai-Xccelerate/aix-ui-template) — AIX Theme
+v2, "Liquid Glass" — so this app matches the rest of the AIX stack visually.
+
+**The judgement call:** that template is TailAdmin, an *admin dashboard* on
+Tailwind v4 with its own component library. This is a five-page consumer
+reading app on Tailwind v3 + shadcn. Adopting it literally would have meant
+rebuilding a working, verified app on both a mismatched stack and a mismatched
+product archetype. So we ported the **design language, not the stack**: the
+tokens are re-expressed through shadcn's `hsl(var(--x))` indirection, which let
+every existing component adopt the system without being rewritten.
+
+- Tokens: Untitled-UI gray ramp, saffron/success/error/warning ramps, radii
+  retuned tight (controls 5px, cards 8px), AIX type scale, motion easings.
+- Ambient backdrop: a fixed canvas of three slow-drifting warm blobs, with
+  glass chrome floating over it. Chrome only — cards stay opaque and flat.
+- Nav: header and mobile bottom nav rebuilt on the template's `menu-item`
+  vocabulary. The header/bottom-nav split was **kept** rather than the
+  template's admin sidebar, which doesn't fit a five-destination reading app.
+- Dark mode promoted to first-class. `next-themes` was already a dependency
+  but had never been wired up.
+- Type: self-hosted Inter (UI) and Geist (display) replace Lato. No CDN.
+
+**Deliberately not adopted:** the template's logo, product name, agent identity
+colours and its Inter-only type. Daily Gita keeps its ॐ mark, its name, and the
+Devanagari faces. Its saffron measured the same as the AIX brand ramp, so the
+tint and shade steps transferred without a palette fork.
+
+**Bugs fixed on the way:**
+- **`/challenges` was a hard 500 for every logged-in user** — the page calls
+  hooks but was never marked `'use client'`. It had been broken since the
+  Next.js migration. The build compiles fine, which is why the phase-3
+  checklist missed it; only requesting the route *while authenticated*
+  surfaces it. Same class as the `/settings` break from phase 1.
+- A hydration mismatch in the new theme toggle: the icon was gated on
+  `mounted` but the `aria-label` wasn't, so the server and client disagreed.
+- Devanagari line collision in verse cards (pre-existing, verified against the
+  pre-change build). Matras stack above *and* below the headline, so
+  `leading-loose` still let line 1's descenders hit line 2's vowel signs.
 
 ## Phase 3 — Vite → Next.js 16 (2026-07-21) ✅
 

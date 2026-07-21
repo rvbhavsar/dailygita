@@ -45,6 +45,32 @@ Port it as a batch script using the Meta integration we already have.
 
 ---
 
+## 🎨 Design system — finish the page pass
+
+Phase 4 landed the token layer, the nav chrome and the shared primitives. The
+pages themselves were only swept for breakage, not restyled. These are the
+places page markup still contradicts the system (see `AIX-DESIGN-SYSTEM.md` and
+`DESIGN.md` in the template for the rules).
+
+- **Emoji in the challenge badges** (🔍 Focus & Distraction, ⚡ Discipline &
+  Consistency). The system calls for one icon language — stroke icons, ~1.5–2px,
+  no fill. Emoji also render differently per platform.
+- **Nested bordered cards.** "What This Means" is a bordered box inside the
+  verse card, which the system forbids outright. Should be a plain tinted
+  region or separated by a rule.
+- **Pill-shaped controls on Browse.** The chapter filter chips and the
+  By Chapter / By Challenge tabs are `rounded-full`; controls are `rounded-lg`
+  (5px) and pills are reserved for avatars, dots and badges.
+- **Sentence case everywhere.** Several headings are Title Case
+  ("Welcome Back", "Browse Verses", "Personalized for You").
+- **Empty states as invitations** (icon + one sentence + an action), never
+  "No data" / bare "Nothing here yet".
+- Consider adopting the template's **density control** (`data-density` on
+  `<html>` scaling the root `--spacing` token). Cheap to port, and it suits a
+  reading app — but it needs a settings surface, so it's a real feature.
+
+---
+
 ## 🟡 Housekeeping — do soon, low effort
 
 - **Rotate API keys.** Resend, Meta and Deepgram keys were shared in a chat
@@ -52,8 +78,11 @@ Port it as a batch script using the Meta integration we already have.
 - **Prove password reset end to end.** Configured and the sending domain
   (`aixccelerate.email`) is verified in Resend, but no delivery to a real inbox has
   been confirmed. Resend accepts then bounces asynchronously, so a 200 isn't proof.
+- **Connect the GitHub repo to the Railway service** so pushing to `main`
+  deploys. Today it doesn't — shipping requires `railway up` from the CLI, which
+  is easy to forget and means `main` can silently be ahead of production.
 - **Delete merged branches** `migrate-to-railway` and `next16-migration` once we're
-  confident in the Next.js deploy.
+  confident in the Next.js deploy. (`aix-design-system` is already deleted.)
 - **Scrub `.env` from git history** *if this repo ever goes public.* It was
   committed before the migration and holds the old Supabase publishable key (public
   by design, and that project is abandoned — so this is cleanup, not an incident).
@@ -92,9 +121,12 @@ as the gate.
   `useVerseAudio` currently only ever seeks to 0.
 - **Mirror recitation audio to our own volume.** We hotlink ~88MB from GitHub raw.
   Fine now, but we don't control that URL's availability or rate limits.
-- **Automated tests.** Everything so far has been verified by hand. The cross-user
-  isolation check in particular should be a test that runs on every change, not a
-  curl sequence someone remembers to run.
+- **Automated tests.** Everything so far has been verified by hand. Two checks
+  in particular should run on every change rather than being remembered:
+  - **Cross-user isolation** — there is no RLS behind it.
+  - **Every route returns 200 while authenticated.** `/challenges` was a 500 in
+    production for an entire release because the build compiles a page that
+    throws at request time. A build passing is not evidence a page renders.
 - **Error monitoring.** No Sentry or equivalent; failures are only visible in
   Railway logs.
 - **Rate-limit the paid endpoints.** `/api/insights/personalized` and
