@@ -29,3 +29,7 @@ dist-ssr
 
 # Playwright MCP artifacts
 .playwright-mcp/
+
+# Next.js
+.next/
+next-env.d.ts
