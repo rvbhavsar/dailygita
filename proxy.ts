@@ -6,7 +6,7 @@ import { COOKIE_NAME, verifyToken } from '@/lib/jwt';
 // not be a full authorization solution. Notably, isOnboarded is NOT checked
 // here: it's DB-derived, and baking it into the token would go stale the
 // moment onboarding completes.
-const PROTECTED = ['/home', '/browse', '/challenges', '/favorites', '/settings', '/verse'];
+const PROTECTED = ['/home', '/browse', '/challenges', '/favorites', '/settings', '/verse', '/chat'];
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
