@@ -7,6 +7,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { Toaster as Sonner } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { SidebarProvider } from '@/contexts/SidebarContext';
 
 export function Providers({ children }: { children: ReactNode }) {
   // Created in state so the client isn't shared across requests on the server.
@@ -19,9 +20,11 @@ export function Providers({ children }: { children: ReactNode }) {
       <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
         <TooltipProvider>
           <AuthProvider>
-            {children}
-            <Toaster />
-            <Sonner />
+            <SidebarProvider>
+              {children}
+              <Toaster />
+              <Sonner />
+            </SidebarProvider>
           </AuthProvider>
         </TooltipProvider>
       </ThemeProvider>
