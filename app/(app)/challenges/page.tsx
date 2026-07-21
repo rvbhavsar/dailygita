@@ -1,3 +1,5 @@
+'use client';
+
 import { useMemo } from 'react';
 import { Compass, Loader2 } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
