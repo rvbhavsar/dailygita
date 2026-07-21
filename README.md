@@ -6,22 +6,26 @@ Bhagavad Gita reading app. Sign up, pick the life challenges you're working thro
 
 | Layer | Choice |
 |---|---|
-| Frontend | Vite + React 18 + TypeScript + shadcn/ui + Tailwind |
-| Backend | Fastify + TypeScript |
+| Framework | Next.js 16 (App Router) + React 19 + TypeScript |
+| UI | shadcn/ui + Tailwind |
 | Database | Postgres via Drizzle ORM |
 | Auth | JWT + bcrypt in an httpOnly cookie |
 | AI | Meta Model API (`muse-spark-1.1`) for personalized insights |
 | TTS | Deepgram Aura-2 for English narration |
 | Email | Resend (password reset) |
-| Hosting | Railway (one service serving API + static client) |
+| Hosting | Railway (single service, Postgres plugin, /data volume) |
 
 ## Layout
 
 ```
-client/    React SPA
-server/    Fastify API + Drizzle schema, migrations, seed
-shared/    Types used by both sides
-dist/      Build output (client/ and server/)
+app/          routes; (marketing) (auth) (onboarding) (app) are guard groups
+app/api/      Route Handlers
+app/audio/    streams generated narration off the volume
+components/   shadcn/ui + app components
+hooks/ contexts/ services/ data/
+lib/          env, jwt, session, password, email, ai, tts, serialize, api, types
+db/           Drizzle schema, migrations, seeds
+proxy.ts      optimistic auth gate (Next 16's rename of middleware.ts)
 ```
 
 ## Local setup
@@ -35,11 +39,10 @@ cp .env.example .env      # then edit DATABASE_URL and JWT_SECRET
 npm run migrate           # create tables
 npm run seed              # load 18 chapters, 701 verses, 4907 translations
 npm run seed:recitation   # register the Sanskrit recitation urls
-npm run dev               # API on :3001, client on :5173
+npm run dev               # http://localhost:3000
 ```
 
-Open http://localhost:5173. The Vite dev server proxies `/api` to the API, so
-the app is same-origin in development exactly as it is in production.
+Open http://localhost:3000.
 
 Without a `RESEND_API_KEY`, password-reset links are printed to the server log
 instead of emailed — enough to exercise the flow locally.
@@ -48,13 +51,14 @@ instead of emailed — enough to exercise the flow locally.
 
 | Command | What it does |
 |---|---|
-| `npm run dev` | API + client with hot reload |
-| `npm run build` | Build client and server into `dist/` |
-| `npm start` | Run the production server (serves API + built client) |
-| `npm run generate` | Generate a migration after changing `server/src/db/schema.ts` |
+| `npm run dev` | Next dev server on :3000 |
+| `npm run build` | Production build |
+| `npm start` | Run the production server |
+| `npm run generate` | Generate a migration after changing `db/schema.ts` |
 | `npm run migrate` | Apply pending migrations |
 | `npm run seed` | Load Gita content (idempotent, safe to re-run) |
-| `npm run typecheck` | Typecheck both workspaces |
+| `npm run seed:recitation` | Register the Sanskrit recitation urls |
+| `npm run typecheck` | Typecheck the project |
 
 ## Deploying to Railway
 
@@ -83,9 +87,19 @@ must be served over HTTPS in production. Railway does this by default.
 
 ## Authorization
 
-There is no row-level security. Every protected route pairs the `requireAuth`
-middleware with an explicit `WHERE user_id = <session user>`, and the user id
-always comes from the verified JWT — never from the request body.
+There is no row-level security. Authorization is layered:
+
+- **Route Handlers** are the security boundary. Each one wraps its handler in
+  `withAuth` (`lib/session.ts`) and pairs it with an explicit
+  `WHERE user_id = <session user>`. The id always comes from the verified JWT,
+  never from the request body.
+- **Route-group layouts** (`app/(app)/layout.tsx` and siblings) are the
+  authoritative UI guard — they hit the DB and `redirect()`.
+- **`proxy.ts`** is an optimistic cookie check only. Next's docs are explicit
+  that proxy must not be a full authorization solution, so `isOnboarded` is
+  checked in the layout, not here: it's DB-derived and would go stale if baked
+  into the token.
+- **`AuthContext`** is client-side UX only, never a security boundary.
 
 ## Audio
 
