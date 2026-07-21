@@ -72,7 +72,7 @@ const VerseCard = ({
 
         {/* Sanskrit */}
         <div className="text-center mb-6 sm:mb-8">
-          <p className="font-sanskrit text-xl sm:text-2xl md:text-3xl leading-loose text-foreground whitespace-pre-line tracking-wide">
+          <p className="sanskrit-verse text-xl sm:text-2xl md:text-3xl text-gray-800 dark:text-white">
             {verse.sanskrit}
           </p>
         </div>

@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { Providers } from './providers';
+import LiquidBackdrop from '@/components/common/LiquidBackdrop';
 import './globals.css';
 
 const title = 'Bhagavad Gita Wisdom – Ancient Wisdom for Modern Life';
@@ -31,16 +32,17 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    // suppressHydrationWarning: next-themes stamps the theme class on <html>
+    // before hydration, so server and client markup differ by design.
+    <html lang="en" suppressHydrationWarning>
       <head>
+        {/* Devanagari only. The Latin faces (Inter/Geist/JetBrains Mono) are
+            self-hosted from public/fonts — no CDN, no layout shift. */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Arya:wght@400;700&display=swap"
-          rel="stylesheet"
-        />
       </head>
       <body>
+        <LiquidBackdrop />
         <Providers>{children}</Providers>
       </body>
     </html>

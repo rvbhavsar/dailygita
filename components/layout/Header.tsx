@@ -6,6 +6,7 @@ import { Heart, BookOpen, Compass, Sun, Settings, LogOut, User } from 'lucide-re
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import ThemeToggleButton from '@/components/common/ThemeToggleButton';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -48,127 +49,134 @@ const Header = () => {
 
   return (
     <>
-      {/* Desktop Header */}
-      <header className="sticky top-0 z-50 w-full glass border-b border-border/40">
+      {/* Standing chrome — glass over the ambient backdrop, hairline bottom rule. */}
+      <header className="glass-surface sticky top-0 z-50 w-full border-b">
         <div className="page-container">
-          <div className="flex h-14 sm:h-16 md:h-20 items-center justify-between">
-            {/* Logo */}
-            <Link href="/home" className="flex items-center gap-2 sm:gap-3 group">
-              <div className="flex h-8 w-8 sm:h-10 sm:w-10 md:h-11 md:w-11 items-center justify-center rounded-lg sm:rounded-xl bg-primary shadow-md group-hover:shadow-lg transition-shadow">
-                <span className="font-sanskrit text-base sm:text-lg md:text-xl text-primary-foreground">ॐ</span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-base sm:text-xl md:text-2xl font-bold text-foreground tracking-tight">
+          <div className="flex h-16 items-center justify-between gap-4">
+            {/* Daily Gita's own mark. The ॐ is set in the Devanagari face,
+                never in the Latin display type. */}
+            <Link
+              href="/home"
+              className="flex items-center gap-3 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-500 text-white shadow-cta">
+                <span className="font-sanskrit text-xl leading-none">ॐ</span>
+              </span>
+              <span className="flex flex-col">
+                <span className="font-display text-base font-semibold text-gray-800 dark:text-white">
                   <span className="hidden xs:inline">Bhagavad Gita </span>Wisdom
                 </span>
-                <span className="text-xs text-muted-foreground hidden md:block">
+                <span className="hidden text-theme-xs text-gray-500 dark:text-gray-400 md:block">
                   Ancient wisdom, modern life
                 </span>
-              </div>
+              </span>
             </Link>
 
-            {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center">
-              <div className="flex items-center bg-secondary/50 rounded-full p-1.5">
-                {navItems.map((item) => {
-                  const Icon = item.icon;
-                  const isActive = pathname === item.path;
-                  return (
-                    <Link
-                      key={item.path}
-                      href={item.path}
+            <nav className="hidden items-center gap-1 md:flex">
+              {navItems.map((item) => {
+                const Icon = item.icon;
+                const isActive = pathname === item.path;
+                return (
+                  <Link
+                    key={item.path}
+                    href={item.path}
+                    aria-current={isActive ? 'page' : undefined}
+                    className={cn(
+                      'menu-item group w-auto',
+                      isActive ? 'menu-item-active' : 'menu-item-inactive'
+                    )}
+                  >
+                    <Icon
                       className={cn(
-                        'flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200',
-                        isActive
-                          ? 'bg-primary text-primary-foreground shadow-md'
-                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
+                        'h-5 w-5',
+                        isActive ? 'menu-item-icon-active' : 'menu-item-icon-inactive'
                       )}
-                    >
-                      <Icon className="h-4 w-4" />
-                      {item.label}
-                    </Link>
-                  );
-                })}
-              </div>
+                    />
+                    {item.label}
+                  </Link>
+                );
+              })}
             </nav>
 
-            {/* User Avatar Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="flex items-center focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-full touch-target">
-                  <Avatar className="h-8 w-8 sm:h-10 sm:w-10 md:h-11 md:w-11 cursor-pointer border-2 border-border hover:border-primary transition-colors">
-                    <AvatarImage src={profile?.avatar_url || undefined} alt={profile?.display_name || 'User'} />
-                    <AvatarFallback className="bg-primary text-primary-foreground font-medium text-sm sm:text-base">
-                      {getInitials()}
-                    </AvatarFallback>
-                  </Avatar>
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56 bg-popover border border-border shadow-lg z-50">
-                <div className="px-3 py-2">
-                  <p className="text-sm font-medium text-foreground">
-                    {profile?.display_name || 'User'}
-                  </p>
-                  <p className="text-xs text-muted-foreground truncate">
-                    {user?.email}
-                  </p>
-                </div>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link href="/settings" className="flex items-center gap-2 cursor-pointer">
-                    <Settings className="h-4 w-4" />
-                    Settings
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem 
-                  onClick={handleSignOut}
-                  className="flex items-center gap-2 cursor-pointer text-destructive focus:text-destructive"
+            <div className="flex items-center gap-2">
+              <ThemeToggleButton />
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    aria-label="Account menu"
+                    className="flex items-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  >
+                    <Avatar className="h-10 w-10 cursor-pointer border border-gray-200 transition-colors duration-150 hover:border-gray-300 dark:border-gray-800 dark:hover:border-gray-700">
+                      <AvatarImage
+                        src={profile?.avatar_url || undefined}
+                        alt={profile?.display_name || 'User'}
+                      />
+                      <AvatarFallback className="bg-brand-50 text-theme-sm font-semibold text-brand-700 dark:bg-brand-500/[0.12] dark:text-brand-400">
+                        {getInitials()}
+                      </AvatarFallback>
+                    </Avatar>
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  align="end"
+                  className="glass-popover z-50 w-56 border p-2"
                 >
-                  <LogOut className="h-4 w-4" />
-                  Log out
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                  <div className="px-3 py-2">
+                    <p className="text-theme-sm font-medium text-gray-800 dark:text-white">
+                      {profile?.display_name || 'User'}
+                    </p>
+                    <p className="truncate text-theme-xs text-gray-500 dark:text-gray-400">
+                      {user?.email}
+                    </p>
+                  </div>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/settings" className="menu-item menu-item-inactive cursor-pointer">
+                      <Settings className="h-5 w-5 menu-item-icon-inactive" />
+                      Settings
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={handleSignOut}
+                    className="menu-item cursor-pointer text-error-600 hover:bg-error-50 focus:bg-error-50 focus:text-error-700 dark:text-error-400 dark:hover:bg-error-500/10"
+                  >
+                    <LogOut className="h-5 w-5" />
+                    Log out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
         </div>
       </header>
 
-      {/* Mobile Bottom Navigation */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 glass border-t border-border/40 pb-safe">
-        <div className="flex items-center justify-around py-1.5 sm:py-2 px-1 sm:px-2">
-          {navItems.map((item) => {
+      {/* Mobile bottom nav — the same glass material and menu vocabulary as the
+          header, laid out for thumbs. */}
+      <nav className="glass-surface pb-safe fixed bottom-0 left-0 right-0 z-50 border-t md:hidden">
+        <div className="flex items-stretch justify-around px-2 py-1.5">
+          {[...navItems, { path: '/settings', label: 'Profile', icon: User }].map((item) => {
             const Icon = item.icon;
             const isActive = pathname === item.path;
             return (
               <Link
                 key={item.path}
                 href={item.path}
+                aria-current={isActive ? 'page' : undefined}
                 className={cn(
-                  'flex flex-col items-center gap-0.5 sm:gap-1 px-2 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-medium transition-all duration-200 min-w-[48px] sm:min-w-[60px] touch-target',
-                  isActive 
-                    ? 'text-primary bg-primary/10' 
-                    : 'text-muted-foreground hover:text-foreground active:bg-secondary/50'
+                  'touch-target flex min-w-[56px] flex-col items-center justify-center gap-1 rounded-lg px-2 py-1.5 text-theme-xs font-medium transition-colors duration-150',
+                  isActive
+                    ? 'menu-item-active'
+                    : 'text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/5'
                 )}
               >
-                <Icon className={cn('h-5 w-5 sm:h-5 sm:w-5', isActive && 'scale-110')} />
+                <Icon
+                  className={cn('h-5 w-5', isActive && 'menu-item-icon-active')}
+                />
                 <span>{item.label}</span>
               </Link>
             );
           })}
-          {/* Mobile profile icon */}
-          <Link
-            href="/settings"
-            className={cn(
-              'flex flex-col items-center gap-0.5 sm:gap-1 px-2 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-medium transition-all duration-200 min-w-[48px] sm:min-w-[60px] touch-target',
-              pathname === '/settings' 
-                ? 'text-primary bg-primary/10' 
-                : 'text-muted-foreground hover:text-foreground active:bg-secondary/50'
-            )}
-          >
-            <User className={cn('h-5 w-5 sm:h-5 sm:w-5', pathname === '/settings' && 'scale-110')} />
-            <span>Profile</span>
-          </Link>
         </div>
       </nav>
     </>
