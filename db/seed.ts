@@ -44,79 +44,88 @@ async function inChunks<T>(rows: T[], size: number, fn: (chunk: T[]) => Promise<
   }
 }
 
-const [rawChapters, rawVerses, rawTranslations] = await Promise.all([
-  fetchJson<RawChapter[]>('chapters.json'),
-  fetchJson<RawVerse[]>('verse.json'),
-  fetchJson<RawTranslation[]>('translation.json'),
-]);
+// Wrapped rather than top-level await: the package is CJS-by-default, and
+// tsx cannot transform top-level await for a "cjs" output format.
+async function main() {
+  const [rawChapters, rawVerses, rawTranslations] = await Promise.all([
+    fetchJson<RawChapter[]>('chapters.json'),
+    fetchJson<RawVerse[]>('verse.json'),
+    fetchJson<RawTranslation[]>('translation.json'),
+  ]);
 
-console.log(
-  `fetched ${rawChapters.length} chapters, ${rawVerses.length} verses, ${rawTranslations.length} translations`,
-);
+  console.log(
+    `fetched ${rawChapters.length} chapters, ${rawVerses.length} verses, ${rawTranslations.length} translations`,
+  );
 
-await db
-  .insert(chapters)
-  .values(
-    rawChapters.map((c) => ({
-      chapterNumber: c.chapter_number,
-      name: c.name,
-      nameTransliterated: c.name_transliterated,
-      nameTranslated: c.name_translation,
-      versesCount: c.verses_count,
-      chapterSummary: c.chapter_summary,
-      chapterSummaryHindi: c.chapter_summary_hindi,
-    })),
-  )
-  .onConflictDoUpdate({
-    target: chapters.chapterNumber,
-    set: {
-      name: sql`excluded.name`,
-      nameTransliterated: sql`excluded.name_transliterated`,
-      nameTranslated: sql`excluded.name_translated`,
-      versesCount: sql`excluded.verses_count`,
-      chapterSummary: sql`excluded.chapter_summary`,
-      chapterSummaryHindi: sql`excluded.chapter_summary_hindi`,
-    },
-  });
-console.log('chapters seeded');
-
-await inChunks(rawVerses, 500, (chunk) =>
-  db
-    .insert(verses)
+  await db
+    .insert(chapters)
     .values(
-      chunk.map((v) => ({
-        verseId: v.id,
-        chapterNumber: v.chapter_number,
-        verseNumber: v.verse_number,
-        text: v.text,
-        transliteration: v.transliteration,
-        wordMeanings: v.word_meanings,
+      rawChapters.map((c) => ({
+        chapterNumber: c.chapter_number,
+        name: c.name,
+        nameTransliterated: c.name_transliterated,
+        nameTranslated: c.name_translation,
+        versesCount: c.verses_count,
+        chapterSummary: c.chapter_summary,
+        chapterSummaryHindi: c.chapter_summary_hindi,
       })),
     )
     .onConflictDoUpdate({
-      target: verses.verseId,
+      target: chapters.chapterNumber,
       set: {
-        text: sql`excluded.text`,
-        transliteration: sql`excluded.transliteration`,
-        wordMeanings: sql`excluded.word_meanings`,
+        name: sql`excluded.name`,
+        nameTransliterated: sql`excluded.name_transliterated`,
+        nameTranslated: sql`excluded.name_translated`,
+        versesCount: sql`excluded.verses_count`,
+        chapterSummary: sql`excluded.chapter_summary`,
+        chapterSummaryHindi: sql`excluded.chapter_summary_hindi`,
       },
-    }),
-);
-console.log('verses seeded');
+    });
+  console.log('chapters seeded');
 
-// Translations have no natural unique key in the source data, so replace wholesale.
-await db.delete(translations);
-await inChunks(rawTranslations, 500, (chunk) =>
-  db.insert(translations).values(
-    chunk.map((t) => ({
-      verseId: t.verse_id,
-      authorName: t.authorName,
-      language: t.lang,
-      description: t.description,
-    })),
-  ),
-);
-console.log('translations seeded');
+  await inChunks(rawVerses, 500, (chunk) =>
+    db
+      .insert(verses)
+      .values(
+        chunk.map((v) => ({
+          verseId: v.id,
+          chapterNumber: v.chapter_number,
+          verseNumber: v.verse_number,
+          text: v.text,
+          transliteration: v.transliteration,
+          wordMeanings: v.word_meanings,
+        })),
+      )
+      .onConflictDoUpdate({
+        target: verses.verseId,
+        set: {
+          text: sql`excluded.text`,
+          transliteration: sql`excluded.transliteration`,
+          wordMeanings: sql`excluded.word_meanings`,
+        },
+      }),
+  );
+  console.log('verses seeded');
 
-await pg.end();
-console.log('done');
+  // Translations have no natural unique key in the source data, so replace wholesale.
+  await db.delete(translations);
+  await inChunks(rawTranslations, 500, (chunk) =>
+    db.insert(translations).values(
+      chunk.map((t) => ({
+        verseId: t.verse_id,
+        authorName: t.authorName,
+        language: t.lang,
+        description: t.description,
+      })),
+    ),
+  );
+  console.log('translations seeded');
+
+  await pg.end();
+  console.log('done');
+}
+
+main().catch((error) => {
+  console.error(error);
+  process.exit(1);
+});
