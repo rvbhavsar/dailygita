@@ -144,9 +144,11 @@ as the gate.
     throws at request time. A build passing is not evidence a page renders.
 - **Error monitoring.** No Sentry or equivalent; failures are only visible in
   Railway logs.
-- **Rate-limit the paid endpoints.** `/api/insights/personalized` and
-  `/api/verses/:c/:v/narration` are auth-gated but unmetered per user — one account
-  can run up the Meta and Deepgram bills.
+- **Rate-limit the paid endpoints.** `/api/insights/personalized`,
+  `/api/verses/:c/:v/narration` and now `/api/chat` are auth-gated but unmetered
+  per user — one account can run up the Meta and Deepgram bills. `/api/chat` is
+  the biggest exposure: it streams, invites repeated use, and sends up to 40
+  turns of history per call. Meter this one first.
 
 ---
 

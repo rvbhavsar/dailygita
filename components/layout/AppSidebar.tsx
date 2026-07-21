@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BookOpen, Compass, Heart, Settings, Sun, type LucideIcon } from 'lucide-react';
+import { BookOpen, Compass, Heart, MessageCircle, Settings, Sun, type LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useSidebar } from '@/contexts/SidebarContext';
 
@@ -16,6 +16,7 @@ const menuItems: NavItem[] = [
   { name: 'Browse', path: '/browse', icon: BookOpen },
   { name: 'Challenges', path: '/challenges', icon: Compass },
   { name: 'Saved', path: '/favorites', icon: Heart },
+  { name: 'Ask', path: '/chat', icon: MessageCircle },
 ];
 
 const accountItems: NavItem[] = [{ name: 'Settings', path: '/settings', icon: Settings }];

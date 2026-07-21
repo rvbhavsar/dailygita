@@ -41,12 +41,23 @@ function buildPrompt({ verse, profile, challenge }: InsightRequest): string {
     `Bhagavad Gita, Chapter ${verse.chapter}, Verse ${verse.verse}.`,
     verse.english ? `Translation: ${verse.english}` : null,
     verse.insight?.explanation ? `Meaning: ${verse.insight.explanation}` : null,
-    challenge?.label ? `They are working through: ${challenge.label}. ${challenge.description ?? ''}` : null,
-    who.length ? `About this person: ${who.join(', ')}.` : null,
+    challenge?.label ? `The reader is working through: ${challenge.label}. ${challenge.description ?? ''}` : null,
+    who.length ? `About the reader: ${who.join(', ')}.` : null,
     '',
-    'Write ONE short, concrete, real-life scenario showing how this verse applies to this specific person.',
-    'Use a realistic situation from their world, not an abstract lesson. Name a person in the story.',
+    'Write ONE short, concrete, real-life scenario showing how this verse applies to this reader.',
+    'Use a realistic situation from their world, not an abstract lesson.',
+    '',
+    // The model used to be told to "name a person in the story", which made
+    // every insight read like a parable about a stranger. Addressing the reader
+    // directly is both warmer and sidesteps inventing a name (and with it a
+    // gender and a culture) for someone we know nothing about.
+    'Address the reader directly as "you". Write in the second person throughout.',
+    'Do NOT invent names for anyone. No personal names at all — not for the reader,',
+    'not for a colleague, manager, friend or family member. Refer to other people by',
+    'their relationship or role instead ("your manager", "a colleague", "someone on your team").',
+    '',
     'Keep the description to 2-3 sentences. Be grounded and practical, never preachy.',
+    'The title must also avoid names.',
     '',
     'Respond with ONLY a JSON object, no markdown fence, no commentary:',
     '{"title": "<5-7 word scenario title>", "description": "<2-3 sentences>"}',

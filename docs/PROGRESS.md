@@ -29,6 +29,32 @@ Status log for DailyGita. Newest phase first. See [BACKLOG.md](./BACKLOG.md) for
 
 ---
 
+## Phase 6 — Gita chat companion (2026-07-21) ✅
+
+A new "Ask" section: a chat agent that listens to what someone raises, then
+explains what the Gita says about that theme with specific chapter/verse
+citations. It does **not** give advice — asked what to do, it declines and
+returns to the text; off-topic requests are turned away.
+
+- **Grounded, not recalled.** `lib/gita-search.ts` full-text searches our own
+  translations, and the agent may cite only what it's handed. A model citing
+  the Gita from memory invents plausible-but-wrong verse numbers, the worst
+  failure for a devotional app.
+- **Full-text quirk:** terms are OR-ed with `ts_rank` ranking. `websearch_to_tsquery`
+  and `plainto_tsquery` both AND every term, so a conversational sentence
+  matched nothing.
+- **Conversation, not one-shot.** Follow-ups like "say more about that second
+  verse" carry no searchable words, so retrieval also extracts any
+  chapter/verse reference already cited in the thread and looks it up directly.
+  Without this the agent denied verses it had just cited a turn earlier.
+- Replies stream token-by-token; `X-Accel-Buffering: no` so Railway's proxy
+  doesn't buffer them.
+
+Also fixed the personalized-insight prompt, which used to instruct the model to
+"name a person in the story" — every insight read like a parable about a
+stranger, and an invented name carries an invented gender and culture. It now
+writes in the second person and refers to others by role.
+
 ## Phase 5 — Sidebar shell and Settings (2026-07-21) ✅
 
 Adopted the template's app shell and settings layout.
