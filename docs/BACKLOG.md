@@ -34,14 +34,16 @@ Options: generate insights with Meta and store them (cache in Postgres like we d
 narration), commission/write them, or be explicit in the UI about which verses are
 "deep-dive" ones.
 
-### `verse_challenges` is empty (0 rows)
-The AI job that tagged verses to life challenges (`analyze-verses-challenges` in
-the old Supabase stack) was never ported. Consequences:
-- Challenge matching relies entirely on those 6 curated verses.
-- `ChallengeDetail` shows only curated verses while `Challenges` counts both, so
-  counts can disagree with what the page renders.
+### ~~`verse_challenges` is empty (0 rows)~~ — DONE (phase 7)
+`scripts/enrich-verses.ts` tagged all 701 verses; 692 carry challenges. The
+table is full, the Challenges page has real data, and `ChallengeDetail` now
+lists the AI-tagged verses (rewritten to match the overview count exactly —
+verified 183 = 183 in the browser, the old count-vs-render mismatch is gone).
+Re-run the script to refresh tags.
 
-Port it as a batch script using the Meta integration we already have.
+**Not in seed.** Enrichment is a separate paid AI job, so a fresh database gets
+an empty `verse_challenges` and a dormant Challenges page until
+`scripts/enrich-verses.ts` is run. `seed.ts` does not load it.
 
 ---
 
@@ -100,6 +102,23 @@ template for the rules).
   `no-empty-object-type` in a couple of shadcn components. Typecheck is clean.
 
 ---
+
+## 🟢 Retrieval — next levers
+
+- **Query-side synonym expansion.** The one standing probe miss (reader says
+  "afraid", verse says "faint-heartedness") is a vocabulary gap the corpus can't
+  close alone. Expand the reader's terms (a thesaurus, or an embedding step)
+  before the tsquery. This is the highest-leverage next accuracy win.
+- **Consider semantic/vector search.** Full-text has a ceiling on paraphrase.
+  Pure-feeling queries confirm it: "comparing myself to others" matched verses
+  containing the literal word "others"; "burned out" matched "fire cannot burn
+  the soul." The keyword layer helps translation-worded themes but can't reach
+  metaphor. Embedding the enriched per-verse documents (pgvector) would catch
+  these — at the cost of an embedding pipeline and a model dependency. This is
+  the real fix for the feeling-query class.
+- **Spot-check enrichment quality.** The AI tags are broadly good but were not
+  hand-audited across 701 verses. Sample for obvious mis-tags; the `keywords`
+  are the load-bearing part for retrieval.
 
 ## 🟢 Next feature work
 

@@ -126,6 +126,9 @@ export const verseChallenges = pgTable(
     verseNumber: integer('verse_number').notNull(),
     challenges: text('challenges').array().notNull().default([]),
     aiSummary: text('ai_summary'),
+    // Plain-language theme words for retrieval (added in 0003). Bridges a
+    // reader's words to a verse whose translation uses none of them.
+    keywords: text('keywords'),
     analyzedAt: timestamp('analyzed_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => ({

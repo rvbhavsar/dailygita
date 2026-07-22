@@ -29,6 +29,34 @@ Status log for DailyGita. Newest phase first. See [BACKLOG.md](./BACKLOG.md) for
 
 ---
 
+## Phase 7 — Knowledge retrieval + OKF (2026-07-21) ✅
+
+Three things, deliberately decoupled.
+
+- **Retrieval, from Postgres.** The `verse_search` materialized view aggregates
+  all English translations + word-by-word meanings + chapter summary per verse
+  into one weighted document, ranked by `ts_rank_cd` (source weight + proximity).
+  Measured on 8 thematic probes (`scripts/retrieval-probe.ts`): 6/8 → 7/8, and
+  the anxiety probe now ranks 2.47 first where it had left the top 5.
+- **OKF bundle.** An [Open Knowledge Format](https://github.com/GoogleCloudPlatform/knowledge-catalog)
+  export in `knowledge/` — one markdown concept per verse (701) and chapter (18),
+  valid frontmatter, cross-links, reserved index/log files. A **derived export**,
+  not in the retrieval path: coupling it there would be two sources of truth for
+  zero accuracy gain. Regenerate with `scripts/build-okf.ts`.
+- **AI thematic enrichment.** All 701 verses tagged with challenges + keywords +
+  a summary (`scripts/enrich-verses.ts`), written to `verse_challenges` — which
+  was empty, so this also lights up the Challenges page and closes a backlog gap.
+  Keywords feed the search view. Held 7/8 on the probes while improving rankings
+  within hits (anger probe → 2.63 first, was 4th).
+
+**Why OKF is not in the retrieval path:** it's a documentation/exchange format,
+not a retrieval engine. The accuracy win is the Postgres view + enrichment; the
+bundle is the portable, diffable catalog OKF is actually for.
+
+**Known ceiling:** the one probe miss (2.3) is exact-synonym — reader says
+"afraid", verse says "faint-heartedness". Query-side synonym expansion is the
+next lever (backlog).
+
 ## Phase 6 — Gita chat companion (2026-07-21) ✅
 
 A new "Ask" section: a chat agent that listens to what someone raises, then

@@ -121,6 +121,14 @@ async function main() {
   );
   console.log('translations seeded');
 
+  // The verse_search materialized view is built from these tables, so a fresh
+  // seed leaves it stale until refreshed. Guarded: on the very first run the
+  // view may not exist yet (migrations run separately), and that's fine.
+  await pg`REFRESH MATERIALIZED VIEW verse_search`.catch((err) => {
+    console.warn('verse_search refresh skipped:', err.message);
+  });
+  console.log('verse_search refreshed');
+
   await pg.end();
   console.log('done');
 }
