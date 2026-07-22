@@ -4,6 +4,7 @@ import { oauthAuthCodes, oauthClients } from '@/db/schema';
 import { getSessionUser } from '@/lib/session';
 import {
   CODE_TTL_SECONDS,
+  baseUrl,
   mcpResource,
   normalizeResource,
   randomToken,
@@ -18,6 +19,14 @@ import {
  * standard access_denied error back to the client.
  */
 export async function POST(request: Request): Promise<Response> {
+  // CSRF defense-in-depth. The session cookie is SameSite=lax, so a cross-site
+  // POST wouldn't carry it — but an authorization endpoint shouldn't lean on
+  // that alone. Require the approval to originate from our own page.
+  const origin = request.headers.get('origin');
+  if (origin && normalizeResource(origin) !== normalizeResource(baseUrl(request))) {
+    return new Response('Cross-origin request refused', { status: 403 });
+  }
+
   const user = await getSessionUser();
   if (!user) return new Response('Not signed in', { status: 401 });
 

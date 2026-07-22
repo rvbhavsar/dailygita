@@ -53,7 +53,10 @@ const Auth = () => {
   // Where to land after login. Same-origin paths only — never an absolute URL
   // or protocol-relative "//host", which would be an open redirect.
   const nextParam = searchParams.get('next');
-  const destination = nextParam && /^\/(?!\/)/.test(nextParam) ? nextParam : '/';
+  // Same-origin path only: must start with a single "/", and no backslash
+  // (some browsers treat "/\evil.com" as "//evil.com").
+  const destination =
+    nextParam && /^\/(?!\/)/.test(nextParam) && !nextParam.includes('\\') ? nextParam : '/';
   const [mode, setMode] = useState<Mode>(initialMode);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
