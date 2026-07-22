@@ -178,3 +178,51 @@ export const apiKeys = pgTable('api_keys', {
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   revokedAt: timestamp('revoked_at', { withTimezone: true }),
 });
+
+// ── OAuth 2.1 (co-hosted authorization server for the MCP connector) ──────────
+// Lets ChatGPT / Claude.ai web connect via the standard OAuth flow, alongside
+// the personal api_keys used by header-capable clients.
+
+/** Dynamically-registered clients (RFC 7591). Public clients — no secret; PKCE
+ *  is the code-exchange protection. */
+export const oauthClients = pgTable('oauth_clients', {
+  clientId: text('client_id').primaryKey(),
+  clientName: text('client_name'),
+  redirectUris: text('redirect_uris').array().notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
+/** Short-lived authorization codes, single-use, bound to client + redirect +
+ *  PKCE challenge + resource + user. Only the hash is stored. */
+export const oauthAuthCodes = pgTable('oauth_auth_codes', {
+  codeHash: text('code_hash').primaryKey(),
+  clientId: text('client_id').notNull(),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  redirectUri: text('redirect_uri').notNull(),
+  codeChallenge: text('code_challenge').notNull(),
+  resource: text('resource').notNull(),
+  scope: text('scope').notNull().default(''),
+  expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+  consumedAt: timestamp('consumed_at', { withTimezone: true }),
+});
+
+/** Access and refresh tokens (opaque, hashed). `resource` is the audience the
+ *  token is bound to; `chainId` groups a refresh lineage so a reused (retired)
+ *  refresh token can revoke the whole chain — the theft signal. */
+export const oauthTokens = pgTable('oauth_tokens', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  tokenHash: text('token_hash').notNull().unique(),
+  type: text('type').notNull(), // 'access' | 'refresh'
+  clientId: text('client_id').notNull(),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  resource: text('resource').notNull(),
+  scope: text('scope').notNull().default(''),
+  chainId: uuid('chain_id').notNull(),
+  expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+  revokedAt: timestamp('revoked_at', { withTimezone: true }),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+});

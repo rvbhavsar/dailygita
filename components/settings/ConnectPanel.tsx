@@ -233,11 +233,21 @@ const ConnectPanel = () => {
           <CopyButton value={jsonConfig} label="Copy" />
         </div>
 
+        <p className="mb-4 mt-4 text-theme-sm text-gray-600 dark:text-gray-300">
+          ChatGPT or Claude.ai — add a custom connector:
+        </p>
+        <div className="mb-4 flex items-start gap-2">
+          <pre className="hide-scrollbar flex-1 overflow-x-auto rounded-lg bg-gray-100 p-3 font-mono text-theme-xs text-gray-700 dark:bg-white/5 dark:text-gray-300">
+            {endpoint}
+          </pre>
+          {endpoint && <CopyButton value={endpoint} label="Copy" />}
+        </div>
+
         <p className="rounded-lg bg-gray-50 p-3 text-theme-xs text-gray-500 dark:bg-white/5 dark:text-gray-400">
-          Replace <code className="font-mono">YOUR_KEY</code> with a key from above. Works with any
-          client that supports a bearer <code className="font-mono">Authorization</code> header.
-          ChatGPT and Claude.ai's web connectors currently require OAuth rather than a key — support
-          for those is on the roadmap.
+          For Claude Desktop, Claude Code, Cursor and VS Code, use a key above (replace{' '}
+          <code className="font-mono">YOUR_KEY</code>). For <strong>ChatGPT</strong> and{' '}
+          <strong>Claude.ai</strong>, just add the endpoint as a custom connector — no key needed;
+          you'll sign in and approve a consent screen instead.
         </p>
       </div>
     </div>

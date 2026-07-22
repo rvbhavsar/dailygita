@@ -122,17 +122,23 @@ template for the rules).
 
 ## 🟢 MCP connector — next
 
-- **OAuth 2.1 for ChatGPT / Claude.ai web connectors.** The bearer-key MCP
-  server (phase 8) works with Claude Desktop/Code, Cursor and programmatic
-  clients, but the *web* connector flows in ChatGPT and Claude.ai require OAuth
-  with dynamic client registration / CIMD — no "paste a key" field. This is the
-  bigger lift to reach the clients the user named. ChatGPT deep-research also
-  requires tools named `search` and `fetch` with specific schemas (aliasing our
-  `search_verses`/`get_verse` would cover it).
-- **Rate-limit `/api/mcp` per key.** It's exposed to "any agent" and hits the
-  retrieval path (and, if an explain tool is ever added, the Meta bill). Fold
-  into the existing rate-limit backlog item.
-- **Perplexity** support depends on its MCP/connector auth model — verify before
+- **Confirm the ChatGPT / Claude.ai click-through.** The OAuth layer is built and
+  every endpoint + security property is tested, but the actual "add custom
+  connector" UIs in those products weren't driven from here. Add the endpoint in
+  each, complete the consent, and confirm tools appear. Watch for: ChatGPT's
+  CIMD preference (we implement plain DCR — verify it's accepted) and any
+  redirect-host quirks.
+- **ChatGPT deep-research `search`/`fetch` tools.** Deep research wants tools
+  named exactly `search` and `fetch` with specific schemas. Alias our
+  `search_verses` → `search` (return {id,title,url}) and `get_verse` → `fetch`
+  (return {id,title,text,url}) so citations render.
+- **Rate-limit `/api/mcp` and the OAuth endpoints.** `/api/mcp` is exposed to any
+  agent; `/api/oauth/register` and `/api/oauth/token` are unauthenticated writes.
+  Fold into the rate-limit backlog item.
+- **Prune expired OAuth rows.** `oauth_auth_codes` (60s TTL) and expired
+  `oauth_tokens` accumulate; add a periodic cleanup (or a cron) so the tables
+  don't grow unbounded.
+- **Perplexity** support depends on its connector auth model — verify before
   claiming it.
 
 ## 🟢 Next feature work

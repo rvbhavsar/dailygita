@@ -48,10 +48,34 @@ numbers.
   Verified: revoke invalidates immediately (401), and one user can't revoke
   another's key (404).
 
-**Auth caveat, stated in the UI:** bearer keys work with Claude Desktop/Code,
-Cursor, VS Code and any client that sends an `Authorization` header. ChatGPT and
-Claude.ai's *web* connectors require OAuth 2.1 (ChatGPT also wants specifically
-named `search`/`fetch` tools) — that's a larger follow-up, noted in the backlog.
+**Two auth paths:**
+- **Personal keys** (above) for Claude Desktop/Code, Cursor, VS Code and any
+  client that sends an `Authorization` header.
+- **OAuth 2.1** (co-hosted authorization server) for ChatGPT and Claude.ai web —
+  they add the endpoint URL as a custom connector and self-register; no key.
+
+The OAuth layer implements the MCP authorization spec: Protected Resource
+Metadata (RFC 9728) + AS Metadata (RFC 8414) served at the root `.well-known`
+paths (via `next.config` rewrites — App Router dot-folders are unreliable),
+Dynamic Client Registration (RFC 7591, https/localhost redirects only), a
+server-rendered consent screen reusing the existing session, and a token
+endpoint with PKCE-S256, single-use codes, audience-bound opaque tokens, and
+rotating refresh tokens with reuse-detection. `/api/mcp` accepts either a
+personal key or an audience-checked OAuth access token, and returns
+`WWW-Authenticate: … resource_metadata=…` on 401. CORS/OPTIONS on every
+OAuth and MCP endpoint.
+
+**Security battery (all passing, curl + browser):** single-use codes, PKCE
+mismatch rejected, exact redirect-uri match, refresh rotation invalidates the
+old access token, refresh reuse revokes the whole chain, a token minted for a
+different resource is refused at `/api/mcp`, DCR rejects non-https redirects, and
+the consent screen shows the real redirect host (not the untrusted client name).
+
+**Honest boundary:** every endpoint and security property the spec requires is
+implemented and tested, but the actual ChatGPT / Claude.ai "add connector" UIs
+weren't driven from here — that final click-through is the one thing left to
+confirm in those products. ChatGPT deep-research also wants tools named
+`search`/`fetch` (backlog).
 
 ## Phase 7 — Knowledge retrieval + OKF (2026-07-21) ✅
 

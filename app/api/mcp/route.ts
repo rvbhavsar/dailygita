@@ -1,5 +1,12 @@
 import { verifyApiKey } from '@/lib/api-keys';
 import { TOOLS, TOOLS_BY_NAME } from '@/lib/mcp-tools';
+import {
+  CORS_HEADERS,
+  baseUrl,
+  corsPreflight,
+  mcpResource,
+  verifyAccessToken,
+} from '@/lib/oauth';
 
 /**
  * Remote MCP server for Daily Gita — how a user connects the Gita corpus to
@@ -24,25 +31,48 @@ const INTERNAL_ERROR = -32603;
 type JsonRpcId = string | number | null;
 
 function result(id: JsonRpcId, value: unknown) {
-  return Response.json({ jsonrpc: '2.0', id, result: value });
+  return Response.json({ jsonrpc: '2.0', id, result: value }, { headers: CORS_HEADERS });
 }
 
 function rpcError(id: JsonRpcId, code: number, message: string, status = 200) {
-  return Response.json({ jsonrpc: '2.0', id, error: { code, message } }, { status });
-}
-
-function unauthorized() {
   return Response.json(
-    { jsonrpc: '2.0', id: null, error: { code: INVALID_REQUEST, message: 'Unauthorized' } },
-    { status: 401, headers: { 'WWW-Authenticate': 'Bearer realm="daily-gita"' } },
+    { jsonrpc: '2.0', id, error: { code, message } },
+    { status, headers: CORS_HEADERS },
   );
 }
 
+function unauthorized(request: Request) {
+  // Point OAuth clients at the resource metadata so they can discover the
+  // authorization server (RFC 9728 §5.1). Personal keys ignore this and just
+  // retry with a valid bearer.
+  const resourceMetadata = `${baseUrl(request)}/.well-known/oauth-protected-resource`;
+  return Response.json(
+    { jsonrpc: '2.0', id: null, error: { code: INVALID_REQUEST, message: 'Unauthorized' } },
+    {
+      status: 401,
+      headers: {
+        ...CORS_HEADERS,
+        'WWW-Authenticate': `Bearer resource_metadata="${resourceMetadata}"`,
+      },
+    },
+  );
+}
+
+/**
+ * Accepts either a personal key (dg_live_…, for header-capable clients) or an
+ * OAuth access token (for ChatGPT/Claude web). OAuth tokens are audience-checked
+ * against this exact resource, so a token minted for anything else is refused.
+ */
 async function authenticate(request: Request): Promise<boolean> {
   const header = request.headers.get('authorization') ?? '';
   const match = header.match(/^Bearer\s+(.+)$/i);
   if (!match) return false;
-  return (await verifyApiKey(match[1].trim())) !== null;
+  const token = match[1].trim();
+
+  if (token.startsWith('dg_live_')) {
+    return (await verifyApiKey(token)) !== null;
+  }
+  return (await verifyAccessToken(token, mcpResource(request))) !== null;
 }
 
 async function dispatch(message: {
@@ -99,7 +129,7 @@ async function dispatch(message: {
 }
 
 export async function POST(request: Request): Promise<Response> {
-  if (!(await authenticate(request))) return unauthorized();
+  if (!(await authenticate(request))) return unauthorized(request);
 
   let message: { jsonrpc?: string; id?: JsonRpcId; method?: string; params?: Record<string, unknown> };
   try {
@@ -128,5 +158,12 @@ export async function POST(request: Request): Promise<Response> {
 // The transport allows a GET for a server-initiated SSE stream; we don't push,
 // so decline it per spec.
 export function GET(): Response {
-  return new Response('Method Not Allowed', { status: 405, headers: { Allow: 'POST' } });
+  return new Response('Method Not Allowed', {
+    status: 405,
+    headers: { Allow: 'POST', ...CORS_HEADERS },
+  });
+}
+
+export function OPTIONS(): Response {
+  return corsPreflight();
 }

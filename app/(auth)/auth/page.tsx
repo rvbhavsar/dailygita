@@ -50,6 +50,10 @@ const Auth = () => {
   const searchParams = useSearchParams();
   const initialMode = searchParams.get('mode') as Mode || 'signin';
   const resetToken = searchParams.get('token');
+  // Where to land after login. Same-origin paths only — never an absolute URL
+  // or protocol-relative "//host", which would be an open redirect.
+  const nextParam = searchParams.get('next');
+  const destination = nextParam && /^\/(?!\/)/.test(nextParam) ? nextParam : '/';
   const [mode, setMode] = useState<Mode>(initialMode);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
@@ -59,9 +63,9 @@ const Auth = () => {
   // Redirect if already logged in (unless resetting password)
   useEffect(() => {
     if (user && mode !== 'reset') {
-      router.push('/');
+      router.push(destination);
     }
-  }, [user, mode, router]);
+  }, [user, mode, router, destination]);
 
   const signInForm = useForm<z.infer<typeof signInSchema>>({
     resolver: zodResolver(signInSchema),
@@ -98,7 +102,7 @@ const Auth = () => {
       });
     } else {
       toast({ title: 'Welcome back!', description: 'You have signed in successfully.' });
-      router.push('/');
+      router.push(destination);
     }
   };
 
