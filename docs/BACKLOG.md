@@ -34,14 +34,11 @@ Options: generate insights with Meta and store them (cache in Postgres like we d
 narration), commission/write them, or be explicit in the UI about which verses are
 "deep-dive" ones.
 
-### `verse_challenges` is empty (0 rows)
-The AI job that tagged verses to life challenges (`analyze-verses-challenges` in
-the old Supabase stack) was never ported. Consequences:
-- Challenge matching relies entirely on those 6 curated verses.
-- `ChallengeDetail` shows only curated verses while `Challenges` counts both, so
-  counts can disagree with what the page renders.
-
-Port it as a batch script using the Meta integration we already have.
+### ~~`verse_challenges` is empty (0 rows)~~ — DONE (phase 7)
+`scripts/enrich-verses.ts` tagged all 701 verses; 692 carry challenges. The
+table is full and the Challenges page has real data. Re-run the script to
+refresh tags. What remains: the `ChallengeDetail`/`Challenges` count-vs-render
+mismatch should be re-checked now that the data source changed.
 
 ---
 
@@ -100,6 +97,19 @@ template for the rules).
   `no-empty-object-type` in a couple of shadcn components. Typecheck is clean.
 
 ---
+
+## 🟢 Retrieval — next levers
+
+- **Query-side synonym expansion.** The one standing probe miss (reader says
+  "afraid", verse says "faint-heartedness") is a vocabulary gap the corpus can't
+  close alone. Expand the reader's terms (a thesaurus, or an embedding step)
+  before the tsquery. This is the highest-leverage next accuracy win.
+- **Consider semantic/vector search.** Full-text has a ceiling on paraphrase.
+  Embedding the enriched per-verse documents (pgvector) would catch matches FTS
+  never will — at the cost of an embedding pipeline and a model dependency.
+- **Spot-check enrichment quality.** The AI tags are broadly good but were not
+  hand-audited across 701 verses. Sample for obvious mis-tags; the `keywords`
+  are the load-bearing part for retrieval.
 
 ## 🟢 Next feature work
 
