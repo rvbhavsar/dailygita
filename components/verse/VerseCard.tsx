@@ -119,7 +119,7 @@ const VerseCard = ({
               className={cn('gap-1.5 sm:gap-2 rounded-full px-3 sm:px-6 h-10 sm:h-11', playing === 'recitation' && 'text-primary bg-primary/10')}
               title="Hear the Sanskrit chanted"
             >
-              <Music className={cn('h-4 w-4 sm:h-5 sm:w-5', playing === 'recitation' && 'fill-current')} />
+              <Music className="h-4 w-4 sm:h-5 sm:w-5" />
               <span className="hidden xs:inline text-sm sm:text-base">{playing === 'recitation' ? 'Stop' : 'Chant'}</span>
             </Button>
           )}
