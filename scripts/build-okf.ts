@@ -1,8 +1,8 @@
 import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { asc, eq } from 'drizzle-orm';
+import { asc } from 'drizzle-orm';
 import { db, sql as pg } from '@/db';
-import { chapters, translations, verses } from '@/db/schema';
+import { chapters, translations, verses, verseChallenges } from '@/db/schema';
 import { curatedVerses } from '@/data/curatedVerses';
 
 /**
@@ -65,11 +65,45 @@ async function main() {
     .from(verses)
     .orderBy(asc(verses.chapterNumber), asc(verses.verseNumber));
 
-  // Curated challenge tags, keyed by "c-v". Only ~6 verses today; this is the
-  // slot AI enrichment will fill for the rest.
+  // Bulk-load translations and enrichment once, keyed for O(1) lookup — the
+  // previous per-verse queries meant ~1400 round trips over the proxy.
+  const allTranslations = await db
+    .select({
+      verseId: translations.verseId,
+      author: translations.authorName,
+      description: translations.description,
+    })
+    .from(translations);
+  const englishByVerseId = new Map<number, { author: string; description: string }[]>();
+  for (const t of allTranslations) {
+    if (/[ऀ-ॿ]/.test(t.description)) continue; // skip Hindi rows
+    const list = englishByVerseId.get(t.verseId) ?? [];
+    list.push({ author: t.author, description: t.description });
+    englishByVerseId.set(t.verseId, list);
+  }
+
+  const enrichment = await db
+    .select({
+      chapter: verseChallenges.chapterNumber,
+      verse: verseChallenges.verseNumber,
+      challenges: verseChallenges.challenges,
+      keywords: verseChallenges.keywords,
+      summary: verseChallenges.aiSummary,
+    })
+    .from(verseChallenges);
+  const enrichByRef = new Map<string, (typeof enrichment)[number]>();
+  for (const e of enrichment) enrichByRef.set(`${e.chapter}-${e.verse}`, e);
+
+  // Frontmatter tags come from the AI challenge tags (692 verses), falling back
+  // to the hand-curated set where present.
   const tagsByRef = new Map<string, string[]>();
   for (const cv of curatedVerses) {
     if (cv.challenges?.length) tagsByRef.set(`${cv.chapter}-${cv.verse}`, cv.challenges);
+  }
+  for (const e of enrichment) {
+    if (e.challenges?.length && !tagsByRef.has(`${e.chapter}-${e.verse}`)) {
+      tagsByRef.set(`${e.chapter}-${e.verse}`, e.challenges);
+    }
   }
 
   const versesByChapter = new Map<number, typeof allVerses>();
@@ -90,13 +124,10 @@ async function main() {
   // ── Verse concepts ────────────────────────────────────────────────────────
   for (const v of allVerses) {
     const ref = `${v.chapterNumber}-${v.verseNumber}`;
-    const trans = await db
-      .select({ author: translations.authorName, description: translations.description })
-      .from(translations)
-      .where(eq(translations.verseId, v.verseId));
-    const english = trans.filter((t) => !/[ऀ-ॿ]/.test(t.description));
+    const english = englishByVerseId.get(v.verseId) ?? [];
     const primary = english[0]?.description ?? '';
     const curated = curatedVerses.find((cv) => cv.id === ref);
+    const enrich = enrichByRef.get(ref);
 
     const chapterVerses = versesByChapter.get(v.chapterNumber) ?? [];
     const idx = chapterVerses.findIndex((x) => x.verseNumber === v.verseNumber);
@@ -136,6 +167,13 @@ async function main() {
       if (curated.insight.takeaway) body.push('', `**Takeaway:** ${curated.insight.takeaway.trim()}`);
     }
 
+    // AI-generated thematic layer (see scripts/enrich-verses.ts).
+    if (enrich?.summary || enrich?.keywords) {
+      body.push('', '## Themes', '');
+      if (enrich.summary) body.push(enrich.summary.trim(), '');
+      if (enrich.keywords) body.push(`**Keywords:** ${enrich.keywords.trim()}`);
+    }
+
     const related: string[] = [];
     if (prev) related.push(`[${verseRef(prev.chapterNumber, prev.verseNumber)}](${versePath(prev.chapterNumber, prev.verseNumber)})`);
     if (next) related.push(`[${verseRef(next.chapterNumber, next.verseNumber)}](${versePath(next.chapterNumber, next.verseNumber)})`);
@@ -149,12 +187,7 @@ async function main() {
     const cv = versesByChapter.get(c.chapterNumber) ?? [];
     const lines = [`# ${c.nameTranslated ?? `Chapter ${c.chapterNumber}`} — verses`, ''];
     for (const v of cv) {
-      const ref = `${v.chapterNumber}-${v.verseNumber}`;
-      const t = await db
-        .select({ description: translations.description })
-        .from(translations)
-        .where(eq(translations.verseId, v.verseId));
-      const english = t.find((x) => !/[ऀ-ॿ]/.test(x.description));
+      const english = englishByVerseId.get(v.verseId)?.[0];
       const desc = english ? ` - ${oneSentence(english.description, 90)}` : '';
       lines.push(`* [${verseRef(v.chapterNumber, v.verseNumber)}](${versePath(v.chapterNumber, v.verseNumber)})${desc}`);
     }
