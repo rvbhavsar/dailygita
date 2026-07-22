@@ -6,7 +6,7 @@ import { useTheme } from 'next-themes';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Bell, Compass, Loader2, LogOut, Palette, ShieldCheck, UserCircle } from 'lucide-react';
+import { Bell, Compass, Loader2, LogOut, Palette, Plug, ShieldCheck, UserCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
@@ -27,18 +27,20 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import ThemePreviewCard, { type ThemePreference } from './ThemePreviewCard';
+import ConnectPanel from './ConnectPanel';
 import { useAuth } from '@/contexts/AuthContext';
 import { challenges } from '@/data/challenges';
 import { Challenge } from '@/types';
 import { cn } from '@/lib/utils';
 
-type SectionId = 'general' | 'profile' | 'practice' | 'notifications' | 'account';
+type SectionId = 'general' | 'profile' | 'practice' | 'notifications' | 'connect' | 'account';
 
 const SECTIONS: { id: SectionId; label: string; icon: typeof Palette }[] = [
   { id: 'general', label: 'General', icon: Palette },
   { id: 'profile', label: 'Your profile', icon: UserCircle },
   { id: 'practice', label: 'Practice', icon: Compass },
   { id: 'notifications', label: 'Notifications', icon: Bell },
+  { id: 'connect', label: 'Connect', icon: Plug },
   { id: 'account', label: 'Account', icon: ShieldCheck },
 ];
 
@@ -481,6 +483,7 @@ const SettingsPanel = () => {
     profile: profileSection,
     practice: practiceSection,
     notifications: notificationsSection,
+    connect: <ConnectPanel />,
     account: accountSection,
   };
 

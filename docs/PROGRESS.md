@@ -29,6 +29,30 @@ Status log for DailyGita. Newest phase first. See [BACKLOG.md](./BACKLOG.md) for
 
 ---
 
+## Phase 8 — MCP connector (2026-07-21) ✅
+
+Users can now connect Daily Gita's verse corpus to their own agent, so it
+answers from real, citable scripture instead of hallucinating chapter/verse
+numbers.
+
+- **Remote MCP server** at `/api/mcp` — stateless Streamable HTTP, hand-rolled
+  JSON-RPC (initialize / tools/list / tools/call / ping). Mounted under `/api`
+  so `proxy.ts`'s cookie gate never touches it. Validated with the official MCP
+  Inspector (handshake + tools/list + tools/call), not just curl.
+- **Retrieval-only tools** — `search_verses`, `get_verse`, `list_life_challenges`,
+  `get_verses_for_challenge`. Deliberately no "explain" tool: the moat is
+  grounding, and the caller's own (usually stronger) model does the explaining.
+- **Bearer API keys** — a hashed `api_keys` table (SHA-256, show-once, prefix
+  kept for display). Settings → Connect mints/revokes keys, shows the endpoint,
+  and gives copy-paste setup for Claude Desktop/Code and `mcp.json` clients.
+  Verified: revoke invalidates immediately (401), and one user can't revoke
+  another's key (404).
+
+**Auth caveat, stated in the UI:** bearer keys work with Claude Desktop/Code,
+Cursor, VS Code and any client that sends an `Authorization` header. ChatGPT and
+Claude.ai's *web* connectors require OAuth 2.1 (ChatGPT also wants specifically
+named `search`/`fetch` tools) — that's a larger follow-up, noted in the backlog.
+
 ## Phase 7 — Knowledge retrieval + OKF (2026-07-21) ✅
 
 Three things, deliberately decoupled.

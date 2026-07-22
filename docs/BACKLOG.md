@@ -120,6 +120,21 @@ template for the rules).
   hand-audited across 701 verses. Sample for obvious mis-tags; the `keywords`
   are the load-bearing part for retrieval.
 
+## 🟢 MCP connector — next
+
+- **OAuth 2.1 for ChatGPT / Claude.ai web connectors.** The bearer-key MCP
+  server (phase 8) works with Claude Desktop/Code, Cursor and programmatic
+  clients, but the *web* connector flows in ChatGPT and Claude.ai require OAuth
+  with dynamic client registration / CIMD — no "paste a key" field. This is the
+  bigger lift to reach the clients the user named. ChatGPT deep-research also
+  requires tools named `search` and `fetch` with specific schemas (aliasing our
+  `search_verses`/`get_verse` would cover it).
+- **Rate-limit `/api/mcp` per key.** It's exposed to "any agent" and hits the
+  retrieval path (and, if an explain tool is ever added, the Meta bill). Fold
+  into the existing rate-limit backlog item.
+- **Perplexity** support depends on its MCP/connector auth model — verify before
+  claiming it.
+
 ## 🟢 Next feature work
 
 ### Agentic voice + interactive capabilities

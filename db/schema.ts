@@ -157,3 +157,24 @@ export const verseAudio = pgTable(
     verseIdx: uniqueIndex('verse_audio_verse_idx').on(t.chapterNumber, t.verseNumber, t.kind),
   }),
 );
+
+/**
+ * Personal access keys for the MCP connector — how a user connects Daily Gita
+ * to their own agent (Claude Desktop, Cursor, a programmatic client).
+ *
+ * Only the SHA-256 of the key is stored: a 256-bit random token needs no slow
+ * KDF, and a plain hash keeps lookup O(1) on the unique index. The prefix is
+ * kept in the clear so the UI can show "dg_live_abcd…" without the secret.
+ */
+export const apiKeys = pgTable('api_keys', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  name: text('name').notNull(),
+  keyHash: text('key_hash').notNull().unique(),
+  keyPrefix: text('key_prefix').notNull(),
+  lastUsedAt: timestamp('last_used_at', { withTimezone: true }),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  revokedAt: timestamp('revoked_at', { withTimezone: true }),
+});
