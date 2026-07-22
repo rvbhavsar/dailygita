@@ -188,7 +188,7 @@ const Auth = () => {
             {mode === 'reset' && 'Choose a new password for your account'}
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-0 md:pt-0">
           {mode === 'signin' && (
             <Form {...signInForm}>
               <form onSubmit={signInForm.handleSubmit(handleSignIn)} className="space-y-4">

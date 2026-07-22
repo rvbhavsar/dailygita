@@ -45,7 +45,7 @@ const HomeSidebar = ({ tomorrowsVerse, timeLeft }: HomeSidebarProps) => {
             </div>
           </div>
         </CardHeader>
-        <CardContent className="pt-0">
+        <CardContent className="pt-0 md:pt-0">
           <Link href={`/verse/${tomorrowsVerse.id}`} className="group block">
             <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Chapter {tomorrowsVerse.chapter} • Verse {tomorrowsVerse.verse}
@@ -69,7 +69,7 @@ const HomeSidebar = ({ tomorrowsVerse, timeLeft }: HomeSidebarProps) => {
             <CardTitle className="text-base font-medium">Quick Links</CardTitle>
           </div>
         </CardHeader>
-        <CardContent className="pt-0 space-y-2">
+        <CardContent className="pt-0 md:pt-0 space-y-2">
           <Link href="/browse">
             <Button variant="ghost" className="w-full justify-start h-9 text-sm">
               <BookOpen className="h-4 w-4 mr-2" />
@@ -93,7 +93,7 @@ const HomeSidebar = ({ tomorrowsVerse, timeLeft }: HomeSidebarProps) => {
             <CardTitle className="text-base font-medium">Chapters</CardTitle>
           </div>
         </CardHeader>
-        <CardContent className="pt-0">
+        <CardContent className="pt-0 md:pt-0">
           <div className="grid grid-cols-3 gap-1.5">
             {chapters.map((chapter) => (
               <Link
