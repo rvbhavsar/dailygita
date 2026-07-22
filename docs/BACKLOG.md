@@ -120,6 +120,27 @@ template for the rules).
   hand-audited across 701 verses. Sample for obvious mis-tags; the `keywords`
   are the load-bearing part for retrieval.
 
+## 🟢 MCP connector — next
+
+- **Confirm the ChatGPT / Claude.ai click-through.** The OAuth layer is built and
+  every endpoint + security property is tested, but the actual "add custom
+  connector" UIs in those products weren't driven from here. Add the endpoint in
+  each, complete the consent, and confirm tools appear. Watch for: ChatGPT's
+  CIMD preference (we implement plain DCR — verify it's accepted) and any
+  redirect-host quirks.
+- **ChatGPT deep-research `search`/`fetch` tools.** Deep research wants tools
+  named exactly `search` and `fetch` with specific schemas. Alias our
+  `search_verses` → `search` (return {id,title,url}) and `get_verse` → `fetch`
+  (return {id,title,text,url}) so citations render.
+- **Rate-limit `/api/mcp` and the OAuth endpoints.** `/api/mcp` is exposed to any
+  agent; `/api/oauth/register` and `/api/oauth/token` are unauthenticated writes.
+  Fold into the rate-limit backlog item.
+- **Prune expired OAuth rows.** `oauth_auth_codes` (60s TTL) and expired
+  `oauth_tokens` accumulate; add a periodic cleanup (or a cron) so the tables
+  don't grow unbounded.
+- **Perplexity** support depends on its connector auth model — verify before
+  claiming it.
+
 ## 🟢 Next feature work
 
 ### Agentic voice + interactive capabilities

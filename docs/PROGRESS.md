@@ -29,6 +29,54 @@ Status log for DailyGita. Newest phase first. See [BACKLOG.md](./BACKLOG.md) for
 
 ---
 
+## Phase 8 — MCP connector (2026-07-21) ✅
+
+Users can now connect Daily Gita's verse corpus to their own agent, so it
+answers from real, citable scripture instead of hallucinating chapter/verse
+numbers.
+
+- **Remote MCP server** at `/api/mcp` — stateless Streamable HTTP, hand-rolled
+  JSON-RPC (initialize / tools/list / tools/call / ping). Mounted under `/api`
+  so `proxy.ts`'s cookie gate never touches it. Validated with the official MCP
+  Inspector (handshake + tools/list + tools/call), not just curl.
+- **Retrieval-only tools** — `search_verses`, `get_verse`, `list_life_challenges`,
+  `get_verses_for_challenge`. Deliberately no "explain" tool: the moat is
+  grounding, and the caller's own (usually stronger) model does the explaining.
+- **Bearer API keys** — a hashed `api_keys` table (SHA-256, show-once, prefix
+  kept for display). Settings → Connect mints/revokes keys, shows the endpoint,
+  and gives copy-paste setup for Claude Desktop/Code and `mcp.json` clients.
+  Verified: revoke invalidates immediately (401), and one user can't revoke
+  another's key (404).
+
+**Two auth paths:**
+- **Personal keys** (above) for Claude Desktop/Code, Cursor, VS Code and any
+  client that sends an `Authorization` header.
+- **OAuth 2.1** (co-hosted authorization server) for ChatGPT and Claude.ai web —
+  they add the endpoint URL as a custom connector and self-register; no key.
+
+The OAuth layer implements the MCP authorization spec: Protected Resource
+Metadata (RFC 9728) + AS Metadata (RFC 8414) served at the root `.well-known`
+paths (via `next.config` rewrites — App Router dot-folders are unreliable),
+Dynamic Client Registration (RFC 7591, https/localhost redirects only), a
+server-rendered consent screen reusing the existing session, and a token
+endpoint with PKCE-S256, single-use codes, audience-bound opaque tokens, and
+rotating refresh tokens with reuse-detection. `/api/mcp` accepts either a
+personal key or an audience-checked OAuth access token, and returns
+`WWW-Authenticate: … resource_metadata=…` on 401. CORS/OPTIONS on every
+OAuth and MCP endpoint.
+
+**Security battery (all passing, curl + browser):** single-use codes, PKCE
+mismatch rejected, exact redirect-uri match, refresh rotation invalidates the
+old access token, refresh reuse revokes the whole chain, a token minted for a
+different resource is refused at `/api/mcp`, DCR rejects non-https redirects, and
+the consent screen shows the real redirect host (not the untrusted client name).
+
+**Honest boundary:** every endpoint and security property the spec requires is
+implemented and tested, but the actual ChatGPT / Claude.ai "add connector" UIs
+weren't driven from here — that final click-through is the one thing left to
+confirm in those products. ChatGPT deep-research also wants tools named
+`search`/`fetch` (backlog).
+
 ## Phase 7 — Knowledge retrieval + OKF (2026-07-21) ✅
 
 Three things, deliberately decoupled.
