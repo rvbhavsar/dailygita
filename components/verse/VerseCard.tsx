@@ -1,6 +1,6 @@
 'use client';
 
-
+import { useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { Heart, Share2, BookOpen, Volume2, Loader2, Music } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -14,28 +14,41 @@ import { toast } from 'sonner';
 import { useVerseAudio } from '@/hooks/useVerseAudio';
 import PersonalizedInsight from './PersonalizedInsight';
 
+export type VerseCardAction = 'generate' | 'listen';
+
 interface VerseCardProps {
   verse: VerseWithInsights;
   showFullContent?: boolean;
   className?: string;
+  /** Deep-link actions from daily email CTAs after login. */
+  initialAction?: VerseCardAction | null;
 }
 
 const VerseCard = ({
   verse,
   showFullContent = false,
-  className
+  className,
+  initialAction = null,
 }: VerseCardProps) => {
   const {
     toggleFavorite,
     isFavorite
   } = useFavorites();
   const saved = isFavorite(verse.id);
+  const listenStarted = useRef(false);
 
-  const { hasRecitation, playing, loading, toggle } = useVerseAudio(verse.chapter, verse.verse, {
+  const { hasRecitation, ready, playing, loading, toggle } = useVerseAudio(verse.chapter, verse.verse, {
     english: verse.english,
     explanation: verse.insight?.explanation,
     takeaway: verse.insight?.takeaway,
   });
+
+  useEffect(() => {
+    if (initialAction !== 'listen' || listenStarted.current || !ready || loading) return;
+    listenStarted.current = true;
+    // Prefer Sanskrit chant when available; otherwise English narration.
+    void toggle(hasRecitation ? 'recitation' : 'narration');
+  }, [initialAction, ready, hasRecitation, loading, toggle]);
 
   const handleShare = async () => {
     const shareText = `${verse.english}\n\n— Bhagavad Gita ${verse.chapter}.${verse.verse}`;
@@ -106,7 +119,11 @@ const VerseCard = ({
             {/* AI-Powered Personalized Example */}
             <div>
               <h4 className="text-foreground mb-3 sm:mb-4 text-base sm:text-lg">Personalized for You</h4>
-              <PersonalizedInsight verse={verse} selectedChallenge={getChallengeById(verse.challenges[0])} />
+              <PersonalizedInsight
+                verse={verse}
+                selectedChallenge={getChallengeById(verse.challenges[0])}
+                autoGenerate={initialAction === 'generate'}
+              />
             </div>
           </div>}
 

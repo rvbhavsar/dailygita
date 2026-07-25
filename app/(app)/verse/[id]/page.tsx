@@ -1,19 +1,26 @@
 'use client';
 
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import { ArrowLeft, Shuffle, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Layout from '@/components/layout/Layout';
-import VerseCard from '@/components/verse/VerseCard';
+import VerseCard, { type VerseCardAction } from '@/components/verse/VerseCard';
 import { curatedVersesMap, getCuratedVersesByChallenge } from '@/data/curatedVerses';
 import { getChallengeById } from '@/data/challenges';
 import { useVerse, useVerseTranslation } from '@/hooks/useGitaData';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
+function parseVerseAction(value: string | null): VerseCardAction | null {
+  if (value === 'generate' || value === 'listen') return value;
+  return null;
+}
+
 const VerseDetail = () => {
   const { id } = useParams<{ id: string }>();
+  const searchParams = useSearchParams();
+  const initialAction = parseVerseAction(searchParams.get('action'));
   
   // Parse chapter and verse number from id (format: "1-1")
   const [chapterNum, verseNum] = id?.split('-').map(Number) || [0, 0];
@@ -62,7 +69,7 @@ const VerseDetail = () => {
             </Link>
           </Button>
 
-          <VerseCard verse={curatedVerse} showFullContent />
+          <VerseCard verse={curatedVerse} showFullContent initialAction={initialAction} />
 
           {curatedVerse.examples.length > 1 && (
             <div className="mt-8">
@@ -157,7 +164,7 @@ const VerseDetail = () => {
           </Link>
         </Button>
 
-        <VerseCard verse={verseWithInsights} showFullContent />
+        <VerseCard verse={verseWithInsights} showFullContent initialAction={initialAction} />
       </div>
     </Layout>
   );

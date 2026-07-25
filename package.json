@@ -14,7 +14,8 @@
     "generate": "drizzle-kit generate",
     "migrate": "tsx db/migrate.ts",
     "seed": "tsx db/seed.ts",
-    "seed:recitation": "tsx db/seed-recitation.ts"
+    "seed:recitation": "tsx db/seed-recitation.ts",
+    "send:daily-verse": "tsx scripts/send-daily-verse.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

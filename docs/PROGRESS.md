@@ -22,10 +22,26 @@ Status log for DailyGita. Newest phase first. See [BACKLOG.md](./BACKLOG.md) for
 | Auth | Hand-rolled JWT + bcrypt in an httpOnly cookie |
 | AI | Meta Model API (`muse-spark-1.1`) — personalized insights |
 | TTS | Deepgram Aura-2 — English narration |
-| Email | Resend — password reset only |
+| Email | Resend — password reset + daily verse |
 | Hosting | Railway: one service, Postgres plugin, `/data` volume |
 
 **Content loaded:** 18 chapters, 701 verses, 4,907 translations, 701 Sanskrit recitations.
+
+---
+
+## Phase 9 — Daily verse email (2026-07-25) ✅
+
+The Daily wisdom email toggle now does what it promises.
+
+- **Resend delivery** of today's curated home verse (Sanskrit, translation,
+  explanation, takeaway) to onboarded users with `daily_verse_enabled`.
+- **Deep-link CTAs** for personalized example + listen → verse page; signed-out
+  users hit `/auth?next=…` via `proxy.ts`, then continue after sign-in.
+- **Cron route** `GET|POST /api/cron/daily-verse` secured by `CRON_SECRET`, with
+  per-user/day rows in `daily_email_deliveries` so retries never double-send.
+- Local dry-run: `npm run send:daily-verse` (logs when no Resend key).
+
+Wire a Railway cron (or external scheduler) to the route to go live in prod.
 
 ---
 

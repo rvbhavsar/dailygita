@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useRef } from 'react';
 import { Sparkles, Loader2, AlertCircle, X, Bookmark, BookmarkCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { VerseWithInsights, ChallengeInfo } from '@/types';
@@ -12,16 +13,30 @@ interface PersonalizedInsightProps {
   verse: VerseWithInsights;
   selectedChallenge?: ChallengeInfo;
   className?: string;
+  /** When true (e.g. email deep-link ?action=generate), start generation once. */
+  autoGenerate?: boolean;
 }
 
-const PersonalizedInsight = ({ verse, selectedChallenge, className }: PersonalizedInsightProps) => {
+const PersonalizedInsight = ({
+  verse,
+  selectedChallenge,
+  className,
+  autoGenerate = false,
+}: PersonalizedInsightProps) => {
   const { insight, isLoading, error, generateInsight, clearInsight } = usePersonalizedInsight();
   const { saveInsight, isInsightSaved } = useSavedInsights();
   const { profile, user } = useAuth();
+  const autoStarted = useRef(false);
 
   const handleGenerate = () => {
     generateInsight(verse, selectedChallenge);
   };
+
+  useEffect(() => {
+    if (!autoGenerate || autoStarted.current || insight || isLoading) return;
+    autoStarted.current = true;
+    generateInsight(verse, selectedChallenge);
+  }, [autoGenerate, insight, isLoading, generateInsight, verse, selectedChallenge]);
 
   const handleSave = async () => {
     if (!insight) return;

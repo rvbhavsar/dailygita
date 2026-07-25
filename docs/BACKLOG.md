@@ -12,18 +12,12 @@ list, not a committed roadmap.
 These are the ones that matter most: a user can see or toggle these today and
 nothing happens. Same class of bug as the `/settings` break we already fixed.
 
-### Daily verse email is not implemented
-Onboarding asks "Daily Wisdom Email — receive one verse each morning" and Settings
-exposes the toggle. It writes `daily_verse_enabled` to the database and **nothing
-ever sends.** There is no scheduled job anywhere in the codebase.
-
-The original Supabase edge function (`send-daily-verse`, Resend-based) was never
-ported — recover it from git history at `b099295^` if useful. Needs a Railway cron
-service or a scheduled route handler, plus a delivery record so a restart doesn't
-double-send.
-
-*Until it ships, consider hiding the toggle rather than promising something we
-don't do.*
+### ~~Daily verse email is not implemented~~ — DONE
+`/api/cron/daily-verse` (+ `npm run send:daily-verse`) sends today's curated
+verse via Resend to onboarded users with `daily_verse_enabled`. Delivery is
+deduped in `daily_email_deliveries`. **Still needs a Railway cron** pointed at
+the route with `CRON_SECRET` — the code is ready; schedule it in the dashboard
+(e.g. daily at 13:00 UTC for morning US delivery).
 
 ### Only 6 of 701 verses have insights
 `data/curatedVerses.ts` covers `2-47, 2-14, 3-21, 6-5, 2-62, 18-63`. Every other
