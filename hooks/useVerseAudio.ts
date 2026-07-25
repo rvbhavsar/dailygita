@@ -20,19 +20,27 @@ interface NarrationText {
  */
 export function useVerseAudio(chapter: number, verse: number, text: NarrationText) {
   const [urls, setUrls] = useState<AudioResponse>({ recitation: null, narration: null });
+  const [ready, setReady] = useState(false);
   const [playing, setPlaying] = useState<Track | null>(null);
   const [loading, setLoading] = useState<Track | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     let cancelled = false;
+    setReady(false);
 
     apiGet<AudioResponse>(`/verses/${chapter}/${verse}/audio`)
       .then((data) => {
-        if (!cancelled) setUrls(data);
+        if (!cancelled) {
+          setUrls(data);
+          setReady(true);
+        }
       })
       .catch(() => {
-        if (!cancelled) setUrls({ recitation: null, narration: null });
+        if (!cancelled) {
+          setUrls({ recitation: null, narration: null });
+          setReady(true);
+        }
       });
 
     return () => {
@@ -118,6 +126,7 @@ export function useVerseAudio(chapter: number, verse: number, text: NarrationTex
 
   return {
     hasRecitation: Boolean(urls.recitation),
+    ready,
     playing,
     loading,
     toggle,

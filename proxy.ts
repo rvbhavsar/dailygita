@@ -18,7 +18,11 @@ export function proxy(request: NextRequest) {
   const token = request.cookies.get(COOKIE_NAME)?.value;
   if (token && verifyToken(token)) return NextResponse.next();
 
-  return NextResponse.redirect(new URL('/auth', request.url));
+  // Preserve destination so email deep-links (generate / listen) survive login.
+  const loginUrl = new URL('/auth', request.url);
+  const next = `${pathname}${request.nextUrl.search}`;
+  loginUrl.searchParams.set('next', next);
+  return NextResponse.redirect(loginUrl);
 }
 
 export const config = {

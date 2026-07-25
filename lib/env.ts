@@ -14,6 +14,9 @@ const schema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   RESEND_API_KEY: z.string().optional(),
   RESEND_FROM: z.string().default('DailyGita <onboarding@resend.dev>'),
+  // Bearer token for /api/cron/* (Railway cron or external scheduler).
+  // Required in production; optional locally (cron routes stay open in dev).
+  CRON_SECRET: z.string().optional(),
   META_API_KEY: z.string().optional(),
   DEEPGRAM_API_KEY: z.string().optional(),
   // Where generated narration mp3s are written. Railway mounts a volume here.

@@ -53,6 +53,24 @@ export const profiles = pgTable('profiles', {
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
+/** One row per user per calendar day — prevents double-sends if cron retries. */
+export const dailyEmailDeliveries = pgTable(
+  'daily_email_deliveries',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    // UTC calendar date as YYYY-MM-DD
+    deliveryDate: text('delivery_date').notNull(),
+    verseId: text('verse_id').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => ({
+    userDateIdx: uniqueIndex('daily_email_deliveries_user_date_idx').on(t.userId, t.deliveryDate),
+  }),
+);
+
 export const chapters = pgTable('chapters', {
   id: serial('id').primaryKey(),
   chapterNumber: integer('chapter_number').notNull().unique(),

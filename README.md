@@ -17,7 +17,7 @@ Bhagavad Gita reading app. Sign up, pick the life challenges you're working thro
 | Auth | JWT + bcrypt in an httpOnly cookie |
 | AI | Meta Model API (`muse-spark-1.1`) for personalized insights |
 | TTS | Deepgram Aura-2 for English narration |
-| Email | Resend (password reset) |
+| Email | Resend (password reset + daily verse) |
 | Hosting | Railway (single service, Postgres plugin, /data volume) |
 
 ## Layout
@@ -76,9 +76,12 @@ instead of emailed — enough to exercise the flow locally.
    - `JWT_SECRET` → `openssl rand -hex 32`
    - `APP_URL` → your public URL, e.g. `https://dailygita.up.railway.app`
    - `NODE_ENV` → `production`
-   - `RESEND_API_KEY` → optional, needed for password-reset emails
+   - `RESEND_API_KEY` → optional, needed for password-reset and daily-verse emails
+   - `CRON_SECRET` → `openssl rand -hex 32` (required for `/api/cron/daily-verse`)
 5. Add a volume mounted at `/data` (narration mp3s are cached there).
-6. After the first deploy, load content once. Note that `railway run` executes
+6. Add a Railway cron (or external scheduler) that `GET`s
+   `/api/cron/daily-verse` with `Authorization: Bearer $CRON_SECRET` once a day.
+7. After the first deploy, load content once. Note that `railway run` executes
    **locally**, so `postgres.railway.internal` will not resolve — seed through
    the public proxy instead:
 
@@ -89,6 +92,27 @@ instead of emailed — enough to exercise the flow locally.
 
 Session cookies are set `secure` whenever `NODE_ENV=production`, so the app
 must be served over HTTPS in production. Railway does this by default.
+
+## Daily verse email
+
+Users who finish onboarding with **Daily wisdom email** on (or enable it in
+Settings) receive the same curated daily verse shown on `/home`, with the full
+Sanskrit, translation, explanation, and takeaway in the message body.
+
+CTAs for **Generate personalized example** and **Listen** deep-link to the
+verse page. Signed-out users are sent to `/auth?next=…`, then land on the
+verse after sign-in.
+
+Schedule delivery with a Railway cron (or any scheduler) hitting:
+
+```sh
+curl -H "Authorization: Bearer $CRON_SECRET" \
+  https://<your-app>/api/cron/daily-verse
+```
+
+Set `CRON_SECRET` on the service. Delivery is recorded per user per UTC day in
+`daily_email_deliveries`, so retries are safe. Locally you can also run
+`npm run send:daily-verse` (logs the email when `RESEND_API_KEY` is unset).
 
 ## Authorization
 
